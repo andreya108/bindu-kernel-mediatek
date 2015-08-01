@@ -1,0 +1,147 @@
+/*******************************************************************************
+ *
+ * Filename:
+ * ---------
+ * audio_acf_default.h
+ *
+ * Project:
+ * --------
+ *   ALPS
+ *
+ * Description:
+ * ------------
+ * This file is the header of audio customization related parameters or definition.
+ *
+ * Author:
+ * -------
+ * Tina Tsai
+ *
+ *============================================================================
+ *             HISTORY
+ * Below this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
+ *------------------------------------------------------------------------------
+ * $Revision:$
+ * $Modtime:$
+ * $Log:$
+ *
+ * 04 22 2013 kh.hung
+ * [ALPS00580843] [MT6572tdv1_phone[lca]][music][Symbio][Free test] 音?播放器播放音?的?音?大?小，不?定
+ * Use default DRC setting.
+ * 
+ * Review: http://mtksap20:8080/go?page=NewReview&reviewid=59367
+ *
+ *
+ *
+ *
+ *------------------------------------------------------------------------------
+ * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
+ *============================================================================
+ ****************************************************************************/
+#ifndef AUDIO_ACF_DEFAULT_H
+#define AUDIO_ACF_DEFAULT_H
+
+    /* Compensation Filter HSF coeffs: default all pass filter       */
+    /* BesLoudness also uses this coeffs    */ 
+    #define BES_LOUDNESS_HSF_COEFF \
+0x7ac72b3,   0xf0a71a9a,   0x7ac72b3,   0x7aabc51d,   0x0,     \
+0x7a5399a,   0xf0b58ccc,   0x7a5399a,   0x7a33c58c,   0x0,     \
+0x783f4ea,   0xf0f8162b,   0x783f4ea,   0x7803c784,   0x0,     \
+0x75c4ba5,   0xf14768b6,   0x75c4ba5,   0x755bc9d2,   0x0,     \
+0x74e75ee,   0xf1631424,   0x74e75ee,   0x746cca9d,   0x0,     \
+0x70f6207,   0xf1e13bf2,   0x70f6207,   0x7013ce26,   0x0,     \
+0x6c58c6d,   0xf274e725,   0x6c58c6d,   0x6ad4d222,   0x0,     \
+0x6ac2311,   0xf2a7b9dd,   0x6ac2311,   0x68fbd377,   0x0,     \
+0x63a7944,   0xf38b0d78,   0x63a7944,   0x607ad92a,   0x0,     \
+\
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,   0x0,   0x0
+
+    /* Compensation Filter BPF coeffs: default all pass filter      */ 
+    #define BES_LOUDNESS_BPF_COEFF \
+0x3e098bf7,   0x3a177408,   0xc7df0000,     \
+0x3ddf8d57,   0x399972a8,   0xc8860000,     \
+0x3d239458,   0x37626ba7,   0xcb790000,     \
+0x3c499e0b,   0x34d261f4,   0xcee40000,     \
+0x3bfea1bf,   0x33f25e40,   0xd00e0000,     \
+0x3ab4b481,   0x300f4b7e,   0xd53c0000, \ 
+\
+0x3f7c8254,   0x3e747dab,   0xc20f0000,     \
+0x3f70828f,   0x3e517d70,   0xc23d0000,     \
+0x3f3c83ab,   0x3db27c54,   0xc3110000,     \
+0x3efc851e,   0x3cf47ae1,   0xc40e0000,     \
+0x3ee685a8,   0x3cb17a57,   0xc4670000,     \
+0x3e818856,   0x3b8077a9,   0xc5fe0000, \ 
+\
+0x3fb18266,   0x3ea67d99,   0xc1a70000,     \
+0x3fab82ad,   0x3e887d52,   0xc1cc0000,     \
+0x3f8b8420,   0x3dfd7bdf,   0xc2770000,     \
+0x3f658633,   0x3d5679cc,   0xc3440000,     \
+0x3f588703,   0x3d1b78fc,   0xc38c0000,     \
+0x3f1b8b52,   0x3c0d74ad,   0xc4d60000, \ 
+\    
+0x3f2f8511,   0x3d8c7aee,   0xc3440000,     \
+0x3f1d85ad,   0x3d567a52,   0xc38c0000,     \
+0x3ecb88d4,   0x3c5e772b,   0xc4d60000,     \
+0x3e698d59,   0x3b3772a6,   0xc65f0000,     \
+0x3e468f1f,   0x3ad070e0,   0xc6e80000,     \
+0x3dab9877,   0x38fd6788,   0xc9560000, \         
+\    
+0x3d7d90d2,   0x38736f2d,   0xca0f0000,     \
+0x3d4992d2,   0x37d56d2d,   0xcae00000,     \
+0x3c5e9d05,   0x351262fa,   0xce8e0000,     \
+0x3b51ab1c,   0x31e954e3,   0xd2c40000,     \
+0x3af6b074,   0x30d64f8b,   0xd4320000,     \
+0x3964caf5,   0x2c1e350a,   0xda7d0000, \     
+\    
+0x3fca8149,   0x3f607eb6,   0xc0d50000,     \
+0x3fc68171,   0x3f527e8e,   0xc0e70000,     \
+0x3fb08242,   0x3f107dbd,   0xc13e0000,     \
+0x3f968373,   0x3ec27c8c,   0xc1a70000,     \
+0x3f8d83ec,   0x3ea67c13,   0xc1cc0000,     \
+0x3f628678,   0x3e267987,   0xc2770000, \         
+\    
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0, \    
+\
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0,     \
+0x0,   0x0,   0x0     
+    
+    #define BES_LOUDNESS_LPF_COEFF \
+0xe171c2f,   0xe1713af,   0xf3f20000,     \
+0x1016202d,   0x10160af5,   0xf4af0000,     \
+0x1ac33586,   0x1ac3e25f,   0xf2940000,     \
+0x2c1d583b,   0x2c1dae1a,   0xe16f0000,     \
+0x340c6818,   0x340c9a28,   0xd5a70000,     \
+0x0,   0x0,   0x0
+
+    #define BES_LOUDNESS_WS_GAIN_MAX  0
+           
+    #define BES_LOUDNESS_WS_GAIN_MIN  0
+           
+    #define BES_LOUDNESS_FILTER_FIRST  0
+           
+    #define BES_LOUDNESS_GAIN_MAP_IN \
+    0xffffffd3, 0xffffffda, 0xffffffed, 0xffffffee, 0x0
+   
+    #define BES_LOUDNESS_GAIN_MAP_OUT \            
+    0xc, 0xc, 0xc, 0xc, 0x0
+
+	#define BES_LOUDNESS_ATT_TIME	164
+	#define BES_LOUDNESS_REL_TIME	16400              
+
+#endif
