@@ -4,8 +4,9 @@
 # ##########################################################
 
 #TOOLCHAIN=linaro-4.9.4
-TOOLCHAIN=linaro
+#TOOLCHAIN=linaro
 #TOOLCHAIN=gcc
+TOOLCHAIN=uber
 
 TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
@@ -19,7 +20,10 @@ export JAVA_HOME
 ANDROID_JAVA_HOME=$JAVA_HOME
 export ANDROID_JAVA_HOME
 #export KBUILD_BUILD_TIMESTAMP="$KV `date +'%F %R'`"
-export KBUILD_BUILD_HOST=`./mkversion`
+export KBUILD_BUILD_USER=bindu-kernel
+export KBUILD_BUILD_HOST=`./mkversion host`
+
+export EXTRAVERSION=`./mkversion`
 
 echo "Building kernel version: $KBUILD_BUILD_HOST"
 
@@ -30,6 +34,11 @@ case "$TOOLCHAIN" in
     gcc)
 	echo "Building with GCC 4.7"
 	PATH=$PWD/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin:$PWD/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	;;
+    uber)
+	echo "Building with UBER 4.9 arm-eabi"
+	PATH=$PWD/prebuilts/UBERTC-arm-eabi-4.9-addfce38ffe9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	export CROSS_COMPILE=arm-eabi-
 	;;
     linaro)
 	echo "Building with LINARO 4.9.3"
