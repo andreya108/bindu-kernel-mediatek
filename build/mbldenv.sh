@@ -54,6 +54,7 @@ case "$TOOLCHAIN" in
 	echo "Unknown toolchain $TOOLCHAIN selected"
 	;;
 esac
+export TOOLCHAIN_PREFIX=$CROSS_COMPILE
 
 PATH=$JAVA_HOME/bin:$PATH
 #PATH=$JAVA_HOME/bin:~/AndroidKernel/ea89/prebuilts/gcc/linux-x86/arm/android-toolchain-eabi-4.8/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
