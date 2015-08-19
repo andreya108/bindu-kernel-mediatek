@@ -64,8 +64,9 @@ int OVLROI(unsigned int bgW,
 int OVLLayerSwitch(unsigned layer, BOOL en);
 
 // configure layer property
-int OVLLayerConfig(unsigned layer,
-                   enum OVL_LAYER_SOURCE source, 
+int OVLLayerConfig(unsigned int layer,
+                   unsigned int source, 
+//                   enum OVL_LAYER_SOURCE source, 
                    unsigned int fmt, 
                    unsigned int addr, 
                    unsigned int x, 
