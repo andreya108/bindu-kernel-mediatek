@@ -10,7 +10,7 @@
  *
  * Description:
  * ------------
- *   This Module defines functions of mt6320 Battery charging algorithm 
+ *   This Module defines functions of mt6320 Battery charging algorithm
  *   and the Anroid Battery service for updating the battery status
  *
  * Author:
@@ -66,7 +66,7 @@
 #include <mach/upmu_hw.h>
 
 #include "bq24196.h"
-#ifdef MTK_BQ27541_SUPPORT		
+#ifdef MTK_BQ27541_SUPPORT
 #include "bq27541.h"
 #endif
 
@@ -81,8 +81,8 @@ extern void fgauge_precharge_uninit(void);
 extern kal_int32 fgauge_precharge_compensated_voltage(kal_int32 recursion_time);
 
 /*lenovo-sw weiweij modified for some debug msg*/
-//int Enable_BATDRV_LOG = 0;
-int Enable_BATDRV_LOG = 2;
+int Enable_BATDRV_LOG = 0;
+//int Enable_BATDRV_LOG = 2;
 /*lenovo-sw weiweij modified for some debug msg end*/
 //int Enable_BATDRV_LOG = 1;
 /*lenovo-sw qiyg modified for build error*/
@@ -98,12 +98,12 @@ int battery_cmd_thermal_test_mode_value=0;
 int g_battery_tt_check_flag=0; // 0:default enable check batteryTT, 1:default disable check batteryTT
 
 ////////////////////////////////////////////////////////////////////////////////
-// JEITA 
+// JEITA
 ////////////////////////////////////////////////////////////////////////////////
-#if defined(MTK_JEITA_STANDARD_SUPPORT)  
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
 int g_jeita_recharging_voltage=4110;
 kal_uint32 gFGsyncTimer_jeita=0;
-kal_uint32 g_default_sync_time_out_jeita=CUST_SOC_JEITA_SYNC_TIME; 
+kal_uint32 g_default_sync_time_out_jeita=CUST_SOC_JEITA_SYNC_TIME;
 int g_temp_status=TEMP_POS_10_TO_POS_45;
 kal_bool temp_error_recovery_chr_flag=KAL_TRUE;
 int mtk_jeita_support_flag=1;
@@ -206,19 +206,19 @@ extern int g_first_check;
 #ifdef CONFIG_USB_MTK_HDRC_HCD
 void tbl_charger_otg_vbus(int mode)
 {
-    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[tbl_charger_otg_vbus] mode = %d\n", mode);	
+    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[tbl_charger_otg_vbus] mode = %d\n", mode);
     if(mode&0xFF)
     {
         bq24196_set_chg_config(0x3); //OTG
-        /*Lenovo-sw begin yexh1 2013-05-8, limit OTG out charging current 500mA*/ 
+        /*Lenovo-sw begin yexh1 2013-05-8, limit OTG out charging current 500mA*/
          bq24196_set_boost_lim(0x0);
-	  // bq24196_set_boost_lim(0x1); //1.3A on VBUS 	
-        /*Lenovo-sw begin yexh1 2013-05-8, limit OTG out charging current 500mA*/  
-       
+	  // bq24196_set_boost_lim(0x1); //1.3A on VBUS
+        /*Lenovo-sw begin yexh1 2013-05-8, limit OTG out charging current 500mA*/
+
         bq24196_set_en_hiz(0x0);
-#if 0        
+#if 0
         //OTG pin pull high, maybe can consider OTG pin always high
-        mt_set_gpio_mode(GPIO_OTG_DRVVBUS_PIN,GPIO_MODE_GPIO);  
+        mt_set_gpio_mode(GPIO_OTG_DRVVBUS_PIN,GPIO_MODE_GPIO);
         mt_set_gpio_dir(GPIO_OTG_DRVVBUS_PIN,GPIO_DIR_OUT);
         mt_set_gpio_out(GPIO_OTG_DRVVBUS_PIN,GPIO_OUT_ONE);
 #endif
@@ -226,12 +226,12 @@ void tbl_charger_otg_vbus(int mode)
     else
     {
         bq24196_set_chg_config(0x0); //OTG & Charge disabled
-#if 0        
+#if 0
         //OTG pin pull low, maybe can consider OTG pin always high
-        mt_set_gpio_mode(GPIO_OTG_DRVVBUS_PIN,GPIO_MODE_GPIO);  
+        mt_set_gpio_mode(GPIO_OTG_DRVVBUS_PIN,GPIO_MODE_GPIO);
         mt_set_gpio_dir(GPIO_OTG_DRVVBUS_PIN,GPIO_DIR_OUT);
         mt_set_gpio_out(GPIO_OTG_DRVVBUS_PIN,GPIO_OUT_ZERO);
-#endif        
+#endif
     }
 };
 #endif
@@ -261,7 +261,7 @@ int get_bat_sense_volt(int times)
 {
     kal_uint32 ret;
 	//RG_SOURCE_CH0_NORM_SEL set to 0 for bat_sense
-    ret=pmic_config_interface(AUXADC_CON14, 0x0, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);	
+    ret=pmic_config_interface(AUXADC_CON14, 0x0, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);
     return PMIC_IMM_GetOneChannelValue(0,times,1);
 }
 
@@ -269,7 +269,7 @@ int get_i_sense_volt(int times)
 {
     kal_uint32 ret;
 	//RG_SOURCE_CH0_NORM_SEL set to 1 for i_sense
-    ret=pmic_config_interface(AUXADC_CON14, 0x1, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);	
+    ret=pmic_config_interface(AUXADC_CON14, 0x1, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);
     return PMIC_IMM_GetOneChannelValue(0,times,1); //i sense use channel 0 as well
 }
 
@@ -288,7 +288,7 @@ int get_tbat_volt(int times)
     {
         return PMIC_IMM_GetOneChannelValue(4,times,1);
     }
-    else    
+    else
     {
         #if defined(ENABLE_TBAT_TREF_SUPPORT)
             if (Enable_BATDRV_LOG == 1) {
@@ -302,7 +302,7 @@ int get_tbat_volt(int times)
             return PMIC_IMM_GetOneChannelValue(4,times,1);
         #endif
     }
-#endif	
+#endif
 }
 
 int get_charger_detect_status(void)
@@ -317,7 +317,7 @@ int PMIC_IMM_GetOneChannelValueSleep(int dwChannel, int deCount)
     adc_result = PMIC_IMM_GetOneChannelValue(dwChannel,deCount,1);
 
     return adc_result;
-    
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -351,13 +351,13 @@ kal_bool upmu_is_chr_det(void)
             if(bq24196_get_vbus_stat()!= 0x3) //not in OTG boost mode
             {
                 if (Enable_BATDRV_LOG == 1) {
-                    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[upmu_is_chr_det] USB host mode but boost mode fault\n");				  
-                }		
+                    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[upmu_is_chr_det] USB host mode but boost mode fault\n");
+                }
             //bq24196_set_chg_config(0x3); //TODO: decide if need auto retry
-            }			
+            }
             return KAL_FALSE;
         }
-        
+
         //return KAL_TRUE;
     }
 }
@@ -377,13 +377,13 @@ typedef struct
     kal_bool   	bat_full;
     kal_bool   	bat_low;
     INT32       bat_charging_state;
-    INT32       bat_vol;            
+    INT32       bat_vol;
     kal_bool 	charger_exist;
     INT32       pre_charging_current;
     INT32       charging_current;
-    INT32       charger_vol;        
-    INT32       charger_protect_status; 
-    INT32       ISENSE;                
+    INT32       charger_vol;
+    INT32       charger_protect_status;
+    INT32       ISENSE;
     INT32       ICharging;
     INT32       temperature;
     UINT32      total_charging_time;
@@ -410,14 +410,14 @@ typedef enum
 static CHARGER_TYPE CHR_Type_num = CHARGER_UNKNOWN;
 static unsigned short batteryVoltageBuffer[BATTERY_AVERAGE_SIZE];
 static unsigned short batteryCurrentBuffer[BATTERY_AVERAGE_SIZE];
-#ifndef MTK_BQ27541_SUPPORT	
+#ifndef MTK_BQ27541_SUPPORT
 static unsigned short batterySOCBuffer[BATTERY_AVERAGE_SIZE];
 #endif
 static int batteryTempBuffer[BATTERY_AVERAGE_SIZE];
 static int batteryIndex = 0;
 static int batteryVoltageSum = 0;
 static int batteryCurrentSum = 0;
-#ifndef MTK_BQ27541_SUPPORT	
+#ifndef MTK_BQ27541_SUPPORT
 static int batterySOCSum = 0;
 #endif
 static int batteryTempSum = 0;
@@ -542,8 +542,8 @@ int g_Support_USBIF = 1;
 #define FGADC_CURRENT_READ _IOW('k', 8, int)
 #define BAT_THREAD_CTRL _IOW('k', 9, int)
 //add bing for meta-----------------------------------------
-#define Get_META_BAT_VOL _IOW('k', 10, int) 
-#define Get_META_BAT_SOC _IOW('k', 11, int) 
+#define Get_META_BAT_VOL _IOW('k', 10, int)
+#define Get_META_BAT_SOC _IOW('k', 11, int)
 //add bing for meta-----------------------------------------
 
 static struct class *adc_cali_class = NULL;
@@ -686,9 +686,9 @@ struct mt6320_battery_data {
     int BAT_BatterySenseVoltage;
     int BAT_ISenseVoltage;
     int BAT_ChargerVoltage;
-    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */
     int BAT_Icharging;
-    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */
 };
 
 static enum power_supply_property mt6320_ac_props[] = {
@@ -716,9 +716,9 @@ static enum power_supply_property mt6320_battery_props[] = {
     POWER_SUPPLY_PROP_BatterySenseVoltage,
     POWER_SUPPLY_PROP_ISenseVoltage,
     POWER_SUPPLY_PROP_ChargerVoltage,
-    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */
     //POWER_SUPPLY_PROP_chg_current,
-    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */
 };
 
 static int mt6320_ac_get_property(struct power_supply *psy,
@@ -726,7 +726,7 @@ static int mt6320_ac_get_property(struct power_supply *psy,
 	union power_supply_propval *val)
 {
     int ret = 0;
-    struct mt6320_ac_data *data = container_of(psy, struct mt6320_ac_data, psy);    
+    struct mt6320_ac_data *data = container_of(psy, struct mt6320_ac_data, psy);
 
     switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -744,7 +744,7 @@ static int mt6320_usb_get_property(struct power_supply *psy,
 	union power_supply_propval *val)
 {
     int ret = 0;
-    struct mt6320_usb_data *data = container_of(psy, struct mt6320_usb_data, psy);    
+    struct mt6320_usb_data *data = container_of(psy, struct mt6320_usb_data, psy);
 
     switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
@@ -813,11 +813,11 @@ static int mt6320_battery_get_property(struct power_supply *psy,
 	case POWER_SUPPLY_PROP_ChargerVoltage:
 	    val->intval = data->BAT_ChargerVoltage;
 	    break;
-    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */
 /*      case POWER_SUPPLY_PROP_chg_current:
           val->intval = data->BAT_Icharging;
           break;*/
-    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */
 	default:
 	    ret = -EINVAL;
 	    break;
@@ -833,7 +833,7 @@ static struct mt6320_ac_data mt6320_ac_main = {
 	.type = POWER_SUPPLY_TYPE_MAINS,
     .properties = mt6320_ac_props,
     .num_properties = ARRAY_SIZE(mt6320_ac_props),
-    .get_property = mt6320_ac_get_property,                
+    .get_property = mt6320_ac_get_property,
     },
     .AC_ONLINE = 0,
 };
@@ -845,7 +845,7 @@ static struct mt6320_usb_data mt6320_usb_main = {
 	.type = POWER_SUPPLY_TYPE_USB,
     .properties = mt6320_usb_props,
     .num_properties = ARRAY_SIZE(mt6320_usb_props),
-    .get_property = mt6320_usb_get_property,                
+    .get_property = mt6320_usb_get_property,
     },
     .USB_ONLINE = 0,
 };
@@ -857,7 +857,7 @@ static struct mt6320_battery_data mt6320_battery_main = {
 	.type = POWER_SUPPLY_TYPE_BATTERY,
     .properties = mt6320_battery_props,
     .num_properties = ARRAY_SIZE(mt6320_battery_props),
-    .get_property = mt6320_battery_get_property,                
+    .get_property = mt6320_battery_get_property,
     },
 /* CC: modify to have a full power supply status */
 #if defined(CONFIG_POWER_EXT)
@@ -958,7 +958,7 @@ static int iCapacity_99_loop_fullcheck = 0;
 static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 {
     struct power_supply *bat_psy = &bat_data->psy;
-#ifndef MTK_BQ27541_SUPPORT							
+#ifndef MTK_BQ27541_SUPPORT
 	int i;
 #endif
     bat_data->BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION;
@@ -971,7 +971,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
     else
         bat_data->BAT_PRESENT = 0;
 
-//start,snoopyrow-3043,chenggh2 
+//start,snoopyrow-3043,chenggh2
 	if( bat_data->BAT_CAPACITY == 99 &&
 	BMT_status.charger_type == STANDARD_CHARGER&&
 	upmu_is_chr_det()==KAL_TRUE )
@@ -987,7 +987,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 		iCapacity_99_loop_fullcheck = 0;//reset value
 	}
 	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "iCapacity_99_loop_fullcheck= %d\n",iCapacity_99_loop_fullcheck);
-//end,snoopyrow-3043,chenggh2 
+//end,snoopyrow-3043,chenggh2
 
     /* Charger and Battery Exist */
     //if( (upmu_is_chr_det(CHR)==KAL_TRUE) && (!g_Battery_Fail) )
@@ -999,7 +999,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
         /* clear sync flag when charging/discharging switching */
         if (gSyncPercentage && !gSyncPercentageStatus)
             gSyncPercentage=0;
-        
+
         if ( BMT_status.bat_exist )
         {
             /* Battery Full */
@@ -1007,7 +1007,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
             if ( (BMT_status.bat_vol >= g_jeita_recharging_voltage) && (BMT_status.bat_full == KAL_TRUE) )
 #else
             if ( (BMT_status.bat_vol >= RECHARGING_VOLTAGE) && (BMT_status.bat_full == KAL_TRUE) )
-#endif    			
+#endif
             {
             	/*Use no gas gauge*/
 				if( gForceADCsolution == 1 )
@@ -1016,12 +1016,12 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 	                bat_data->BAT_CAPACITY = Battery_Percent_100;
 
 					/* For user view */
-#ifndef MTK_BQ27541_SUPPORT						
+#ifndef MTK_BQ27541_SUPPORT
 					for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
 						batterySOCBuffer[i] = 100;
 						batterySOCSum = 100 * BATTERY_AVERAGE_SIZE; /* for user view */
 					}
-#endif					
+#endif
 					bat_volt_check_point = 100;
 				}
 				/*Use gas gauge*/
@@ -1039,10 +1039,10 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
                     else
                     {
                         gFGsyncTimer_jeita+=10;
-                        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery] In JEITA (%d on %d)\r\n", 
+                        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery] In JEITA (%d on %d)\r\n",
                             bat_volt_check_point, gFGsyncTimer_jeita);
                     }
-#else                    
+#else
                     bat_volt_check_point++;
                     #if 0
                     if(gFGsyncTimer >= DEFAULT_SYNC_TIME_OUT)
@@ -1086,12 +1086,12 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
                     bat_data->BAT_CAPACITY = Battery_Percent_100;
 
 					/* For user view */
-#ifndef MTK_BQ27541_SUPPORT						
+#ifndef MTK_BQ27541_SUPPORT
 					for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
 						batterySOCBuffer[i] = 100;
 						batterySOCSum = 100 * BATTERY_AVERAGE_SIZE; /* for user view */
 					}
-#endif					
+#endif
 					bat_volt_check_point = 100;
 
 					gSyncPercentage=1;
@@ -1208,10 +1208,10 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
                                 gFG_DOD1=gFG_DOD0;
                                 BMT_status.SOC=bat_volt_check_point;
 				bat_data->BAT_CAPACITY = bat_volt_check_point;
-                                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery] VBAT < %d mV (%d, gFG_DOD0=%d)\r\n", SYSTEM_OFF_VOLTAGE, bat_volt_check_point,gFG_DOD0);                
+                                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery] VBAT < %d mV (%d, gFG_DOD0=%d)\r\n", SYSTEM_OFF_VOLTAGE, bat_volt_check_point,gFG_DOD0);
 			}
         }
-#ifndef MTK_BQ27541_SUPPORT			
+#ifndef MTK_BQ27541_SUPPORT
 		/* If FG_VBAT <= gFG_15_vlot, then run to 15% */
 		else if ( (gFG_voltage <= gFG_15_vlot)&&(gForceADCsolution==0)&&(bat_volt_check_point >= g_tracking_point) )
 		{
@@ -1252,7 +1252,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery] FG_VBAT(%d) > gFG_15_vlot(%d) and FG_report=15, then UI(%d) keep 15. (D1=%d,D0=%d)\r\n",
 				gFG_voltage, gFG_15_vlot, bat_volt_check_point, gFG_DOD1, gFG_DOD0);
 		}
-#endif				
+#endif
         else
         {
         	gBAT_counter_15=1;
@@ -1345,7 +1345,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 	bat_data->BAT_ISenseVoltage=g_BAT_ISenseVoltage;
 	bat_data->BAT_ChargerVoltage=g_BAT_ChargerVoltage;
 
-#ifndef MTK_BQ27541_SUPPORT		
+#ifndef MTK_BQ27541_SUPPORT
 	if (gFG_booting_counter_I_FLAG == 2) {
 		set_rtc_spare_fg_value(bat_volt_check_point);
 	}
@@ -1374,27 +1374,27 @@ void BATTERY_SetUSBState(int usb_state_value)
 }
 EXPORT_SYMBOL(BATTERY_SetUSBState);
 
-static int mt6320_battery_probe(struct platform_device *dev)    
+static int mt6320_battery_probe(struct platform_device *dev)
 {
     int ret=0;
 
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "******** MT6320 battery driver probe!! ********\n" );
-        
+
     /* Integrate with Android Battery Service */
     ret = power_supply_register(&(dev->dev), &mt6320_ac_main.psy);
     if (ret)
-    {            
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Fail !!\n");                    
+    {
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Fail !!\n");
         return ret;
-    }             
+    }
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Success !!\n");
 
     ret = power_supply_register(&(dev->dev), &mt6320_usb_main.psy);
     if (ret)
-    {            
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Fail !!\n");                    
+    {
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Fail !!\n");
         return ret;
-    }             
+    }
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Success !!\n");
 
     ret = power_supply_register(&(dev->dev), &mt6320_battery_main.psy);
@@ -1410,7 +1410,7 @@ static int mt6320_battery_probe(struct platform_device *dev)
     //xlog_printk(ANDROID_LOG_INFO, "Power/PMIC", "[bat_thread_kthread] Done\n");
 
 	g_bat_init_flag=1;
-    
+
     return 0;
 }
 
@@ -1452,7 +1452,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
      { 60,3019}
     };
 #else
-#if defined(BAT_NTC_10_TDK_1)        
+#if defined(BAT_NTC_10_TDK_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
      {-20,95327},
      {-15,71746},
@@ -1476,7 +1476,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
 
 #if defined(BAT_NTC_TSM_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
-    {-20,70603},    
+    {-20,70603},
     {-15,55183},
     {-10,43499},
     { -5,34569},
@@ -1496,7 +1496,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
     };
 #endif
 
-#if defined(BAT_NTC_10_SEN_1)        
+#if defined(BAT_NTC_10_SEN_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
      {-20,74354},
      {-15,57626},
@@ -1580,7 +1580,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
         {45,    42172},
         {50,    34512},
         {55,    28402},
-        {60,    23499},                    
+        {60,    23499},
     };
 #endif
 #endif
@@ -1666,7 +1666,7 @@ INT16 BattVoltToTemp(UINT32 dwVolt)
 
 #ifdef BEFORE_TREF_REWORK
 //    if(upmu_get_cid() == 0x1020)
-        sBaTTMP=22; 
+        sBaTTMP=22;
 #endif
     return sBaTTMP;
 }
@@ -1734,7 +1734,7 @@ static int set_current_as_temp(void)
 	/*lenovo-sw weiweij added 20130412*/
 	if(chg_current_flag==1)
 	{
-		printk("[BATTERY:bq24196] %s, chg_current_flag = %d, (VT CALL)in low charging current mode\r\n", __func__, chg_current_flag);	
+		printk("[BATTERY:bq24196] %s, chg_current_flag = %d, (VT CALL)in low charging current mode\r\n", __func__, chg_current_flag);
 		g_temp_CC_value = AC_CHARGER_LOW_CURRENT;
 		bq24196_set_iinlim(0x03);
 		return -1;
@@ -1742,19 +1742,19 @@ static int set_current_as_temp(void)
 	/*lenovo-sw weiweij added 20130412 end*/
 
 //	if (Enable_BATDRV_LOG == 1) {
-	printk("[BATTERY:bq24196] %s, temp = %d old_temp = %d\r\n", __func__, temp, old_temp);	
+	printk("[BATTERY:bq24196] %s, temp = %d old_temp = %d\r\n", __func__, temp, old_temp);
 //	}
 
-	if(temp!=old_temp) 
+	if(temp!=old_temp)
 	{
 		if(temp>old_temp)
 			tend = 1;
 		else
 			tend = -1;
-		
+
 		old_temp = temp;
 	}
-		
+
 	if((temp>0)&&(temp<(10+tend*STEP_TEMP)))
 	{
 		g_temp_CC_value = AC_CHARGER_ABNORMAL_LOWT_CURRENT;
@@ -1771,8 +1771,8 @@ static int set_current_as_temp(void)
 		return -1;
 
 	if (Enable_BATDRV_LOG == 1) {
-		printk("[BATTERY:bq24196] 0 = %d, 1 = %d 2 = %d, tend=%d\r\n", temp, (10+tend*STEP_TEMP), (45+tend*STEP_TEMP), tend);	
-		printk("[BATTERY:bq24196] flag = 0x%x charging_flag=%d\r\n", flag, charging_flag);	
+		printk("[BATTERY:bq24196] 0 = %d, 1 = %d 2 = %d, tend=%d\r\n", temp, (10+tend*STEP_TEMP), (45+tend*STEP_TEMP), tend);
+		printk("[BATTERY:bq24196] flag = 0x%x charging_flag=%d\r\n", flag, charging_flag);
 	}
 
 	return ret;
@@ -1807,18 +1807,18 @@ void bq24196_set_ac_current(void)
     }
     else
     {
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
         if(g_temp_status == TEMP_NEG_10_TO_POS_0)
-        {    
+        {
             ichg_val = 0; //lowest possible charge current for bq24196 is 500mA
         }
         else
         {
             ichg_val = (g_temp_CC_value - 500)/64;
-        }     
+        }
 #else
         ichg_val = (g_temp_CC_value - 500)/64;
-#endif      
+#endif
         bq24196_set_ichg(ichg_val);
         bq24196_set_force_20pct(0x0);
     }
@@ -1831,15 +1831,15 @@ void select_charging_curret_bcct(void)
 {
     if (BMT_status.charger_type == STANDARD_HOST)
     {
-        if(g_bcct_value < 100)        
+        if(g_bcct_value < 100)
             g_temp_CC_value = 0;
         else if(g_bcct_value < 500)
         	  g_temp_CC_value = 100;
         else
-        	  g_temp_CC_value = 500;    
-        	  
-        bq24196_set_iinlim(0x2); //IN current limit at 500MA			
-        bq24196_set_ac_current();    	  
+        	  g_temp_CC_value = 500;
+
+        bq24196_set_iinlim(0x2); //IN current limit at 500MA
+        bq24196_set_ac_current();
     }
     else if( (BMT_status.charger_type == STANDARD_CHARGER) ||
              (BMT_status.charger_type == CHARGING_HOST) ||
@@ -1850,170 +1850,170 @@ void select_charging_curret_bcct(void)
 #ifdef MTK_BCCT_FOR_BATTERY
         bq24196_set_iinlim(0x6); //IN current limit at 2000MA
 #endif
-        
+
         if(g_bcct_value < 100)
         {
-            g_temp_CC_value = 0;     	
+            g_temp_CC_value = 0;
         }
-        else if(g_bcct_value < 500)        
+        else if(g_bcct_value < 500)
         {
             g_temp_CC_value = 100;
 #ifndef MTK_BCCT_FOR_BATTERY
             bq24196_set_iinlim(0x2); //IN current limit at 500MA
 #endif
-            bq24196_set_ac_current();     	
+            bq24196_set_ac_current();
         }
-        else if(g_bcct_value < 600)        
+        else if(g_bcct_value < 600)
         {
             g_temp_CC_value = 500;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x3); //IN current limit at 900MA			
+            bq24196_set_iinlim(0x3); //IN current limit at 900MA
 #endif
-            bq24196_set_ac_current();     	
+            bq24196_set_ac_current();
         }
-        else if(g_bcct_value < 700)        
+        else if(g_bcct_value < 700)
         {
             g_temp_CC_value = 600;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x3); //IN current limit at 900MA			
+            bq24196_set_iinlim(0x3); //IN current limit at 900MA
 #endif
-            bq24196_set_ac_current();       	
-        }        
-        else if(g_bcct_value < 800)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 800)
         {
             g_temp_CC_value = 700;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x3); //IN current limit at 900MA			
+            bq24196_set_iinlim(0x3); //IN current limit at 900MA
 #endif
-            bq24196_set_ac_current();          	
-        }    
-        else if(g_bcct_value < 900)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 900)
         {
             g_temp_CC_value = 800;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x3); //IN current limit at 900MA			
+            bq24196_set_iinlim(0x3); //IN current limit at 900MA
 #endif
-            bq24196_set_ac_current();        	
-        }           
-        else if(g_bcct_value < 1000)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1000)
         {
             g_temp_CC_value = 900;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x3); //IN current limit at 900MA			
+            bq24196_set_iinlim(0x3); //IN current limit at 900MA
 #endif
-            bq24196_set_ac_current();        	
-        }             
-        else if(g_bcct_value < 1100)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1100)
         {
             g_temp_CC_value = 1000;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x4); //IN current limit at 1200MA			
+            bq24196_set_iinlim(0x4); //IN current limit at 1200MA
 #endif
-            bq24196_set_ac_current();         	
-        }            
-        else if(g_bcct_value < 1200)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1200)
         {
             g_temp_CC_value = 1100;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x4); //IN current limit at 1200MA			
+            bq24196_set_iinlim(0x4); //IN current limit at 1200MA
 #endif
-            bq24196_set_ac_current();        	
-        }        
-        else if(g_bcct_value < 1300)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1300)
         {
             g_temp_CC_value = 1200;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x4); //IN current limit at 1200MA			
+            bq24196_set_iinlim(0x4); //IN current limit at 1200MA
 #endif
-            bq24196_set_ac_current();       	
-        }          
-        else if(g_bcct_value < 1400)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1400)
         {
             g_temp_CC_value = 1300;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x5); //IN current limit at 1500MA			
+            bq24196_set_iinlim(0x5); //IN current limit at 1500MA
 #endif
-            bq24196_set_ac_current();     	
-        }         
-        else if(g_bcct_value < 1500)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1500)
         {
             g_temp_CC_value = 1400;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x5); //IN current limit at 1500MA			
+            bq24196_set_iinlim(0x5); //IN current limit at 1500MA
 #endif
-            bq24196_set_ac_current();      	
-        }         
-        else if(g_bcct_value < 1600)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1600)
         {
             g_temp_CC_value = 1500;
 #ifndef MTK_BCCT_FOR_BATTERY
-            bq24196_set_iinlim(0x5); //IN current limit at 1500MA			
+            bq24196_set_iinlim(0x5); //IN current limit at 1500MA
 #endif
-            bq24196_set_ac_current();   	
-        }         
-        else if(g_bcct_value < 1700)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1700)
         {
             g_temp_CC_value = 1600;
 #ifndef MTK_BCCT_FOR_BATTERY
             bq24196_set_iinlim(0x6); //IN current limit at 2000MA
 #endif
-            bq24196_set_ac_current();   	
-        }    
-        else if(g_bcct_value < 1800)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1800)
         {
             g_temp_CC_value = 1700;
 #ifndef MTK_BCCT_FOR_BATTERY
             bq24196_set_iinlim(0x6); //IN current limit at 2000MA
 #endif
-            bq24196_set_ac_current();   	
-        }         
-        else if(g_bcct_value < 1900)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 1900)
         {
             g_temp_CC_value = 1800;
 #ifndef MTK_BCCT_FOR_BATTERY
             bq24196_set_iinlim(0x6); //IN current limit at 2000MA
 #endif
-            bq24196_set_ac_current();   	
-        }            
-        else if(g_bcct_value < 2000)        
+            bq24196_set_ac_current();
+        }
+        else if(g_bcct_value < 2000)
         {
             g_temp_CC_value = 1900;
 #ifndef MTK_BCCT_FOR_BATTERY
             bq24196_set_iinlim(0x6); //IN current limit at 2000MA
 #endif
-            bq24196_set_ac_current();   	
-        }                      
+            bq24196_set_ac_current();
+        }
         else
         {
             g_temp_CC_value = 2000;
-            bq24196_set_iinlim(0x6); //IN current limit at 2000MA			
-            bq24196_set_ac_current();        	
-        }             	
+            bq24196_set_iinlim(0x6); //IN current limit at 2000MA
+            bq24196_set_ac_current();
+        }
         //---------------------------------------------------
     }
     else
     {
-        g_temp_CC_value = 500;            	  
-        bq24196_set_iinlim(0x2); //IN current limit at 500MA			
-        bq24196_set_ac_current();                 
-    } 
+        g_temp_CC_value = 500;
+        bq24196_set_iinlim(0x2); //IN current limit at 500MA
+        bq24196_set_ac_current();
+    }
 }
 
 extern kal_uint32 bq24196_read_interface (kal_uint8 RegNum, kal_uint8 *val, kal_uint8 MASK, kal_uint8 SHIFT);
 
 int get_bat_charging_current_level(void)
 {
-    kal_uint8 ret_val=0;    
+    kal_uint8 ret_val=0;
     kal_uint8 ret_force_20pct=0;
-    
+
     if (BMT_status.charger_type == STANDARD_HOST)
     {
         //Get current level
         bq24196_read_interface(bq24196_CON2, &ret_val, CON2_ICHG_MASK, CON2_ICHG_SHIFT);
-        
+
         //Get Force 20% option
         bq24196_read_interface(bq24196_CON2, &ret_force_20pct, CON2_FORCE_20PCT_MASK, CON2_FORCE_20PCT_SHIFT);
-        
+
         //Parsing
         ret_val = (ret_val*64)+500;
         if(ret_val > 500)
@@ -2021,7 +2021,7 @@ int get_bat_charging_current_level(void)
         else
         {
             if (ret_force_20pct == 0)
-            return (int)ret_val;        
+            return (int)ret_val;
             else return (int)(ret_val<<1)/10;
         }
     }
@@ -2034,7 +2034,7 @@ int get_bat_charging_current_level(void)
 
         //Get Force 20% option
         bq24196_read_interface(bq24196_CON2, &ret_force_20pct, CON2_FORCE_20PCT_MASK, CON2_FORCE_20PCT_SHIFT);
-        
+
         //Parsing
         ret_val = (ret_val*64)+500;
         if(ret_val > 2000)
@@ -2061,20 +2061,20 @@ int set_bat_charging_current_limit(int current_limit)
     if(current_limit != -1)
     {
         g_bcct_flag=1;
-                
-        g_bcct_value=current_limit;      
+
+        g_bcct_value=current_limit;
     }
     else
     {
         //change to default current setting
         g_bcct_flag=0;
     }
-    
+
     //wake_up_bat();
     pchr_turn_on_charging_bq24196();
 
     return g_bcct_flag;
-}   
+}
 
 void select_charging_curret_bq24196(void)
 {
@@ -2116,7 +2116,7 @@ void select_charging_curret_bq24196(void)
                 else if (g_usb_state == USB_CONFIGURED)
                 {
                     g_temp_CC_value = USB_CHARGER_CURRENT_CONFIGURED;
-                    bq24196_set_iinlim(0x2); //IN current limit at 500mA					
+                    bq24196_set_iinlim(0x2); //IN current limit at 500mA
                     bq24196_set_ac_current();
                     if (Enable_BATDRV_LOG == 1) {
                         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] bq24196_set_ac_current(), CC value (%d) \r\n", g_temp_CC_value);
@@ -2134,7 +2134,7 @@ void select_charging_curret_bq24196(void)
             else
             {
                 g_temp_CC_value = USB_CHARGER_CURRENT;
-                bq24196_set_iinlim(0x2); //IN current limit at 500mA		  
+                bq24196_set_iinlim(0x2); //IN current limit at 500mA
                 bq24196_set_ac_current();
                 if (Enable_BATDRV_LOG == 1) {
                     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] bq24196_set_ac_current(), CC value(%d) \r\n", g_temp_CC_value);
@@ -2145,10 +2145,10 @@ void select_charging_curret_bq24196(void)
         {
             g_temp_CC_value = AC_CHARGER_CURRENT;
 /*lenovo-sw weiweij modified for limit current of unstandard charger*/
-#if 0			
-		bq24196_set_iinlim(0x6); //IN current limit at 2A	
+#if 0
+		bq24196_set_iinlim(0x6); //IN current limit at 2A
 #else
-            bq24196_set_iinlim(0x2); //IN current limit at 2A		
+            bq24196_set_iinlim(0x2); //IN current limit at 2A
 #endif
 /*lenovo-sw weiweij modified for limit current of unstandard charger end*/
             bq24196_set_ac_current();
@@ -2156,13 +2156,13 @@ void select_charging_curret_bq24196(void)
         else if (BMT_status.charger_type == STANDARD_CHARGER)
         {
             g_temp_CC_value = AC_CHARGER_CURRENT;
-            bq24196_set_iinlim(0x6); //IN current limit at 2A			
+            bq24196_set_iinlim(0x6); //IN current limit at 2A
             bq24196_set_ac_current();
         }
         else if (BMT_status.charger_type == CHARGING_HOST)
         {
             g_temp_CC_value = AC_CHARGER_CURRENT;
-            bq24196_set_iinlim(0x6); //IN current limit at 2A			
+            bq24196_set_iinlim(0x6); //IN current limit at 2A
             bq24196_set_ac_current();
         }
         else
@@ -2171,8 +2171,8 @@ void select_charging_curret_bq24196(void)
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Unknown charger type\n");
             }
             g_temp_CC_value = 500;
-            bq24196_set_iinlim(0x2); //IN current limit at 500mA		  
-            bq24196_set_ac_current();     			
+            bq24196_set_iinlim(0x2); //IN current limit at 500mA
+            bq24196_set_ac_current();
 //            bq24196_set_low_chg_current();
         }
     }
@@ -2184,44 +2184,44 @@ void ChargerHwInit_bq24196(void)
 		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] ChargerHwInit_bq24196\n" );
 	}
 
-    upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL    
+    upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL
     upmu_set_rg_bc11_rst(1);        //BC11_RST
 
 #if 0 //no use
     //pull PSEL low
-    mt_set_gpio_mode(GPIO_CHR_PSEL_PIN,GPIO_MODE_GPIO);  
+    mt_set_gpio_mode(GPIO_CHR_PSEL_PIN,GPIO_MODE_GPIO);
     mt_set_gpio_dir(GPIO_CHR_PSEL_PIN,GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CHR_PSEL_PIN,GPIO_OUT_ZERO);
-#endif    
-    
+#endif
+
     //pull CE low
-    mt_set_gpio_mode(GPIO_CHR_CE_PIN,GPIO_MODE_GPIO);  
+    mt_set_gpio_mode(GPIO_CHR_CE_PIN,GPIO_MODE_GPIO);
     mt_set_gpio_dir(GPIO_CHR_CE_PIN,GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_CHR_CE_PIN,GPIO_OUT_ZERO);       
+    mt_set_gpio_out(GPIO_CHR_CE_PIN,GPIO_OUT_ZERO);
     bq24196_set_en_hiz(0x0);
     bq24196_set_vindpm(0xA); //VIN DPM check 4.68V
     bq24196_set_reg_rst(0x0);
-	bq24196_set_wdt_rst(0x1); //Kick watchdog	
+	bq24196_set_wdt_rst(0x1); //Kick watchdog
 //    if(upmu_get_cid() == 0x1020)
     if(0)
 	    bq24196_set_sys_min(0x0); //Minimum system voltage 3.0V (MT6320 E1 workaround, disable powerpath)
-    else	    
-        bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V	
+    else
+        bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V
 	bq24196_set_iprechg(0x3); //Precharge current 512mA
 	bq24196_set_iterm(0x0); //Termination current 128mA
 
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
     if(g_temp_status == TEMP_NEG_10_TO_POS_0)
-    {    
+    {
 		bq24196_set_vreg(0x1F); //VREG 4.0V
     }
     else
     {
         if(g_temp_status == TEMP_POS_10_TO_POS_45)
-		    bq24196_set_vreg(0x2C); //VREG 4.208V			
+		    bq24196_set_vreg(0x2C); //VREG 4.208V
 		else
 		    bq24196_set_vreg(0x25); //VREG 4.096V
-    }     
+    }
 #else
 /*lenovo-sw weiweij modified 20130117*/
 #if 1
@@ -2230,7 +2230,7 @@ void ChargerHwInit_bq24196(void)
     bq24196_set_vreg(0x2C); //VREG 4.208V
 #endif
 /*lenovo-sw weiweij modified 20130117 end*/
-#endif    
+#endif
     bq24196_set_batlowv(0x1); //BATLOWV 3.0V
     bq24196_set_vrechg(0x0); //VRECHG 0.1V (4.108V)
     bq24196_set_en_term(0x1); //Enable termination
@@ -2259,7 +2259,7 @@ void pchr_turn_off_charging_bq24196 (void)
 	}
 	else
 	{
-            bq24196_set_en_hiz(0x0);	
+            bq24196_set_en_hiz(0x0);
 	}
 }
 
@@ -2274,10 +2274,10 @@ void pchr_turn_on_charging_bq24196 (void)
 		pchr_turn_off_charging_bq24196();
 	}
     else if( (get_boot_mode()==META_BOOT) || (get_boot_mode()==ADVMETA_BOOT) )
-    {   
-        printk("[BATTERY:bq24196] In meta or advanced meta mode, disable charging.\r\n");    
+    {
+        printk("[BATTERY:bq24196] In meta or advanced meta mode, disable charging.\r\n");
         pchr_turn_off_charging_bq24196();
-    }	
+    }
 	else
 	{
  		ChargerHwInit_bq24196();
@@ -2309,7 +2309,7 @@ void pchr_turn_on_charging_bq24196 (void)
         {
             if((gFG_booting_counter_I_FLAG == 2) || (g_ocv_lookup_done == 1))
             {
-                bq24196_set_en_hiz(0x0);	            	
+                bq24196_set_en_hiz(0x0);
                 bq24196_set_chg_config(0x1); // charger enable
                 if (Enable_BATDRV_LOG == 1) {
                    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] charger enable !\r\n");
@@ -2520,15 +2520,15 @@ UINT32 BattVoltToPercent(UINT16 dwVoltage)
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
 int do_jeita_state_machine(void)
 {
-    //JEITA battery temp Standard 
-    if (BMT_status.temperature >= TEMP_POS_60_THRESHOLD) 
+    //JEITA battery temp Standard
+    if (BMT_status.temperature >= TEMP_POS_60_THRESHOLD)
     {
-        xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Over high Temperature(%d) !!\n\r", 
-            TEMP_POS_60_THRESHOLD);  
-        
+        xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Over high Temperature(%d) !!\n\r",
+            TEMP_POS_60_THRESHOLD);
+
         g_temp_status = TEMP_ABOVE_POS_60;
-        
-        return PMU_STATUS_FAIL; 
+
+        return PMU_STATUS_FAIL;
     }
     else if(BMT_status.temperature > TEMP_POS_45_THRESHOLD)  //control 45c to normal behavior
     {
@@ -2536,32 +2536,32 @@ int do_jeita_state_machine(void)
         if((g_temp_status == TEMP_ABOVE_POS_60) && (BMT_status.temperature >= TEMP_POS_60_THRES_MINUS_X_DEGREE))
         {
             xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-                TEMP_POS_60_THRES_MINUS_X_DEGREE,TEMP_POS_60_THRESHOLD); 
-            
-            return PMU_STATUS_FAIL; 
+                TEMP_POS_60_THRES_MINUS_X_DEGREE,TEMP_POS_60_THRESHOLD);
+
+            return PMU_STATUS_FAIL;
         }
         else
         {
             xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d !!\n\r",
-                TEMP_POS_45_THRESHOLD,TEMP_POS_60_THRESHOLD); 
-            
+                TEMP_POS_45_THRESHOLD,TEMP_POS_60_THRESHOLD);
+
             g_temp_status = TEMP_POS_45_TO_POS_60;
-            g_jeita_recharging_voltage = 3980;   
+            g_jeita_recharging_voltage = 3980;
         }
     }
     else if(BMT_status.temperature >= TEMP_POS_10_THRESHOLD)
     {
         if( ((g_temp_status == TEMP_POS_45_TO_POS_60) && (BMT_status.temperature >= TEMP_POS_45_THRES_MINUS_X_DEGREE)) ||
-            ((g_temp_status == TEMP_POS_0_TO_POS_10 ) && (BMT_status.temperature <= TEMP_POS_10_THRES_PLUS_X_DEGREE ))      ) 
+            ((g_temp_status == TEMP_POS_0_TO_POS_10 ) && (BMT_status.temperature <= TEMP_POS_10_THRES_PLUS_X_DEGREE ))      )
         {
-            xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature not recovery to normal temperature charging mode yet!!\n\r");     
+            xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature not recovery to normal temperature charging mode yet!!\n\r");
         }
         else
         {
             if(Enable_BATDRV_LOG >=1)
             {
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Battery Normal Temperature between %d and %d !!\n\r",
-                    TEMP_POS_10_THRESHOLD,TEMP_POS_45_THRESHOLD); 
+                    TEMP_POS_10_THRESHOLD,TEMP_POS_45_THRESHOLD);
             }
             g_temp_status = TEMP_POS_10_TO_POS_45;
             g_jeita_recharging_voltage = 4080;
@@ -2573,19 +2573,19 @@ int do_jeita_state_machine(void)
         {
 			if (g_temp_status == TEMP_NEG_10_TO_POS_0) {
 				xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d !!\n\r",
-					TEMP_POS_0_THRES_PLUS_X_DEGREE,TEMP_POS_10_THRESHOLD); 
+					TEMP_POS_0_THRES_PLUS_X_DEGREE,TEMP_POS_10_THRESHOLD);
 			}
 			if (g_temp_status == TEMP_BELOW_NEG_10) {
 				xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-					TEMP_POS_0_THRESHOLD,TEMP_POS_0_THRES_PLUS_X_DEGREE); 
-				return PMU_STATUS_FAIL; 
+					TEMP_POS_0_THRESHOLD,TEMP_POS_0_THRES_PLUS_X_DEGREE);
+				return PMU_STATUS_FAIL;
 			}
-        }    
+        }
         else
         {
             xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d !!\n\r",
-                TEMP_POS_0_THRESHOLD,TEMP_POS_10_THRESHOLD); 
-            
+                TEMP_POS_0_THRESHOLD,TEMP_POS_10_THRESHOLD);
+
             g_temp_status = TEMP_POS_0_TO_POS_10;
             g_jeita_recharging_voltage = 3980;
         }
@@ -2595,26 +2595,26 @@ int do_jeita_state_machine(void)
         if((g_temp_status == TEMP_BELOW_NEG_10) && (BMT_status.temperature <= TEMP_NEG_10_THRES_PLUS_X_DEGREE))
         {
             xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-                TEMP_NEG_10_THRESHOLD,TEMP_NEG_10_THRES_PLUS_X_DEGREE); 
-            
-            return PMU_STATUS_FAIL; 
+                TEMP_NEG_10_THRESHOLD,TEMP_NEG_10_THRES_PLUS_X_DEGREE);
+
+            return PMU_STATUS_FAIL;
         }
         else
         {
             xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery Temperature between %d and %d !!\n\r",
-                TEMP_NEG_10_THRESHOLD,TEMP_POS_0_THRESHOLD); 
-            
+                TEMP_NEG_10_THRESHOLD,TEMP_POS_0_THRESHOLD);
+
             g_temp_status = TEMP_NEG_10_TO_POS_0;
             g_jeita_recharging_voltage = 3880;
         }
     }
     else
     {
-        xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery below low Temperature(%d) !!\n\r", 
-            TEMP_NEG_10_THRESHOLD);  
+        xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY:bq24196] Battery below low Temperature(%d) !!\n\r",
+            TEMP_NEG_10_THRESHOLD);
         g_temp_status = TEMP_BELOW_NEG_10;
-        
-        return PMU_STATUS_FAIL; 
+
+        return PMU_STATUS_FAIL;
     }
 }
 #endif
@@ -2634,18 +2634,18 @@ int BAT_CheckBatteryStatus_bq24196(void)
     int returnData = 0;
 #endif
 
-    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */ 
+    /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */
     //BMT_status.ICharging has latency, so I put it here.
-    	{ 
+    	{
 	   fg_current_temp = fgauge_read_current();
 	   printk("Xuehui battery g_current:%d ", fg_current_temp);
-	                  //200mA compensation for system comsuming, and div 10 to mA 
+	                  //200mA compensation for system comsuming, and div 10 to mA
 	    if (get_gFG_Is_Charging())      fg_current_temp = 200 + fg_current_temp/10;
-	    else                      fg_current_temp = 0; 	
-		
+	    else                      fg_current_temp = 0;
+
           mt6320_battery_main.BAT_Icharging =  fg_current_temp;
-	}   
-    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */ 	
+	}
+    /*Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */
 
     /* Get Battery Information : start --------------------------------------------------------------------------*/
     if(g_chr_event != 0)
@@ -2663,13 +2663,13 @@ int BAT_CheckBatteryStatus_bq24196(void)
     BMT_status.charger_vol = BMT_status.charger_vol / 100;
 
     /* Get V_BAT_Temperature */
-    bat_temperature_volt = get_tbat_volt(5); 
+    bat_temperature_volt = get_tbat_volt(5);
 	if(bat_temperature_volt == 0)
 	{
-#ifdef BEFORE_TREF_REWORK	
+#ifdef BEFORE_TREF_REWORK
 //	    if(upmu_get_cid() == 0x1020)
 	        g_bat_temperature_pre = 22; // MT6320 E1 workaround
-#endif	        
+#endif
 		BMT_status.temperature = g_bat_temperature_pre;
 		if (Enable_BATDRV_LOG == 1) {
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] Warning !! bat_temperature_volt == 0, restore temperature value\n\r");
@@ -2701,28 +2701,28 @@ int BAT_CheckBatteryStatus_bq24196(void)
                 bat_temperature_volt_temp = bat_temperature_volt;
                 bat_temperature_volt = bat_temperature_volt + ((fg_current_temp*fg_r_value)/1000);
             }
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[tbat_workaround] %d,%d,%d,%d,%d\n", 
-                bat_temperature_volt_temp, bat_temperature_volt, fg_current_state, fg_current_temp, fg_r_value);        
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[tbat_workaround] %d,%d,%d,%d,%d\n",
+                bat_temperature_volt_temp, bat_temperature_volt, fg_current_state, fg_current_temp, fg_r_value);
         }
         //-----------------------------------------------------------------------------
 #endif
-        BMT_status.temperature = BattVoltToTemp(bat_temperature_volt);   
+        BMT_status.temperature = BattVoltToTemp(bat_temperature_volt);
         g_bat_temperature_pre = BMT_status.temperature;
 	}
-	
+
 #ifdef MTK_BQ27541_SUPPORT
 		ret = bq27541_set_cmd_read(BQ27541_CMD_Temperature, &returnData);
 		if(ret != 1)
 		{
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:ADC:bq27541] bq27541 i2c access error, use MT6320 measured battery temperature\n");
-		}	
+		}
 		else
 		{
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:ADC:bq27541] battery temperature read raw data(%d)0.1K\n", returnData); 
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:ADC:bq27541] battery temperature read raw data(%d)0.1K\n", returnData);
 			BMT_status.temperature = ((returnData/10) - 273);
 		}
 #endif
-	
+
     if((g_battery_tt_check_flag == 0) && (BMT_status.temperature < MAX_CHARGE_TEMPERATURE) && (BMT_status.temperature > MIN_CHARGE_TEMPERATURE))
     {
         g_battery_thermal_throttling_flag = 1;
@@ -2753,13 +2753,13 @@ int BAT_CheckBatteryStatus_bq24196(void)
         ret = bq27541_set_cmd_read(BQ27541_CMD_StateOfCharge, &returnData);
         if(ret != 1)
         {
-            BMT_status.SOC = BattVoltToPercent(BMT_status.bat_vol);         
+            BMT_status.SOC = BattVoltToPercent(BMT_status.bat_vol);
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 i2c access error\n");
-        }	
+        }
 		else
 		{
 		    BMT_status.SOC = returnData;
-                    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);		    
+                    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);
 		}
 #else
         BMT_status.SOC = BattVoltToPercent(BMT_status.bat_vol);
@@ -2769,9 +2769,9 @@ int BAT_CheckBatteryStatus_bq24196(void)
         {
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
             if (BMT_status.bat_vol >= g_jeita_recharging_voltage)
-#else        
-            if (BMT_status.bat_vol >= RECHARGING_VOLTAGE) 
-#endif         
+#else
+            if (BMT_status.bat_vol >= RECHARGING_VOLTAGE)
+#endif
             {
                 BMT_status.SOC = 100;
                 BMT_status.bat_full = KAL_TRUE;
@@ -2792,14 +2792,14 @@ int BAT_CheckBatteryStatus_bq24196(void)
             for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
                 batteryVoltageBuffer[i] = BMT_status.bat_vol;
                 batteryCurrentBuffer[i] = BMT_status.ICharging;
-#ifndef MTK_BQ27541_SUPPORT				
+#ifndef MTK_BQ27541_SUPPORT
                 batterySOCBuffer[i] = BMT_status.SOC;
 #endif
             }
 
             batteryVoltageSum = BMT_status.bat_vol * BATTERY_AVERAGE_SIZE;
             batteryCurrentSum = BMT_status.ICharging * BATTERY_AVERAGE_SIZE;
-#ifndef MTK_BQ27541_SUPPORT			
+#ifndef MTK_BQ27541_SUPPORT
             batterySOCSum = BMT_status.SOC * BATTERY_AVERAGE_SIZE;
 #endif
         }
@@ -2817,7 +2817,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
         if (g_bat_full_user_view)
             BMT_status.SOC = 100;
 
-#ifndef MTK_BQ27541_SUPPORT				
+#ifndef MTK_BQ27541_SUPPORT
         batterySOCSum -= batterySOCBuffer[batteryIndex];
         batterySOCSum += BMT_status.SOC;
         batterySOCBuffer[batteryIndex] = BMT_status.SOC;
@@ -2825,7 +2825,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
 
         BMT_status.bat_vol = batteryVoltageSum / BATTERY_AVERAGE_SIZE;
         BMT_status.ICharging = batteryCurrentSum / BATTERY_AVERAGE_SIZE;
-#ifndef MTK_BQ27541_SUPPORT						
+#ifndef MTK_BQ27541_SUPPORT
         BMT_status.SOC = batterySOCSum / BATTERY_AVERAGE_SIZE;
 #endif
 
@@ -2848,11 +2848,11 @@ int BAT_CheckBatteryStatus_bq24196(void)
         {
            	BMT_status.SOC = FGADC_Get_BatteryCapacity_CoulombMothod();
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 i2c access error\n");
-        }	
+        }
         else
         {
             BMT_status.SOC = returnData;
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);		                
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);
         }
 #else
         BMT_status.SOC = FGADC_Get_BatteryCapacity_CoulombMothod();
@@ -2882,9 +2882,9 @@ int BAT_CheckBatteryStatus_bq24196(void)
                     bat_volt_check_point = BMT_status.SOC;
                 }
             }
-#ifdef MTK_BQ27541_SUPPORT           
+#ifdef MTK_BQ27541_SUPPORT
             bat_volt_check_point = BMT_status.SOC;
-#endif            
+#endif
         }
 
         /**************** Averaging : START ****************/
@@ -2895,12 +2895,12 @@ int BAT_CheckBatteryStatus_bq24196(void)
             for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
                 batteryVoltageBuffer[i] = BMT_status.bat_vol;
                 batteryCurrentBuffer[i] = BMT_status.ICharging;
-                batteryTempBuffer[i] = BMT_status.temperature;				
+                batteryTempBuffer[i] = BMT_status.temperature;
             }
 
             batteryVoltageSum = BMT_status.bat_vol * BATTERY_AVERAGE_SIZE;
             batteryCurrentSum = BMT_status.ICharging * BATTERY_AVERAGE_SIZE;
-            batteryTempSum = BMT_status.temperature * BATTERY_AVERAGE_SIZE;			
+            batteryTempSum = BMT_status.temperature * BATTERY_AVERAGE_SIZE;
         }
 
         if( (batteryCurrentSum==0) && (BMT_status.ICharging!=0) )
@@ -2921,7 +2921,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
 
         batteryTempSum -= batteryTempBuffer[batteryIndex];
         batteryTempSum += BMT_status.temperature;
-        batteryTempBuffer[batteryIndex] = BMT_status.temperature;   
+        batteryTempBuffer[batteryIndex] = BMT_status.temperature;
 
         BMT_status.bat_vol = batteryVoltageSum / BATTERY_AVERAGE_SIZE;
         BMT_status.ICharging = batteryCurrentSum / BATTERY_AVERAGE_SIZE;
@@ -2938,10 +2938,10 @@ int BAT_CheckBatteryStatus_bq24196(void)
 	if(ret != 1)
 	{
 		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:AVG:bq27541] bq27541 i2c access error, use MT6320 measured battery temperature\n");
-	}	
+	}
 	else
 	{
-		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:AVG:bq27541] battery temperature read raw data(%d)0.1K\n", returnData);	
+		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:AVG:bq27541] battery temperature read raw data(%d)0.1K\n", returnData);
 		BMT_status.temperature = ((returnData/10) - 273);
 	}
 #endif
@@ -2972,8 +2972,8 @@ int BAT_CheckBatteryStatus_bq24196(void)
                 printk("[Boot SOC workaround 2] boot_soc_temp=%d, BMT_status.SOC=%d, boot_soc_temp_count=%d, gFG_DOD0=%d, gFG_DOD1=%d\n",
                     boot_soc_temp, BMT_status.SOC, boot_soc_temp_count, gFG_DOD0, gFG_DOD1);
             }
-        }       
-    }    
+        }
+    }
     //------------------------------------------------------------
 #endif
 
@@ -3003,28 +3003,28 @@ int BAT_CheckBatteryStatus_bq24196(void)
     {
         printk(  "[BATTERY:bq24196] Battery Protection Check !!\n");
     }
-	
+
     if(battery_cmd_thermal_test_mode == 1){
         BMT_status.temperature = battery_cmd_thermal_test_mode_value;
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] In thermal_test_mode, Tbat=%d\n", BMT_status.temperature);
-    }	
+    }
 
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
     if (Enable_BATDRV_LOG == 1) {
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] support JEITA, Tbat=%d\n", BMT_status.temperature);            
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] support JEITA, Tbat=%d\n", BMT_status.temperature);
     }
     if( do_jeita_state_machine() == PMU_STATUS_FAIL)
     {
         printk(  "[BATTERY:bq24196] JEITA : fail\n");
-        BMT_status.bat_charging_state = CHR_ERROR;        
+        BMT_status.bat_charging_state = CHR_ERROR;
         return PMU_STATUS_FAIL;
     }
-#else        
+#else
     #if (BAT_TEMP_PROTECT_ENABLE == 1)
     if ((BMT_status.temperature < MIN_CHARGE_TEMPERATURE) ||
         (BMT_status.temperature == ERR_CHARGE_TEMPERATURE))
     {
-        printk(  "[BATTERY:bq24196] Battery Under Temperature or NTC fail !!\n\r");                
+        printk(  "[BATTERY:bq24196] Battery Under Temperature or NTC fail !!\n\r");
 /*lenovo-sw weiweij added 20120820*/
 #if 1
 	if(charging_state_bak == 0)
@@ -3038,14 +3038,14 @@ int BAT_CheckBatteryStatus_bq24196(void)
     #endif
     if (BMT_status.temperature >= MAX_CHARGE_TEMPERATURE)
     {
-        printk(  "[BATTERY:bq24196] Battery Over Temperature !!\n\r");     
+        printk(  "[BATTERY:bq24196] Battery Over Temperature !!\n\r");
 /*lenovo-sw weiweij added 20120820*/
 #if 1
 	if(charging_state_bak == 0)
 		charging_state_bak = BMT_status.bat_charging_state;
 	charging_flag = 4;
 #endif
-/*lenovo-sw weiweij added 20120820 end*/ 
+/*lenovo-sw weiweij added 20120820 end*/
         BMT_status.bat_charging_state = CHR_ERROR;
         return PMU_STATUS_FAIL;
     }
@@ -3056,14 +3056,14 @@ int BAT_CheckBatteryStatus_bq24196(void)
         #if (V_CHARGER_ENABLE == 1)
         if (BMT_status.charger_vol <= V_CHARGER_MIN )
         {
-            printk(  "[BATTERY:bq24196]Charger under voltage!!\r\n");    
+            printk(  "[BATTERY:bq24196]Charger under voltage!!\r\n");
             BMT_status.bat_charging_state = CHR_ERROR;
             return PMU_STATUS_FAIL;
         }
         #endif
         if ( BMT_status.charger_vol >= V_CHARGER_MAX )
         {
-            printk(  "[BATTERY:bq24196]Charger over voltage!!\r\n");    
+            printk(  "[BATTERY:bq24196]Charger over voltage!!\r\n");
             BMT_status.charger_protect_status = charger_OVER_VOL;
             BMT_status.bat_charging_state = CHR_ERROR;
             return PMU_STATUS_FAIL;
@@ -3074,10 +3074,10 @@ int BAT_CheckBatteryStatus_bq24196(void)
     if( upmu_is_chr_det() == KAL_TRUE)
     {
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
-        if((BMT_status.bat_vol < g_jeita_recharging_voltage) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail) )    
-#else    
-        if((BMT_status.bat_vol < RECHARGING_VOLTAGE) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail) )    
-#endif     
+        if((BMT_status.bat_vol < g_jeita_recharging_voltage) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail) )
+#else
+        if((BMT_status.bat_vol < RECHARGING_VOLTAGE) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail) )
+#endif
         {
             if (Enable_BATDRV_LOG == 1) {
             	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Battery Re-charging !!\n\r");
@@ -3127,7 +3127,7 @@ PMU_STATUS BAT_BatteryStatusFailAction(void)
     {
         temp_error_recovery_chr_flag=KAL_FALSE;
     }
-    	
+
     if((temp_error_recovery_chr_flag==KAL_FALSE) && (g_temp_status != TEMP_ABOVE_POS_60) && (g_temp_status != TEMP_BELOW_NEG_10))
     {
         temp_error_recovery_chr_flag=KAL_TRUE;
@@ -3171,17 +3171,17 @@ extern void fg_qmax_update_for_aging(void);
 
 PMU_STATUS BAT_BatteryFullAction(void)
 {
-    if (Enable_BATDRV_LOG == 1) {    
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] check Battery full !!\n\r");            
+    if (Enable_BATDRV_LOG == 1) {
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] check Battery full !!\n\r");
     }
-    
+
     BMT_status.bat_full = KAL_TRUE;
     BMT_status.total_charging_time = 0;
     BMT_status.PRE_charging_time = 0;
     BMT_status.CC_charging_time = 0;
     BMT_status.TOPOFF_charging_time = 0;
     BMT_status.POSTFULL_charging_time = 0;
-    
+
     g_HW_Charging_Done = 1;
     fg_qmax_update_for_aging();
     g_Calibration_FG = 1;
@@ -3189,16 +3189,16 @@ PMU_STATUS BAT_BatteryFullAction(void)
     {
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
         if(BMT_status.bat_vol > g_jeita_recharging_voltage + 70 )  //4
-#else   
-/*lenovo-sw weiweij modified 20130311*/ 
+#else
+/*lenovo-sw weiweij modified 20130311*/
 #if 0
         if(BMT_status.bat_vol > 4150)
 #else
 		if(BMT_status.bat_vol > 4290)
 #endif
-/*lenovo-sw weiweij modified 20130311 end*/ 
-#endif      
-        {   
+/*lenovo-sw weiweij modified 20130311 end*/
+#endif
+        {
             gFG_can_reset_flag = 0;
 
             if (Enable_BATDRV_LOG >= 1) {
@@ -3209,9 +3209,9 @@ PMU_STATUS BAT_BatteryFullAction(void)
         else
         {
             if (Enable_BATDRV_LOG >= 1) {
-                printk("[BATTERY:bq24196] double check Battery Re-charging !!\n");                
+                printk("[BATTERY:bq24196] double check Battery Re-charging !!\n");
             }
-            BMT_status.bat_full = KAL_FALSE;    
+            BMT_status.bat_full = KAL_FALSE;
             g_bat_full_user_view = KAL_TRUE;
             g_HW_Charging_Done = 0;
             if (Enable_BATDRV_LOG >= 1) {
@@ -3223,23 +3223,23 @@ PMU_STATUS BAT_BatteryFullAction(void)
 
     /*  Disable charger */
     pchr_turn_off_charging_bq24196();
-    
+
     gSyncPercentage=1;
-    
+
     return PMU_STATUS_OK;
 }
 
 void mt_battery_notify_check(void)
 {
     g_BatteryNotifyCode = 0x0000;
-    
+
     if(g_BN_TestMode == 0x0000)
     {
         if (Enable_BATDRV_LOG == 1) {
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BATTERY:bq24196] mt_battery_notify_check\n");
         }
 
-#if defined(BATTERY_NOTIFY_CASE_0000)    
+#if defined(BATTERY_NOTIFY_CASE_0000)
         if (Enable_BATDRV_LOG == 1) {
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0000\n");
         }
@@ -3250,7 +3250,7 @@ void mt_battery_notify_check(void)
         //if(BMT_status.charger_vol > 3000) //test
         {
             g_BatteryNotifyCode |= 0x0001;
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BMT_status.charger_vol(%d) > %d mV\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BMT_status.charger_vol(%d) > %d mV\n",
                 BMT_status.charger_vol, V_CHARGER_MAX);
         }
         else
@@ -3258,9 +3258,9 @@ void mt_battery_notify_check(void)
             g_BatteryNotifyCode &= ~(0x0001);
         }
         if (Enable_BATDRV_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0001 (%x)\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0001 (%x)\n",
                 g_BatteryNotifyCode);
-        }    
+        }
 #endif
 
 /*lenovo-sw weiweij move temp warning to powerui 20120815*/
@@ -3277,9 +3277,9 @@ void mt_battery_notify_check(void)
             g_BatteryNotifyCode &= ~(0x0002);
         }
         if (Enable_BATDRV_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0002 (%x)\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0002 (%x)\n",
                 g_BatteryNotifyCode);
-        }    
+        }
 #endif
 #endif
 /*lenovo-sw weiweij move temp warning to powerui 20120815 end*/
@@ -3298,9 +3298,9 @@ void mt_battery_notify_check(void)
             g_BatteryNotifyCode &= ~(0x0004);
         }
         if (Enable_BATDRV_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0003 (%x)\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0003 (%x)\n",
                 g_BatteryNotifyCode);
-        }    
+        }
 #endif
 
 #if defined(BATTERY_NOTIFY_CASE_0004)
@@ -3315,7 +3315,7 @@ void mt_battery_notify_check(void)
             g_BatteryNotifyCode &= ~(0x0008);
         }
         if (Enable_BATDRV_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0004 (%x)\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0004 (%x)\n",
                 g_BatteryNotifyCode);
         }
 #endif
@@ -3338,9 +3338,9 @@ void mt_battery_notify_check(void)
                 g_BatteryNotifyCode &= ~(0x0010);
             }
         }
-        
+
         if (Enable_BATDRV_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0005 (%x)\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] BATTERY_NOTIFY_CASE_0005 (%x)\n",
                 g_BatteryNotifyCode);
         }
 #endif
@@ -3348,12 +3348,12 @@ void mt_battery_notify_check(void)
 /*lenovo-sw weiweij move temp warning to powerui 20120815*/
 #if 1
 		if (Enable_BATDRV_LOG == 1) {
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_temperature = (%d)\n", 
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_temperature = (%d)\n",
 				BMT_status.temperature);
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_charging_flag = (0x%x)\n", 
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_charging_flag = (0x%x)\n",
 				charging_flag);
-		}	
-		
+		}
+
 //		if(BMT_status.temperature >= 50)
 		if(charging_flag==4)
 		{
@@ -3394,12 +3394,12 @@ void mt_battery_notify_check(void)
 		else
 		{
 			g_BatteryNotifyCode &= ~(0x1000);
-		}	
+		}
 
 		if (Enable_BATDRV_LOG == 1) {
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_notifycode = (0x%x)\n", 
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] temp_warning_notifycode = (0x%x)\n",
 				g_BatteryNotifyCode);
-		}		
+		}
 #endif
 /*lenovo-sw weiweij move temp warning to powerui 20120815 end*/
 
@@ -3443,7 +3443,7 @@ void check_battery_exist(void)
     baton_count += upmu_get_rgs_baton_undet();
     baton_count += upmu_get_rgs_baton_undet();
     baton_count += upmu_get_rgs_baton_undet();
-        
+
     if( baton_count >= 3)
     {
         if( (g_boot_mode==META_BOOT) || (g_boot_mode==ATE_FACTORY_BOOT) )
@@ -3454,7 +3454,7 @@ void check_battery_exist(void)
         {
             printk("[BATTERY] Battery is not exist, power off FAN5405 and system (%d)\n", baton_count);
             pchr_turn_off_charging_fan5405();
-            arch_reset(0,NULL);      
+            arch_reset(0,NULL);
         }
     }
 #else
@@ -3485,16 +3485,16 @@ void pmic_init_for_bq24196(void)
 
     upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL
     upmu_set_rg_bc11_rst(1);        //BC11_RST
-    
+
     upmu_set_rg_csdac_mode(0);      //CSDAC_MODE
     upmu_set_rg_vbat_ov_en(0);      //VBAT_OV_EN
-    upmu_set_rg_vbat_ov_vth(0x0);   //VBAT_OV_VTH, 4.3V    
+    upmu_set_rg_vbat_ov_vth(0x0);   //VBAT_OV_VTH, 4.3V
 //    upmu_set_rg_baton_en(1);        //BATON_EN
 
     //Tim, for TBAT
 //    upmu_set_rg_buf_pwd_b(1);       //RG_BUF_PWD_B
     upmu_set_rg_baton_ht_en(0);     //BATON_HT_EN
-    
+
     upmu_set_rg_ulc_det_en(0);      // RG_ULC_DET_EN=1
     upmu_set_rg_low_ich_db(1);      // RG_LOW_ICH_DB=000001'b
 
@@ -3506,7 +3506,7 @@ void pmic_init_for_bq24196(void)
 
 void BAT_UpdateChargerStatus(void)
 {
-#if !defined(CONFIG_POWER_EXT)	
+#if !defined(CONFIG_POWER_EXT)
     if(gFG_booting_counter_I_FLAG == 2) {
         mt6320_ac_update(&mt6320_ac_main);
         mt6320_usb_update(&mt6320_usb_main);
@@ -3539,7 +3539,7 @@ void BAT_thread_bq24196(void)
             if(ret_val > RECHARGING_VOLTAGE)
 /*lenovo-sw weiweij modified end*/
             {
-                g_bat_full_user_view = KAL_TRUE;                
+                g_bat_full_user_view = KAL_TRUE;
             }
             printk("[BATTERY:bq24196] ret_val=%d, g_bat_full_user_view=%d\n", ret_val, g_bat_full_user_view);
         }
@@ -3547,14 +3547,14 @@ void BAT_thread_bq24196(void)
     }
 
     if (Enable_BATDRV_LOG == 1) {
-#if defined(MTK_JEITA_STANDARD_SUPPORT)   
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BAT_thread_bq24196] LOG. %d,%d,%d, %d----------------------------\n",
         BATTERY_AVERAGE_SIZE, RECHARGING_VOLTAGE, gFG_15_vlot, mtk_jeita_support_flag);
 #else
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BAT_thread_bq24196] LOG. %d,%d,%d----------------------------\n",
         BATTERY_AVERAGE_SIZE, RECHARGING_VOLTAGE, gFG_15_vlot);
-#endif		
-    }    
+#endif
+    }
 
     if(g_battery_thermal_throttling_flag==1)
     {
@@ -3565,16 +3565,16 @@ void BAT_thread_bq24196(void)
 
 /*lenovo-sw weiweij move temp 60C to powerui 20120815*/
 #if 0
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
-        //ignore default rule		 
-#else    
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
+        //ignore default rule
+#else
         if(BMT_status.temperature >= 60)
         {
 #if defined(CONFIG_POWER_EXT)
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BATTERY:bq24196] CONFIG_POWER_EXT, no update mt6577_battery_update_power_down.\n");
 #else
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Battery:bq24196] Tbat(%d)>=60, system need power down.\n", BMT_status.temperature);
-            mt6320_battery_update_power_down(&mt6320_battery_main);			
+            mt6320_battery_update_power_down(&mt6320_battery_main);
             if( upmu_is_chr_det() == KAL_TRUE )
             {
                 // can not power down due to charger exist, so need reset system
@@ -3584,9 +3584,9 @@ void BAT_thread_bq24196(void)
             mt_power_off();
 #endif
         }
-#endif		
-#endif		
-/*lenovo-sw weiweij move temp warning to powerui 20120815 end*/  
+#endif
+#endif
+/*lenovo-sw weiweij move temp warning to powerui 20120815 end*/
     }
 
     /* If charger exist, than get the charger type */
@@ -3669,7 +3669,7 @@ void BAT_thread_bq24196(void)
     }
 
 /*lenovo-sw weiweij modified 20120816*/
-#if 0	
+#if 0
     if( BAT_status == PMU_STATUS_FAIL )
         g_Battery_Fail = KAL_TRUE;
     else if( chr_err_cnt > 0 )
@@ -3682,10 +3682,10 @@ void BAT_thread_bq24196(void)
 		if((BMT_status.temperature>0+STEP_TEMP)&&(BMT_status.temperature<50-STEP_TEMP)
 			&&(charging_state_bak>0))
 		{
-			printk("[BATTERY:fan5405] resume charging from temp error state !state = 0x%x temp=%d\r\n", 
+			printk("[BATTERY:fan5405] resume charging from temp error state !state = 0x%x temp=%d\r\n",
 				charging_state_bak, BMT_status.temperature);
 			BMT_status.bat_charging_state = charging_state_bak;
-			charging_state_bak = 0;		
+			charging_state_bak = 0;
 /*			if(bat_state_bak!=-1)
 			{
 				mt6577_battery_main.BAT_STATUS = bat_state_bak;
@@ -3695,7 +3695,7 @@ void BAT_thread_bq24196(void)
 		}else
 		{
 			printk("[BATTERY:fan5405] Charger Error, turn OFF charging !\r\n");
-			g_Battery_Fail = KAL_TRUE;		
+			g_Battery_Fail = KAL_TRUE;
 		}
 	}else
 		g_Battery_Fail = KAL_FALSE;
@@ -3707,24 +3707,24 @@ void BAT_thread_bq24196(void)
         battery_temprange_change_flag=0;
     }else{
         battery_temprange_change_flag=1;
-    }  
-    	
+    }
+
     if(battery_temprange_change_flag==1)	//if temperature range change, then reset cv threshold	Tim 20120803 report
-    {					 
+    {
         if(g_temp_status == TEMP_NEG_10_TO_POS_0)
         {
 			bq24196_set_vreg(0x1F); //VREG 4.0V
         }
         else if(g_temp_status == TEMP_POS_10_TO_POS_45)
         {
-		    bq24196_set_vreg(0x2C); //VREG 4.208V			
+		    bq24196_set_vreg(0x2C); //VREG 4.208V
         }
         else if((g_temp_status == TEMP_POS_0_TO_POS_10)||(g_temp_status == TEMP_POS_45_TO_POS_60))
-        {	  
+        {
 		    bq24196_set_vreg(0x25); //VREG 4.096V
         }
         else{
-		    bq24196_set_vreg(0x2C); //VREG 4.208V			
+		    bq24196_set_vreg(0x2C); //VREG 4.208V
         }
     }
 #else
@@ -3735,13 +3735,13 @@ void BAT_thread_bq24196(void)
         BMT_status.temperature = battery_cmd_thermal_test_mode_value;
 	    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] In thermal_test_mode 3, Tbat=%d\n", BMT_status.temperature);
     }
-    
+
     /* Battery Notify Check */
     mt_battery_notify_check();
 
 #if defined(CONFIG_POWER_EXT)
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] CONFIG_POWER_EXT, no update Android.\n");
-#elif defined(MTK_KERNEL_POWER_OFF_CHARGING) 
+#elif defined(MTK_KERNEL_POWER_OFF_CHARGING)
 	/*Only in kpoc mode*/
 	if(gFG_booting_counter_I_FLAG == 1)
 	{
@@ -3756,20 +3756,20 @@ void BAT_thread_bq24196(void)
 #ifdef MTK_BQ27541_SUPPORT
             ret = bq27541_set_cmd_read(BQ27541_CMD_StateOfCharge, &returnData);
             if(ret != 1)
-            {                
+            {
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 i2c access error\n");
-            }	
+            }
             else
             {
                 mt6320_battery_main.BAT_CAPACITY = returnData;
             }
-#endif		    
-		    
+#endif
+
 			if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT || g_boot_mode == LOW_POWER_OFF_CHARGING_BOOT)
-			{			
+			{
 				mt6320_ac_update(&mt6320_ac_main);
 				mt6320_usb_update(&mt6320_usb_main);
-				mt6320_battery_update(&mt6320_battery_main);  
+				mt6320_battery_update(&mt6320_battery_main);
 			}
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] gFG_booting_counter_I_FLAG is 1, soc=%d\n", fgauge_read_capacity_by_v());
 		}
@@ -3784,7 +3784,7 @@ void BAT_thread_bq24196(void)
 				ret_val=get_bat_sense_volt(1);
 				if(ret_val > 4110)
 				{
-					g_bat_full_user_view = KAL_TRUE;                
+					g_bat_full_user_view = KAL_TRUE;
 				}
 				printk("[BATTERY] ret_val=%d, g_bat_full_user_view=%d\n", ret_val, g_bat_full_user_view);
 			}
@@ -3794,7 +3794,7 @@ void BAT_thread_bq24196(void)
 
 		mt6320_ac_update(&mt6320_ac_main);
 		mt6320_usb_update(&mt6320_usb_main);
-		mt6320_battery_update(&mt6320_battery_main);  	
+		mt6320_battery_update(&mt6320_battery_main);
 	}
 	else
 	{
@@ -3823,18 +3823,18 @@ void BAT_thread_bq24196(void)
             {
                 mt6320_battery_main.BAT_CAPACITY = 50;
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 i2c access error\n");
-            }	
+            }
             else
             {
                 mt6320_battery_main.BAT_CAPACITY = returnData;
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);		                    
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);
             }
 #else
             mt6320_battery_main.BAT_CAPACITY = 50;
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] gFG_booting_counter_I_FLAG is 1, SOC=50.\n");
-#endif        
+#endif
         }
-    }	
+    }
     else
     {
          xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] gFG_booting_counter_I_FLAG!=2 (%d)\r\n", gFG_booting_counter_I_FLAG);
@@ -3919,7 +3919,7 @@ void BAT_thread_bq24196(void)
         /* Charging OT */
         if(BMT_status.total_charging_time >= MAX_CHARGING_TIME)
         {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Charging over %d hr stop !!\n\r", MAX_CHARGING_TIME);        
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Charging over %d hr stop !!\n\r", MAX_CHARGING_TIME);
             BMT_status.total_charging_time = 0;
             BMT_status.PRE_charging_time = 0;
             BMT_status.CC_charging_time = 0;
@@ -3982,25 +3982,22 @@ void BAT_thread_bq24196(void)
             BMT_status.total_charging_time, bq24196_stat);
         }
 
-	 	 /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */ 
+	 	 /*Lenovo-sw begin yexh1 add 2013-04-12,add for bat charging current */
       if (BMT_status.total_charging_time <= 50)
         	{
-        	   printk("[BATTERY:fan5405] wake up again. Need to display Icharging ASAP in lenovo fac. mode.\n"); 
-                   msleep(50);  
+        	   printk("[BATTERY:fan5405] wake up again. Need to display Icharging ASAP in lenovo fac. mode.\n");
+                   msleep(50);
         	   wake_up_bat ();
 		}
-      /*    Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */ 	
-			
+      /*    Lenovo-sw end yexh1 add 2013-04-12,add for bat charging current */
+
     }
 
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
     g_last_temp_status = g_temp_status;
 #endif
 
-/*lenovo-sw weiweij modified for bq24196 running state check*/
-//    if (Enable_BATDRV_LOG == 1)
-	if(1)
-/*lenovo-sw weiweij modified for bq24196 running state check end*/
+    if (Enable_BATDRV_LOG == 1)
     {
         bq24196_dump_register();
     }
@@ -4040,27 +4037,27 @@ void PrechargeCheckStatus(void)
 #ifndef MTK_KERNEL_POWER_OFF_CHARGING
 	g_ocv_lookup_done = 0;
     return;
-#endif    
+#endif
 #endif
 
     if( get_charger_detect_status() == KAL_TRUE ) //do not check USB device check at precharge state
     {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Boot up during charging!\n");
         g_boot_charging = 1;
-//        bq24196_set_chg_config(0x1); // charger enable, in case adaptor plug in during booting period        
+//        bq24196_set_chg_config(0x1); // charger enable, in case adaptor plug in during booting period
 //        bq24196_set_batfet_disable(0x1); // turn off BATFET for bat_vol measurement
-        bq24196_set_chg_config(0x0); //for battery voltage measurement      
+        bq24196_set_chg_config(0x0); //for battery voltage measurement
         msleep(100);
         bat_vol = get_i_sense_volt(10);
         if(bat_vol >= 3600) //check battery OCV while disable BATFET
         {
             g_ocv_lookup_done = 0;
-//			bq24196_set_batfet_disable(0x0); // turn on BATFET before turn off charging	
+//			bq24196_set_batfet_disable(0x0); // turn on BATFET before turn off charging
 			msleep(100);
 //            pchr_turn_off_charging_bq24196();
 			bq24196_set_wdt_rst(0x1); //Kick watchdog
 			bq24196_set_chg_config(0x0);
-			bq24196_set_en_hiz(0x1);	
+			bq24196_set_en_hiz(0x1);
             bat_vol = get_i_sense_volt(10);
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] Powerpath init battery voltage > 3600, battery voltage during system discharging = %d\n", bat_vol);
             return;
@@ -4068,9 +4065,9 @@ void PrechargeCheckStatus(void)
         else
         {
 //            fgauge_precharge_init(); //TODO, check if still need FG to measure battery voltage recursively
-//			bq24196_set_batfet_disable(0x0); // turn on BATFET to continue charging			
+//			bq24196_set_batfet_disable(0x0); // turn on BATFET to continue charging
             bq24196_set_chg_config(0x1);
-			msleep(100);			
+			msleep(100);
             gFG_capacity = 0;
             bat_volt_check_point = 0;
 /*lenovo-sw weiwej added 20130312*/
@@ -4109,19 +4106,19 @@ void PrechargeCheckStatus(void)
 //            bat_vol = fgauge_precharge_compensated_voltage(7);
             bat_vol = get_i_sense_volt(10);
             sys_vol_dis = get_bat_sense_volt(10);
-//			bq24196_set_batfet_disable(0x0); // turn on BATFET		
+//			bq24196_set_batfet_disable(0x0); // turn on BATFET
             bq24196_set_chg_config(0x1);
             msleep(100);
 #if 0 // no use
 			//pull PSEL low
-			mt_set_gpio_mode(GPIO_CHR_PSEL_PIN,GPIO_MODE_GPIO);  
+			mt_set_gpio_mode(GPIO_CHR_PSEL_PIN,GPIO_MODE_GPIO);
 			mt_set_gpio_dir(GPIO_CHR_PSEL_PIN,GPIO_DIR_OUT);
 			mt_set_gpio_out(GPIO_CHR_PSEL_PIN,GPIO_OUT_ZERO);
-#endif			
+#endif
 			//pull CE low
-			mt_set_gpio_mode(GPIO_CHR_CE_PIN,GPIO_MODE_GPIO);  
+			mt_set_gpio_mode(GPIO_CHR_CE_PIN,GPIO_MODE_GPIO);
 			mt_set_gpio_dir(GPIO_CHR_CE_PIN,GPIO_DIR_OUT);
-			mt_set_gpio_out(GPIO_CHR_CE_PIN,GPIO_OUT_ZERO); 	
+			mt_set_gpio_out(GPIO_CHR_CE_PIN,GPIO_OUT_ZERO);
             bq24196_set_en_hiz(0x0);
             bq24196_set_vindpm(0xA); //VIN DPM check 4.68V
             bq24196_set_reg_rst(0x0);
@@ -4129,8 +4126,8 @@ void PrechargeCheckStatus(void)
 //			if(upmu_get_cid() == 0x1020)
       if(0)
 				bq24196_set_sys_min(0x0); //Minimum system voltage 3.0V (MT6320 E1 workaround, disable powerpath)
-			else		
-				bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V             
+			else
+				bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V
             bq24196_set_iprechg(0x3); //Precharge current 512mA
             bq24196_set_iterm(0x0); //Termination current 128mA
 /*lenovo-sw weiweij modified 20130117*/
@@ -4169,7 +4166,7 @@ void PrechargeCheckStatus(void)
             if(battery_cmd_thermal_test_mode == 1){
                 BMT_status.temperature = battery_cmd_thermal_test_mode_value;
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] In thermal_test_mode, Tbat=%d\n", BMT_status.temperature);
-            }			
+            }
 #if (BAT_TEMP_PROTECT_ENABLE == 1)
             if ((bat_temp <= MIN_CHARGE_TEMPERATURE) ||
             (bat_temp == ERR_CHARGE_TEMPERATURE))
@@ -4183,7 +4180,7 @@ void PrechargeCheckStatus(void)
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery",	"[BATTERY:bq24196] Powerpath precharge battery Over Temperature !!\n\r");
                 BMT_status.bat_charging_state = CHR_ERROR;
             }
-			
+
 #if (V_CHARGER_ENABLE == 1)
             if (charger_vol <= V_CHARGER_MIN )
             {
@@ -4196,13 +4193,13 @@ void PrechargeCheckStatus(void)
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery",	"[BATTERY:bq24196] Powerpath precharge charger over voltage !!\r\n");
                 BMT_status.bat_charging_state = CHR_ERROR;
             }
-			
+
             if(BMT_status.bat_charging_state == CHR_ERROR)
             {
                 chr_err_cnt = 120; // 120 * 5 = 600secs = 10 mins debounce
             }
             else if(chr_err_cnt > 0)
-            {					 
+            {
                 chr_err_cnt--;
             }
 
@@ -4227,7 +4224,7 @@ void PrechargeCheckStatus(void)
             }
             else
             {
-#if !defined(CONFIG_POWER_EXT)            
+#if !defined(CONFIG_POWER_EXT)
                 //update to android UI
                 mt6320_ac_update(&mt6320_ac_main);
                 mt6320_usb_update(&mt6320_usb_main);
@@ -4263,12 +4260,12 @@ void PrechargeCheckStatus(void)
         }
         else
         {
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196]VCDT voltage = %d\n", get_charger_volt(10));        
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196]VCDT voltage = %d\n", get_charger_volt(10));
             wake_unlock(&battery_suspend_lock);
 //            pchr_turn_off_charging_bq24196();
 			bq24196_set_wdt_rst(0x1); //Kick watchdog
 			bq24196_set_chg_config(0x0);
-			bq24196_set_en_hiz(0x1);	
+			bq24196_set_en_hiz(0x1);
             BMT_status.bat_charging_state = CHR_PRE;
 
             BMT_status.charger_type = CHARGER_UNKNOWN;
@@ -4278,8 +4275,8 @@ void PrechargeCheckStatus(void)
             g_Charging_Over_Time = 0;
             g_Calibration_FG = 0;
             mt_usb_disconnect();
-			
-#if !defined(CONFIG_POWER_EXT)            			
+
+#if !defined(CONFIG_POWER_EXT)
             //wait system power off if adaptor plug out during precharge state
             mt6320_ac_update(&mt6320_ac_main);
             mt6320_usb_update(&mt6320_usb_main);
@@ -4327,15 +4324,15 @@ int bat_thread_kthread(void *x)
     mutex_lock(&bat_mutex);
     pmic_init_for_bq24196();
     PrechargeCheckStatus();
-    mutex_unlock(&bat_mutex);	
+    mutex_unlock(&bat_mutex);
 
-    /* Run on a process content */  
-    while (1) {               
-        
+    /* Run on a process content */
+    while (1) {
+
         if(g_battery_flag_resume==0)
         {
             mutex_lock(&bat_mutex);
-            
+
 #if defined(CONFIG_POWER_EXT)
             BAT_thread_bq24196();
 #else
@@ -4345,17 +4342,17 @@ int bat_thread_kthread(void *x)
                 fgauge_initialization();
                 FGADC_thread_kthread();
                 //sync FG timer
-                FGADC_thread_kthread();		
+                FGADC_thread_kthread();
             }
             else
-            {            
+            {
                 // if plug-in/out USB, bypass once
                 if(g_chr_event==0)
-                {            
+                {
                     FGADC_thread_kthread();
                 }
-                
-                BAT_thread_bq24196();                      
+
+                BAT_thread_bq24196();
             }
 #endif
 
@@ -4366,7 +4363,7 @@ int bat_thread_kthread(void *x)
             g_battery_flag_resume=0;
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[bat_thread_kthread] g_battery_flag_resume=%d\r\n", g_battery_flag_resume);
         }
-        
+
         if (Enable_BATDRV_LOG == 1) {
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "******** MT6320 battery : bat_thread_kthread : 1 ********\n" );
         }
@@ -4376,15 +4373,15 @@ int bat_thread_kthread(void *x)
         if (Enable_BATDRV_LOG == 1) {
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "******** MT6320 battery : bat_thread_kthread : 2 ********\n" );
         }
-        
+
         bat_thread_timeout=0;
 
         if( g_wake_up_bat==1 )
         {
             g_wake_up_bat=0;
             g_Calibration_FG = 0;
-/*lenovo-sw weiweij added 20120911*/			
-#if 1			
+/*lenovo-sw weiweij added 20120911*/
+#if 1
 			if(cap_sync_flag)
 			{
 				xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "cap_sync_flag=1.\r\n");
@@ -4394,12 +4391,12 @@ int bat_thread_kthread(void *x)
 #endif
 /*lenovo-sw weiweij added 20120911 end*/
             FGADC_Reset_SW_Parameter();
-            
+
             if (Enable_BATDRV_LOG == 1) {
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[BATTERY] Call FGADC_Reset_SW_Parameter.\r\n");
             }
         }
-        
+
     }
 
     return 0;
@@ -4412,13 +4409,13 @@ void bat_thread_wakeup(void)
     if (Enable_BATDRV_LOG == 1) {
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "******** MT6320 battery : bat_thread_wakeup : 1 ********\n" );
     }
-    
+
     bat_thread_timeout = 1;
-    wake_up(&bat_thread_wq);    
-    
+    wake_up(&bat_thread_wq);
+
     if (Enable_BATDRV_LOG == 1) {
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "******** MT6320 battery : bat_thread_wakeup : 2 ********\n" );
-    }    
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -4493,20 +4490,20 @@ static long adc_cali_ioctl(struct file *file, unsigned int cmd, unsigned long ar
             {
                 adc_out_data[0] = get_charger_volt(adc_in_data[1]) * adc_in_data[1];
                 adc_out_data[0] = adc_out_data[0] / 100;
-            }    
+            }
             else if( adc_in_data[0] == 30 ) // V_Bat_temp magic number
             {
                 //adc_out_data[0] = PMIC_IMM_GetOneChannelValue(AUXADC_TEMPERATURE_CHANNEL,adc_in_data[1]) * adc_in_data[1];
-                adc_out_data[0] = BMT_status.temperature;                
+                adc_out_data[0] = BMT_status.temperature;
             }
-            else if( adc_in_data[0] == 66 ) 
+            else if( adc_in_data[0] == 66 )
             {
                 adc_out_data[0] = (gFG_current)/10;
-                
-                if (gFG_Is_Charging == KAL_TRUE) 
-                {                    
+
+                if (gFG_Is_Charging == KAL_TRUE)
+                {
                     adc_out_data[0] = 0 - adc_out_data[0]; //charging
-                }                                
+                }
             }
             else
             {
@@ -4567,7 +4564,7 @@ static long adc_cali_ioctl(struct file *file, unsigned int cmd, unsigned long ar
             } else if ( charging_level_data[0] == 19 ) {	charging_level_data[0] = 2200;
             } else if ( charging_level_data[0] == 20 ) {	charging_level_data[0] = 2300;
             } else if ( charging_level_data[0] == 21 ) {	charging_level_data[0] = 2400;
-            } else if ( charging_level_data[0] == 22 ) {	charging_level_data[0] = 2500;			
+            } else if ( charging_level_data[0] == 22 ) {	charging_level_data[0] = 2500;
             } else {
                 charging_level_data[0] = 500;
             }
@@ -4598,21 +4595,21 @@ static long adc_cali_ioctl(struct file *file, unsigned int cmd, unsigned long ar
                 bat_thread_control(bat_thread_ctrl[0]);
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "**** unlocked_ioctl : bat_thread_ctrl:%d\n", bat_thread_ctrl[0]);
             break;
-		
+
 		//add bing for meta-------------------------------
 		case Get_META_BAT_VOL:
 			user_data_addr = (int *)arg;
             ret = copy_from_user(adc_in_data, user_data_addr, 8);
 			adc_out_data[0] = BMT_status.bat_vol;
-			ret = copy_to_user(user_data_addr, adc_out_data, 8); 
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "**** unlocked_ioctl : BAT_VOL:%d\n", adc_out_data[0]);   
+			ret = copy_to_user(user_data_addr, adc_out_data, 8);
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "**** unlocked_ioctl : BAT_VOL:%d\n", adc_out_data[0]);
 			break;
 		case Get_META_BAT_SOC:
 			user_data_addr = (int *)arg;
             ret = copy_from_user(adc_in_data, user_data_addr, 8);
 			adc_out_data[0] = bat_volt_check_point;
-			ret = copy_to_user(user_data_addr, adc_out_data, 8); 
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "**** unlocked_ioctl : SOC:%d\n", adc_out_data[0]);   
+			ret = copy_to_user(user_data_addr, adc_out_data, 8);
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "**** unlocked_ioctl : SOC:%d\n", adc_out_data[0]);
 			break;
 		//add bing for meta-------------------------------
 
@@ -4670,7 +4667,7 @@ static ssize_t show_ADC_Channel_0_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_0_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_0_Slope, 0664, show_ADC_Channel_0_Slope, store_ADC_Channel_0_Slope);
@@ -4687,7 +4684,7 @@ static ssize_t show_ADC_Channel_1_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_1_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_1_Slope, 0664, show_ADC_Channel_1_Slope, store_ADC_Channel_1_Slope);
@@ -4704,7 +4701,7 @@ static ssize_t show_ADC_Channel_2_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_2_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_2_Slope, 0664, show_ADC_Channel_2_Slope, store_ADC_Channel_2_Slope);
@@ -4721,7 +4718,7 @@ static ssize_t show_ADC_Channel_3_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_3_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_3_Slope, 0664, show_ADC_Channel_3_Slope, store_ADC_Channel_3_Slope);
@@ -4738,7 +4735,7 @@ static ssize_t show_ADC_Channel_4_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_4_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_4_Slope, 0664, show_ADC_Channel_4_Slope, store_ADC_Channel_4_Slope);
@@ -4755,7 +4752,7 @@ static ssize_t show_ADC_Channel_5_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_5_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_5_Slope, 0664, show_ADC_Channel_5_Slope, store_ADC_Channel_5_Slope);
@@ -4772,7 +4769,7 @@ static ssize_t show_ADC_Channel_6_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_6_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_6_Slope, 0664, show_ADC_Channel_6_Slope, store_ADC_Channel_6_Slope);
@@ -4789,7 +4786,7 @@ static ssize_t show_ADC_Channel_7_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_7_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_7_Slope, 0664, show_ADC_Channel_7_Slope, store_ADC_Channel_7_Slope);
@@ -4806,7 +4803,7 @@ static ssize_t show_ADC_Channel_8_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_8_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_8_Slope, 0664, show_ADC_Channel_8_Slope, store_ADC_Channel_8_Slope);
@@ -4823,7 +4820,7 @@ static ssize_t show_ADC_Channel_9_Slope(struct device *dev,struct device_attribu
 }
 static ssize_t store_ADC_Channel_9_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_9_Slope, 0664, show_ADC_Channel_9_Slope, store_ADC_Channel_9_Slope);
@@ -4840,7 +4837,7 @@ static ssize_t show_ADC_Channel_10_Slope(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_10_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_10_Slope, 0664, show_ADC_Channel_10_Slope, store_ADC_Channel_10_Slope);
@@ -4857,7 +4854,7 @@ static ssize_t show_ADC_Channel_11_Slope(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_11_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_11_Slope, 0664, show_ADC_Channel_11_Slope, store_ADC_Channel_11_Slope);
@@ -4874,7 +4871,7 @@ static ssize_t show_ADC_Channel_12_Slope(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_12_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_12_Slope, 0664, show_ADC_Channel_12_Slope, store_ADC_Channel_12_Slope);
@@ -4891,7 +4888,7 @@ static ssize_t show_ADC_Channel_13_Slope(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_13_Slope(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_13_Slope, 0664, show_ADC_Channel_13_Slope, store_ADC_Channel_13_Slope);
@@ -4908,7 +4905,7 @@ static ssize_t show_ADC_Channel_0_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_0_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_0_Offset, 0664, show_ADC_Channel_0_Offset, store_ADC_Channel_0_Offset);
@@ -4925,7 +4922,7 @@ static ssize_t show_ADC_Channel_1_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_1_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_1_Offset, 0664, show_ADC_Channel_1_Offset, store_ADC_Channel_1_Offset);
@@ -4942,7 +4939,7 @@ static ssize_t show_ADC_Channel_2_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_2_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_2_Offset, 0664, show_ADC_Channel_2_Offset, store_ADC_Channel_2_Offset);
@@ -4959,7 +4956,7 @@ static ssize_t show_ADC_Channel_3_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_3_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_3_Offset, 0664, show_ADC_Channel_3_Offset, store_ADC_Channel_3_Offset);
@@ -4976,7 +4973,7 @@ static ssize_t show_ADC_Channel_4_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_4_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_4_Offset, 0664, show_ADC_Channel_4_Offset, store_ADC_Channel_4_Offset);
@@ -4993,7 +4990,7 @@ static ssize_t show_ADC_Channel_5_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_5_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_5_Offset, 0664, show_ADC_Channel_5_Offset, store_ADC_Channel_5_Offset);
@@ -5010,7 +5007,7 @@ static ssize_t show_ADC_Channel_6_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_6_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_6_Offset, 0664, show_ADC_Channel_6_Offset, store_ADC_Channel_6_Offset);
@@ -5027,7 +5024,7 @@ static ssize_t show_ADC_Channel_7_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_7_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_7_Offset, 0664, show_ADC_Channel_7_Offset, store_ADC_Channel_7_Offset);
@@ -5044,7 +5041,7 @@ static ssize_t show_ADC_Channel_8_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_8_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_8_Offset, 0664, show_ADC_Channel_8_Offset, store_ADC_Channel_8_Offset);
@@ -5061,7 +5058,7 @@ static ssize_t show_ADC_Channel_9_Offset(struct device *dev,struct device_attrib
 }
 static ssize_t store_ADC_Channel_9_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_9_Offset, 0664, show_ADC_Channel_9_Offset, store_ADC_Channel_9_Offset);
@@ -5078,7 +5075,7 @@ static ssize_t show_ADC_Channel_10_Offset(struct device *dev,struct device_attri
 }
 static ssize_t store_ADC_Channel_10_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_10_Offset, 0664, show_ADC_Channel_10_Offset, store_ADC_Channel_10_Offset);
@@ -5095,7 +5092,7 @@ static ssize_t show_ADC_Channel_11_Offset(struct device *dev,struct device_attri
 }
 static ssize_t store_ADC_Channel_11_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_11_Offset, 0664, show_ADC_Channel_11_Offset, store_ADC_Channel_11_Offset);
@@ -5112,7 +5109,7 @@ static ssize_t show_ADC_Channel_12_Offset(struct device *dev,struct device_attri
 }
 static ssize_t store_ADC_Channel_12_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_12_Offset, 0664, show_ADC_Channel_12_Offset, store_ADC_Channel_12_Offset);
@@ -5129,7 +5126,7 @@ static ssize_t show_ADC_Channel_13_Offset(struct device *dev,struct device_attri
 }
 static ssize_t store_ADC_Channel_13_Offset(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_13_Offset, 0664, show_ADC_Channel_13_Offset, store_ADC_Channel_13_Offset);
@@ -5146,7 +5143,7 @@ static ssize_t show_ADC_Channel_Is_Calibration(struct device *dev,struct device_
 }
 static ssize_t store_ADC_Channel_Is_Calibration(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(ADC_Channel_Is_Calibration, 0664, show_ADC_Channel_Is_Calibration, store_ADC_Channel_Is_Calibration);
@@ -5163,7 +5160,7 @@ static ssize_t show_Power_On_Voltage(struct device *dev,struct device_attribute 
 }
 static ssize_t store_Power_On_Voltage(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(Power_On_Voltage, 0664, show_Power_On_Voltage, store_Power_On_Voltage);
@@ -5180,7 +5177,7 @@ static ssize_t show_Power_Off_Voltage(struct device *dev,struct device_attribute
 }
 static ssize_t store_Power_Off_Voltage(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(Power_Off_Voltage, 0664, show_Power_Off_Voltage, store_Power_Off_Voltage);
@@ -5197,7 +5194,7 @@ static ssize_t show_Charger_TopOff_Value(struct device *dev,struct device_attrib
 }
 static ssize_t store_Charger_TopOff_Value(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(Charger_TopOff_Value, 0664, show_Charger_TopOff_Value, store_Charger_TopOff_Value);
@@ -5208,13 +5205,13 @@ static DEVICE_ATTR(Charger_TopOff_Value, 0664, show_Charger_TopOff_Value, store_
 static ssize_t show_FG_Battery_CurrentConsumption(struct device *dev,struct device_attribute *attr, char *buf)
 {
     int ret_value=8888;
-    ret_value = gFG_current;    
+    ret_value = gFG_current;
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] FG_Battery_CurrentConsumption : %d/10 mA\n", ret_value);
     return sprintf(buf, "%u\n", ret_value);
 }
 static ssize_t store_FG_Battery_CurrentConsumption(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(FG_Battery_CurrentConsumption, 0664, show_FG_Battery_CurrentConsumption, store_FG_Battery_CurrentConsumption);
@@ -5231,7 +5228,7 @@ static ssize_t show_FG_SW_CoulombCounter(struct device *dev,struct device_attrib
 }
 static ssize_t store_FG_SW_CoulombCounter(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");    
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Not Support Write Function\n");
     return size;
 }
 static DEVICE_ATTR(FG_SW_CoulombCounter, 0664, show_FG_SW_CoulombCounter, store_FG_SW_CoulombCounter);
@@ -5263,21 +5260,21 @@ int charger_hv_detect_sw_thread_handler(void *unused)
         {
             check_battery_exist();
         }
-    
+
     	charger_hv_detect_flag = 0;
 
         if( get_charger_hv_status() == 1)
     	{
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[charger_hv_detect_sw_thread_handler] charger hv\n");    
-            
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[charger_hv_detect_sw_thread_handler] charger hv\n");
+
             pchr_turn_off_charging_bq24196();
         }
         else
         {
-            //xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[charger_hv_detect_sw_thread_handler] upmu_chr_get_vcdt_hv_det() != 1\n");    
+            //xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[charger_hv_detect_sw_thread_handler] upmu_chr_get_vcdt_hv_det() != 1\n");
         }
 
-        kick_charger_wdt(); 
+        kick_charger_wdt();
 
         hrtimer_start(&charger_hv_detect_timer, ktime, HRTIMER_MODE_REL);
 
@@ -5315,7 +5312,7 @@ void charger_hv_detect_sw_workaround_init(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-//// platform_driver API 
+//// platform_driver API
 ///////////////////////////////////////////////////////////////////////////////////////////
 static struct hrtimer battery_kthread_timer;
 static struct task_struct *battery_kthread_hrtimer_task = NULL;
@@ -5333,34 +5330,34 @@ int battery_kthread_handler(void *unused)
     {
 /*lenovo-sw weiweij modified 20130412*/
 //        ktime = ktime_set(10, 0);	// 10s, 10* 1000 ms
-        if(g_bat_thread_count < 3) {	
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "g_bat_thread_count : done\n", g_bat_thread_count);	
-			g_bat_thread_count += 1;	
+        if(g_bat_thread_count < 3) {
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "g_bat_thread_count : done\n", g_bat_thread_count);
+			g_bat_thread_count += 1;
 			ktime = ktime_set(5, 0);
-		}else {	
+		}else {
 			ktime = ktime_set(10, 0);
 		}
 /*lenovo-sw weiweij modified 20130412 end*/
-   
+
 //        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[battery_kthread_handler] \n");
         wait_event_interruptible(battery_kthread_waiter, battery_kthread_flag != 0);
-    
+
         battery_kthread_flag = 0;
         bat_thread_wakeup();
-        hrtimer_start(&battery_kthread_timer, ktime, HRTIMER_MODE_REL);    
-        
+        hrtimer_start(&battery_kthread_timer, ktime, HRTIMER_MODE_REL);
+
     } while (!kthread_should_stop());
-    
+
     return 0;
 }
 
 enum hrtimer_restart battery_kthread_hrtimer_func(struct hrtimer *timer)
 {
-    battery_kthread_flag = 1; 
+    battery_kthread_flag = 1;
     wake_up_interruptible(&battery_kthread_waiter);
 
 //    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[battery_kthread_hrtimer_func] \n");
-    
+
     return HRTIMER_NORESTART;
 }
 
@@ -5370,10 +5367,10 @@ void battery_kthread_hrtimer_init(void)
 
     ktime = ktime_set(5, 0);	// 10s, 10* 1000 ms
     hrtimer_init(&battery_kthread_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-    battery_kthread_timer.function = battery_kthread_hrtimer_func;    
+    battery_kthread_timer.function = battery_kthread_hrtimer_func;
     hrtimer_start(&battery_kthread_timer, ktime, HRTIMER_MODE_REL);
 
-    battery_kthread_hrtimer_task = kthread_run(battery_kthread_handler, NULL, "mtk battery_kthread_handler"); 
+    battery_kthread_hrtimer_task = kthread_run(battery_kthread_handler, NULL, "mtk battery_kthread_handler");
     if (IS_ERR(battery_kthread_hrtimer_task))
     {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[%s]: failed to create battery_kthread_hrtimer_task thread\n", __FUNCTION__);
@@ -5394,14 +5391,14 @@ static ssize_t chg_show_i_current(struct device* dev,
 				struct device_attribute *attr, char* buf)
 {
    // xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", " lenovo_chg_show_i_current : %d\n", BMT_status.ICharging);
-   // return sprintf(buf, "%d\n", BMT_status.ICharging); 
+   // return sprintf(buf, "%d\n", BMT_status.ICharging);
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", " lenovo_chg_show_i_current : %d\n",mt6320_battery_main.BAT_Icharging);
-    return sprintf(buf, "%d\n", mt6320_battery_main.BAT_Icharging); 
+    return sprintf(buf, "%d\n", mt6320_battery_main.BAT_Icharging);
 }
 static DEVICE_ATTR(chg_current, S_IRUGO|S_IWUSR, chg_show_i_current, NULL);
-/*Lenovo-sw end chenyb1 add 20130423,add enum for charging current and battery calibration status */	
+/*Lenovo-sw end chenyb1 add 20130423,add enum for charging current and battery calibration status */
 
-static int mt6320_battery_probe(struct platform_device *dev)    
+static int mt6320_battery_probe(struct platform_device *dev)
 {
     struct class_device *class_dev = NULL;
     int ret=0;
@@ -5412,7 +5409,7 @@ static int mt6320_battery_probe(struct platform_device *dev)
 
     /* Integrate with NVRAM */
     ret = alloc_chrdev_region(&adc_cali_devno, 0, 1, ADC_CALI_DEVNAME);
-    if (ret) 
+    if (ret)
        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "Error: Can't Get Major number for adc_cali \n");
     adc_cali_cdev = cdev_alloc();
     adc_cali_cdev->owner = THIS_MODULE;
@@ -5422,28 +5419,28 @@ static int mt6320_battery_probe(struct platform_device *dev)
        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "adc_cali Error: cdev_add\n");
     adc_cali_major = MAJOR(adc_cali_devno);
     adc_cali_class = class_create(THIS_MODULE, ADC_CALI_DEVNAME);
-    class_dev = (struct class_device *)device_create(adc_cali_class, 
-                                                   NULL, 
-                                                   adc_cali_devno, 
-                                                   NULL, 
+    class_dev = (struct class_device *)device_create(adc_cali_class,
+                                                   NULL,
+                                                   adc_cali_devno,
+                                                   NULL,
                                                    ADC_CALI_DEVNAME);
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] adc_cali prepare : done !!\n ");
 
     /* Integrate with Android Battery Service */
     ret = power_supply_register(&(dev->dev), &mt6320_ac_main.psy);
     if (ret)
-    {            
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Fail !!\n");                    
+    {
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Fail !!\n");
         return ret;
-    }             
+    }
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register AC Success !!\n");
 
     ret = power_supply_register(&(dev->dev), &mt6320_usb_main.psy);
     if (ret)
-    {            
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Fail !!\n");                    
+    {
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Fail !!\n");
         return ret;
-    }             
+    }
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[MT6320 BAT_probe] power_supply_register USB Success !!\n");
 
     ret = power_supply_register(&(dev->dev), &mt6320_battery_main.psy);
@@ -5462,18 +5459,18 @@ static int mt6320_battery_probe(struct platform_device *dev)
 		return ret_device_file;
 	}
         // do not support by p780
-        
+
 	if ((ret_device_file = device_create_file((mt6320_battery_main.psy.dev), &dev_attr_chg_current)))
 	{
 		printk( "%s,failed: device_create_file dev_attr_batt_calistatus\n", __func__);
 		return ret_device_file;
 	}
-	
+
 /*Lenovo-sw end chenyb1 add 20130423,add enum for charging current and battery calibration status */
 
     /* For EM */
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_ADC_Charger_Voltage);
-    
+
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_ADC_Channel_0_Slope);
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_ADC_Channel_1_Slope);
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_ADC_Channel_2_Slope);
@@ -5509,22 +5506,22 @@ static int mt6320_battery_probe(struct platform_device *dev)
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_Power_On_Voltage);
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_Power_Off_Voltage);
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_Charger_TopOff_Value);
-    
+
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_FG_Battery_CurrentConsumption);
     ret_device_file = device_create_file(&(dev->dev), &dev_attr_FG_SW_CoulombCounter);
 
     /* Initialization BMT Struct */
     for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
         batteryCurrentBuffer[i] = 0;
-        batteryVoltageBuffer[i] = 0; 
-#ifndef MTK_BQ27541_SUPPORT		
+        batteryVoltageBuffer[i] = 0;
+#ifndef MTK_BQ27541_SUPPORT
         batterySOCBuffer[i] = 0;
 #endif
         batteryTempBuffer[i] = 0;
     }
     batteryVoltageSum = 0;
     batteryCurrentSum = 0;
-#ifndef MTK_BQ27541_SUPPORT			
+#ifndef MTK_BQ27541_SUPPORT
     batterySOCSum = 0;
 #endif
     batteryTempSum = 0;
@@ -5558,10 +5555,10 @@ static int mt6320_battery_probe(struct platform_device *dev)
 
     //battery kernel thread for 10s check and charger in/out event
     /* Replace GPT timer by hrtime */
-    battery_kthread_hrtimer_init();    
-    kthread_run(bat_thread_kthread, NULL, "bat_thread_kthread"); 
-    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[mt6320_battery_probe] bat_thread_kthread Done\n");    
-    
+    battery_kthread_hrtimer_init();
+    kthread_run(bat_thread_kthread, NULL, "bat_thread_kthread");
+    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[mt6320_battery_probe] bat_thread_kthread Done\n");
+
     charger_hv_detect_sw_workaround_init();
 
     /*LOG System Set*/
@@ -5573,25 +5570,25 @@ static int mt6320_battery_probe(struct platform_device *dev)
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "DCT-PMIC-ADC:AUXADC_TEMPERATURE_CHANNEL=%d\r\n",AUXADC_TEMPERATURE_CHANNEL);
 
     g_bat_init_flag=1;
-	
+
     return 0;
 }
 #endif
 
-static int mt6320_battery_remove(struct platform_device *dev)    
+static int mt6320_battery_remove(struct platform_device *dev)
 {
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "******** MT6320 battery driver remove!! ********\n" );
 
     return 0;
 }
 
-static void mt6320_battery_shutdown(struct platform_device *dev)    
+static void mt6320_battery_shutdown(struct platform_device *dev)
 {
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "******** MT6320 battery driver shutdown!! ********\n" );
 
 }
 
-static int mt6320_battery_suspend(struct platform_device *dev, pm_message_t state)    
+static int mt6320_battery_suspend(struct platform_device *dev, pm_message_t state)
 {
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "******** MT6320 battery driver suspend!! ********\n" );
 
@@ -5609,11 +5606,11 @@ int force_get_tbat(void)
     kal_int32 fg_current_temp=0;
     kal_bool fg_current_state=KAL_FALSE;
     int bat_temperature_volt_temp=0;
-    
+
     /* Get V_BAT_Temperature */
-    bat_temperature_volt = get_tbat_volt(2); 
+    bat_temperature_volt = get_tbat_volt(2);
     if(bat_temperature_volt != 0)
-    {   
+    {
         if( gForceADCsolution == 1 )
         {
             /*Use no gas gauge*/
@@ -5635,15 +5632,15 @@ int force_get_tbat(void)
                 bat_temperature_volt = bat_temperature_volt + ((fg_current_temp*fg_r_value)/1000);
             }
         }
-        
-        bat_temperature_val = BattVoltToTemp(bat_temperature_volt);        
+
+        bat_temperature_val = BattVoltToTemp(bat_temperature_volt);
     }
-    
-    printk(KERN_CRIT "[tbat] %d,%d,%d,%d,%d,%d\n", 
+
+    printk(KERN_CRIT "[tbat] %d,%d,%d,%d,%d,%d\n",
         bat_temperature_volt_temp, bat_temperature_volt, fg_current_state, fg_current_temp, fg_r_value, bat_temperature_val);
-    
-    return bat_temperature_val;    
-#endif    
+
+    return bat_temperature_val;
+#endif
 }
 EXPORT_SYMBOL(force_get_tbat);
 
@@ -5690,7 +5687,7 @@ static ssize_t store_ChgCurrent(struct device *dev,struct device_attribute *attr
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[Battery] buf is %s and size is %d \n",buf,size);
         reg_BatteryNotifyCode = simple_strtoul(buf,&pvalue,16);
         chg_current_flag = reg_BatteryNotifyCode;
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[Battery] store code : 0x%x \n",chg_current_flag);     
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[Battery] store code : 0x%x \n",chg_current_flag);
 		if(chg_current_flag==1) {
 			g_temp_CC_value = AC_CHARGER_LOW_CURRENT;
 			bq24196_set_iinlim(0x3);
@@ -5701,8 +5698,8 @@ static ssize_t store_ChgCurrent(struct device *dev,struct device_attribute *attr
 
 		ichg_val = (g_temp_CC_value - 500)/64;
         bq24196_set_ichg(ichg_val);
-		
-    }        
+
+    }
 
     return size;
 }

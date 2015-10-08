@@ -103,8 +103,8 @@ my $PART_TABLE_FILENAME;
 
 if (-e $PART_TABLE_FILENAME_CUSTOM) {
     $PART_TABLE_FILENAME = $PART_TABLE_FILENAME_CUSTOM; 
-    print "$PART_TABLE_FILENAME_CUSTOM not exists, using default.\n";
 } else {
+    print "$PART_TABLE_FILENAME_CUSTOM not exists, using default: $PART_TABLE_FILENAME_LEGACY\n";
     $PART_TABLE_FILENAME = $PART_TABLE_FILENAME_LEGACY;
 }
 print "using partition layout from: ${PART_TABLE_FILENAME}\n";

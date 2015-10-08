@@ -4,9 +4,9 @@
 # ##########################################################
 
 #TOOLCHAIN=linaro-4.9.4
-#TOOLCHAIN=linaro
+#TOOLCHAIN=linaro-old
 #TOOLCHAIN=gcc
-TOOLCHAIN=uber
+TOOLCHAIN=uber4.9
 
 TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
@@ -30,27 +30,31 @@ echo "Building kernel version: $KBUILD_BUILD_HOST"
 # Overwrite PATH environment setting for JDK & arm-eabi if already exists
 
 case "$TOOLCHAIN" in
-
-    gcc)
+  gcc)
 	echo "Building with GCC 4.7"
 	PATH=$PWD/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin:$PWD/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	;;
-    uber)
+  uber4.9)
 	echo "Building with UBER 4.9 arm-eabi"
-	PATH=$PWD/prebuilts/UBERTC-arm-eabi-4.9-addfce38ffe9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	PATH=$PWD/prebuilts/UBERTC/arm-eabi-4.9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-eabi-
 	;;
-    linaro)
+  uber6.0)
+	echo "Building with UBER 6.0 arm-eabi"
+	PATH=$PWD/prebuilts/UBERTC/arm-eabi-6.0-d67c5cb38df4/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	export CROSS_COMPILE=arm-eabi-
+	;;
+  linaro-old)
 	echo "Building with LINARO 4.9.3"
 	PATH=$PWD/prebuilts/android-toolchain-eabi/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-eabi-
 	;;
-    linaro-4.9.4)
+  linaro-4.9.4)
 	echo "Building with LINARO 4.9.4"
 	PATH=$PWD/prebuilts/arm-cortex_a7-linux-gnueabihf-linaro_4.9.4-2015.06/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-cortex_a7-linux-gnueabihf-
 	;;
-    *)
+  *)
 	echo "Unknown toolchain $TOOLCHAIN selected"
 	;;
 esac

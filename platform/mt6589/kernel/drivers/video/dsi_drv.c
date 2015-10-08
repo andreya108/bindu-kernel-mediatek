@@ -1,5 +1,5 @@
 #ifdef BUILD_UBOOT
-#define ENABLE_DSI_INTERRUPT 0 
+#define ENABLE_DSI_INTERRUPT 0
 
 #include <asm/arch/disp_drv_platform.h>
 #else
@@ -184,7 +184,8 @@ static long int get_current_time_us(void)
 #endif
 static void lcm_mdelay(UINT32 ms)
 {
-    udelay(1000 * ms);
+//    udelay(1000 * ms);
+    mdelay(ms);
 }
 void DSI_Enable_Log(bool enable)
 {
@@ -210,7 +211,7 @@ static unsigned int vsync_timer = 0;
 static bool wait_vm_done_irq = false;
 #if ENABLE_DSI_INTERRUPT
 static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
-{   
+{
     DSI_INT_STATUS_REG status = DSI_REG->DSI_INTSTA;
 #ifdef ENABLE_DSI_ERROR_REPORT
     static unsigned int prev_error = 0;
@@ -218,13 +219,13 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
     MMProfileLogEx(MTKFB_MMP_Events.DSIIRQ, MMProfileFlagPulse, *(unsigned int*)&status, lcdStartTransfer);
 	if(dsi_log_on)
 		printk("DSI IRQ, value = 0x%x!!\n", INREG32(0xF400D00C));
-	
+
     if (status.RD_RDY)
-    {        
-        ///write clear RD_RDY interrupt 
+    {
+        ///write clear RD_RDY interrupt
 
         /// write clear RD_RDY interrupt must be before DSI_RACK
-        /// because CMD_DONE will raise after DSI_RACK, 
+        /// because CMD_DONE will raise after DSI_RACK,
         /// so write clear RD_RDY after that will clear CMD_DONE too
 #ifdef ENABLE_DSI_ERROR_REPORT
         {
@@ -260,7 +261,7 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
         MASKREG32(&DSI_REG->DSI_INTSTA, 0x1, 0x0);
 		wake_up_interruptible(&_dsi_dcs_read_wait_queue);
         if(_dsiContext.pIntCallback)
-            _dsiContext.pIntCallback(DISP_DSI_READ_RDY_INT);   
+            _dsiContext.pIntCallback(DISP_DSI_READ_RDY_INT);
     }
 
     if (status.CMD_DONE)
@@ -278,13 +279,13 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
 
 		// clear flag & wait for next trigger
 		lcdStartTransfer = false;
-	
+
         //DSI_REG->DSI_INTSTA.CMD_DONE = 0;
         OUTREGBIT(DSI_INT_STATUS_REG,DSI_REG->DSI_INTSTA,CMD_DONE,0);
-		
+
         wake_up_interruptible(&_dsi_wait_queue);
         //if(_dsiContext.pIntCallback)
-        //    _dsiContext.pIntCallback(DISP_DSI_CMD_DONE_INT);   
+        //    _dsiContext.pIntCallback(DISP_DSI_CMD_DONE_INT);
 		//MASKREG32(&DSI_REG->DSI_INTSTA, 0x2, 0x0);
     }
 
@@ -299,11 +300,11 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
 		// Set DSI_RACK to let DSI idle
 		//DSI_REG->DSI_RACK.DSI_RACK = 1;
 		OUTREGBIT(DSI_RACK_REG,DSI_REG->DSI_RACK,DSI_RACK,1);
-		
+
 		wake_up_interruptible(&_dsi_wait_bta_te);
 
-		
-#ifndef BUILD_UBOOT    
+
+#ifndef BUILD_UBOOT
         if(wait_dsi_vsync)//judge if wait vsync
         {
             if (EnableVSyncLog)
@@ -318,7 +319,7 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
             }
             //printk("TE signal, and wake up\n");
         }
-#endif  
+#endif
     }
 
 	if (status.VM_DONE)
@@ -344,7 +345,7 @@ static irqreturn_t _DSI_InterruptHandler(int irq, void *dev_id)
     }
 
     return IRQ_HANDLED;
-	
+
 }
 #endif
 #ifndef BUILD_UBOOT
@@ -371,9 +372,9 @@ enum hrtimer_restart dsi_te_hrtimer_func(struct hrtimer *timer)
 //static unsigned int vsync_wait_time = 0;
 void DSI_WaitTE(void)
 {
-#ifndef BUILD_UBOOT	
+#ifndef BUILD_UBOOT
 	wait_dsi_vsync = true;
-	
+
 	hrtimer_start(&hrtimer_vsync, ktime_set(0, VSYNC_US_TO_NS(vsync_timer)), HRTIMER_MODE_REL);
     if (EnableVSyncLog)
         printk("[DSI] +VSync\n");
@@ -401,8 +402,8 @@ static BOOL _IsEngineBusy(void)
 	DSI_INT_STATUS_REG status;
 
 	status = DSI_REG->DSI_INTSTA;
-	
-	if (status.BUSY)		
+
+	if (status.BUSY)
 		return TRUE;
 	return FALSE;
 }
@@ -417,7 +418,7 @@ static BOOL _IsCMDQBusy(void)
 	if (!INT_status.CMD_DONE)
 	{
 		DISP_LOG_PRINT(ANDROID_LOG_WARN, "DSI", " DSI CMDQ status BUSY !!\n");
-	
+
 		return TRUE;
 	}
 
@@ -447,11 +448,11 @@ static void _WaitForEngineNotBusy(void)
 		while(_IsEngineBusy()) {
 			msleep(1);
 			if (--timeOut < 0)	{
-						
+
 				DISP_LOG_PRINT(ANDROID_LOG_ERROR, "DSI", " Wait for DSI engine not busy timeout!!!(Wait %d us)\n", get_current_time_us() - time);
 				DSI_DumpRegisters();
 				DSI_Reset();
-				
+
 				break;
 			}
 		}
@@ -460,7 +461,7 @@ static void _WaitForEngineNotBusy(void)
     {
         while (DSI_REG->DSI_INTSTA.BUSY || DSI_REG->DSI_INTSTA.CMD_DONE)
         {
-            long ret = wait_event_interruptible_timeout(_dsi_wait_queue, 
+            long ret = wait_event_interruptible_timeout(_dsi_wait_queue,
                                                         !_IsEngineBusy() && !(DSI_REG->DSI_INTSTA.CMD_DONE),
                                                         WAIT_TIMEOUT);
             if (0 == ret) {
@@ -485,7 +486,7 @@ static void _WaitForEngineNotBusy(void)
 		}
 	}
 	OUTREG32(&DSI_REG->DSI_INTSTA, 0x0);
-#endif    
+#endif
 }
 void hdmi_dsi_waitnotbusy(void)
 {
@@ -495,7 +496,7 @@ void hdmi_dsi_waitnotbusy(void)
 static void _BackupDSIRegisters(void)
 {
     DSI_REGS *regs = &(_dsiContext.regBackup);
-	
+
     //memcpy((void*)&(_dsiContext.regBackup), (void*)DSI_BASE, sizeof(DSI_REGS));
 
     OUTREG32(&regs->DSI_INTEN, AS_UINT32(&DSI_REG->DSI_INTEN));
@@ -503,17 +504,17 @@ static void _BackupDSIRegisters(void)
     OUTREG32(&regs->DSI_TXRX_CTRL, AS_UINT32(&DSI_REG->DSI_TXRX_CTRL));
     OUTREG32(&regs->DSI_PSCTRL, AS_UINT32(&DSI_REG->DSI_PSCTRL));
 
-    OUTREG32(&regs->DSI_VSA_NL, AS_UINT32(&DSI_REG->DSI_VSA_NL));		
-    OUTREG32(&regs->DSI_VBP_NL, AS_UINT32(&DSI_REG->DSI_VBP_NL));		
-    OUTREG32(&regs->DSI_VFP_NL, AS_UINT32(&DSI_REG->DSI_VFP_NL));		
-    OUTREG32(&regs->DSI_VACT_NL, AS_UINT32(&DSI_REG->DSI_VACT_NL));		
+    OUTREG32(&regs->DSI_VSA_NL, AS_UINT32(&DSI_REG->DSI_VSA_NL));
+    OUTREG32(&regs->DSI_VBP_NL, AS_UINT32(&DSI_REG->DSI_VBP_NL));
+    OUTREG32(&regs->DSI_VFP_NL, AS_UINT32(&DSI_REG->DSI_VFP_NL));
+    OUTREG32(&regs->DSI_VACT_NL, AS_UINT32(&DSI_REG->DSI_VACT_NL));
 
-    OUTREG32(&regs->DSI_HSA_WC, AS_UINT32(&DSI_REG->DSI_HSA_WC));		
-    OUTREG32(&regs->DSI_HBP_WC, AS_UINT32(&DSI_REG->DSI_HBP_WC));		
-    OUTREG32(&regs->DSI_HFP_WC, AS_UINT32(&DSI_REG->DSI_HFP_WC));		
-    OUTREG32(&regs->DSI_BLLP_WC, AS_UINT32(&DSI_REG->DSI_BLLP_WC));		
-	
-    OUTREG32(&regs->DSI_HSTX_CKL_WC, AS_UINT32(&DSI_REG->DSI_HSTX_CKL_WC));		
+    OUTREG32(&regs->DSI_HSA_WC, AS_UINT32(&DSI_REG->DSI_HSA_WC));
+    OUTREG32(&regs->DSI_HBP_WC, AS_UINT32(&DSI_REG->DSI_HBP_WC));
+    OUTREG32(&regs->DSI_HFP_WC, AS_UINT32(&DSI_REG->DSI_HFP_WC));
+    OUTREG32(&regs->DSI_BLLP_WC, AS_UINT32(&DSI_REG->DSI_BLLP_WC));
+
+    OUTREG32(&regs->DSI_HSTX_CKL_WC, AS_UINT32(&DSI_REG->DSI_HSTX_CKL_WC));
     OUTREG32(&regs->DSI_MEM_CONTI, AS_UINT32(&DSI_REG->DSI_MEM_CONTI));
 
     OUTREG32(&regs->DSI_PHY_TIMECON0, AS_UINT32(&DSI_REG->DSI_PHY_TIMECON0));
@@ -528,30 +529,30 @@ static void _RestoreDSIRegisters(void)
 {
     DSI_REGS *regs = &(_dsiContext.regBackup);
 
-    OUTREG32(&DSI_REG->DSI_INTEN, AS_UINT32(&regs->DSI_INTEN));	
-    OUTREG32(&DSI_REG->DSI_MODE_CTRL, AS_UINT32(&regs->DSI_MODE_CTRL));	
-    OUTREG32(&DSI_REG->DSI_TXRX_CTRL, AS_UINT32(&regs->DSI_TXRX_CTRL));	
-    OUTREG32(&DSI_REG->DSI_PSCTRL, AS_UINT32(&regs->DSI_PSCTRL));	
+    OUTREG32(&DSI_REG->DSI_INTEN, AS_UINT32(&regs->DSI_INTEN));
+    OUTREG32(&DSI_REG->DSI_MODE_CTRL, AS_UINT32(&regs->DSI_MODE_CTRL));
+    OUTREG32(&DSI_REG->DSI_TXRX_CTRL, AS_UINT32(&regs->DSI_TXRX_CTRL));
+    OUTREG32(&DSI_REG->DSI_PSCTRL, AS_UINT32(&regs->DSI_PSCTRL));
 
-    OUTREG32(&DSI_REG->DSI_VSA_NL, AS_UINT32(&regs->DSI_VSA_NL));		
-    OUTREG32(&DSI_REG->DSI_VBP_NL, AS_UINT32(&regs->DSI_VBP_NL));		
-    OUTREG32(&DSI_REG->DSI_VFP_NL, AS_UINT32(&regs->DSI_VFP_NL));		
-    OUTREG32(&DSI_REG->DSI_VACT_NL, AS_UINT32(&regs->DSI_VACT_NL));		
+    OUTREG32(&DSI_REG->DSI_VSA_NL, AS_UINT32(&regs->DSI_VSA_NL));
+    OUTREG32(&DSI_REG->DSI_VBP_NL, AS_UINT32(&regs->DSI_VBP_NL));
+    OUTREG32(&DSI_REG->DSI_VFP_NL, AS_UINT32(&regs->DSI_VFP_NL));
+    OUTREG32(&DSI_REG->DSI_VACT_NL, AS_UINT32(&regs->DSI_VACT_NL));
 
-    OUTREG32(&DSI_REG->DSI_HSA_WC, AS_UINT32(&regs->DSI_HSA_WC));		
-    OUTREG32(&DSI_REG->DSI_HBP_WC, AS_UINT32(&regs->DSI_HBP_WC));		
-    OUTREG32(&DSI_REG->DSI_HFP_WC, AS_UINT32(&regs->DSI_HFP_WC));	
-    OUTREG32(&DSI_REG->DSI_BLLP_WC, AS_UINT32(&regs->DSI_BLLP_WC));		
+    OUTREG32(&DSI_REG->DSI_HSA_WC, AS_UINT32(&regs->DSI_HSA_WC));
+    OUTREG32(&DSI_REG->DSI_HBP_WC, AS_UINT32(&regs->DSI_HBP_WC));
+    OUTREG32(&DSI_REG->DSI_HFP_WC, AS_UINT32(&regs->DSI_HFP_WC));
+    OUTREG32(&DSI_REG->DSI_BLLP_WC, AS_UINT32(&regs->DSI_BLLP_WC));
 
-    OUTREG32(&DSI_REG->DSI_HSTX_CKL_WC, AS_UINT32(&regs->DSI_HSTX_CKL_WC));		
-    OUTREG32(&DSI_REG->DSI_MEM_CONTI, AS_UINT32(&regs->DSI_MEM_CONTI));		
+    OUTREG32(&DSI_REG->DSI_HSTX_CKL_WC, AS_UINT32(&regs->DSI_HSTX_CKL_WC));
+    OUTREG32(&DSI_REG->DSI_MEM_CONTI, AS_UINT32(&regs->DSI_MEM_CONTI));
 
-    OUTREG32(&DSI_REG->DSI_PHY_TIMECON0, AS_UINT32(&regs->DSI_PHY_TIMECON0));		
+    OUTREG32(&DSI_REG->DSI_PHY_TIMECON0, AS_UINT32(&regs->DSI_PHY_TIMECON0));
     OUTREG32(&DSI_REG->DSI_PHY_TIMECON1, AS_UINT32(&regs->DSI_PHY_TIMECON1));
-    OUTREG32(&DSI_REG->DSI_PHY_TIMECON2, AS_UINT32(&regs->DSI_PHY_TIMECON2));		
-    OUTREG32(&DSI_REG->DSI_PHY_TIMECON3, AS_UINT32(&regs->DSI_PHY_TIMECON3));		
+    OUTREG32(&DSI_REG->DSI_PHY_TIMECON2, AS_UINT32(&regs->DSI_PHY_TIMECON2));
+    OUTREG32(&DSI_REG->DSI_PHY_TIMECON3, AS_UINT32(&regs->DSI_PHY_TIMECON3));
 
-    OUTREG32(&DSI_REG->DSI_VM_CMD_CON, AS_UINT32(&regs->DSI_VM_CMD_CON));		
+    OUTREG32(&DSI_REG->DSI_VM_CMD_CON, AS_UINT32(&regs->DSI_VM_CMD_CON));
 }
 
 static void _ResetBackupedDSIRegisterValues(void)
@@ -599,7 +600,7 @@ DSI_STATUS DSI_Init(BOOL isDsiPoweredOn)
     }
 	ret = DSI_PowerOn();
 
-	OUTREG32(&DSI_REG->DSI_MEM_CONTI, DSI_WMEM_CONTI);	
+	OUTREG32(&DSI_REG->DSI_MEM_CONTI, DSI_WMEM_CONTI);
 
     ASSERT(ret == DSI_STATUS_OK);
 /*
@@ -612,13 +613,13 @@ DSI_STATUS DSI_Init(BOOL isDsiPoweredOn)
 */
 #if ENABLE_DSI_INTERRUPT
     init_waitqueue_head(&_dsi_wait_queue);
-    init_waitqueue_head(&_dsi_dcs_read_wait_queue);	
+    init_waitqueue_head(&_dsi_dcs_read_wait_queue);
 	init_waitqueue_head(&_dsi_wait_bta_te);
 	init_waitqueue_head(&_dsi_wait_vm_done_queue);
     if (request_irq(MT6589_DISP_DSI_IRQ_ID,
         _DSI_InterruptHandler, IRQF_TRIGGER_LOW, MTKFB_DRIVER, NULL) < 0)
     {
-        DISP_LOG_PRINT(ANDROID_LOG_ERROR, "DSI", "fail to request DSI irq\n"); 
+        DISP_LOG_PRINT(ANDROID_LOG_ERROR, "DSI", "fail to request DSI irq\n");
         return DSI_STATUS_ERROR;
     }
 		//mt65xx_irq_unmask(MT6577_DSI_IRQ_ID);
@@ -634,7 +635,7 @@ init_waitqueue_head(&_vsync_wait_queue);
 	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,VM_DONE,1);
 	init_waitqueue_head(&_vsync_wait_queue);
 
-	
+
 #endif
     if (lcm_params->dsi.mode == CMD_MODE)
         disp_register_irq(DISP_MODULE_RDMA0, _DSI_RDMA0_IRQ_Handler);
@@ -666,9 +667,9 @@ DSI_STATUS DSI_PowerOn(void)
 #else
 		MASKREG32(0x14000110, 0x38, 0x0);
 		printf("[DISP] - uboot - DSI_PowerOn. 0x%8x\n", INREG32(0x14000110));
-#endif        
+#endif
         _RestoreDSIRegisters();
-	//_WaitForEngineNotBusy();		
+	//_WaitForEngineNotBusy();
         s_isDsiPowerOn = TRUE;
     }
 
@@ -694,10 +695,10 @@ DSI_STATUS DSI_PowerOff(void)
 		OUTREG32(&DSI_REG->DSI_INTSTA, 0);
  		MASKREG32(0x14000110, 0x38, 0x38);
 		printf("[DISP] - uboot - DSI_PowerOn. 0x%8x\n", INREG32(0x14000110));
-#endif        
+#endif
         s_isDsiPowerOn = FALSE;
     }
-    
+
     return DSI_STATUS_OK;
 }
 
@@ -712,7 +713,7 @@ DSI_STATUS DSI_PowerOn(void)
 		ret += enable_clock(MT_CG_DISP1_DSI_DIGITAL, "DSI");
 		ret += enable_clock(MT_CG_DISP1_DSI_DIGITAL_LANE, "DSI");
 		ASSERT(!ret);
-#endif        
+#endif
 //		DSI_Reset();
         _RestoreDSIRegisters();
         s_isDsiPowerOn = TRUE;
@@ -735,7 +736,7 @@ DSI_STATUS DSI_PowerOff(void)
 		ret += disable_clock(MT_CG_DISP1_DSI_DIGITAL, "DSI");
 		ret += disable_clock(MT_CG_DISP1_DSI_DIGITAL_LANE, "DSI");
 		ASSERT(!ret);
-#endif        
+#endif
         s_isDsiPowerOn = FALSE;
     }
     return DSI_STATUS_OK;
@@ -789,7 +790,7 @@ static void DSI_WaitBtaTE(void)
 
 #if ENABLE_DSI_INTERRUPT
 
-	ret = wait_event_interruptible_timeout(_dsi_wait_bta_te, 
+	ret = wait_event_interruptible_timeout(_dsi_wait_bta_te,
 											!_IsEngineBusy(),
 											WAIT_TIMEOUT);
 
@@ -800,7 +801,7 @@ static void DSI_WaitBtaTE(void)
 		//DSI_REG->DSI_RACK.DSI_RACK = 1;
 		OUTREGBIT(DSI_RACK_REG,DSI_REG->DSI_RACK,DSI_RACK,1);
 
-		DSI_DumpRegisters();	
+		DSI_DumpRegisters();
 		///do necessary reset here
 		DSI_Reset();
 		dsiTeEnable = false;//disable TE
@@ -912,7 +913,7 @@ DSI_STATUS DSI_StartTransfer(bool isMutexLocked)
 
     if (dsiTeEnable)
         DSI_WaitBtaTE();
-	
+
 	if(dsi_glitch_enable){
 		spin_lock_irq(&dsi_glitch_detect_lock);
 		if(1 == DSI_Detect_CLK_Glitch()){
@@ -933,7 +934,7 @@ DSI_STATUS DSI_StartTransfer(bool isMutexLocked)
     mutex_unlock(&OverlaySettingMutex);
     if (!isMutexLocked)
         disp_path_release_mutex();
-	
+
 	return DSI_STATUS_OK;
 }
 
@@ -950,22 +951,22 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 
 	DSI_BackUpCmdQ();
 	DSI_SetMode(CMD_MODE);
-	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,RD_RDY,0);	
+	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,RD_RDY,0);
 	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,CMD_DONE,0);
 
 	OUTREG32(&DSI_CMDQ_REG->data[0], 0x00340500);//turn off TE
 	OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-		 
+
 	OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,0);
 	OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,1);
 	while(DSI_REG->DSI_INTSTA.CMD_DONE == 0);
 	OUTREGBIT(DSI_INT_STATUS_REG,DSI_REG->DSI_INTSTA,CMD_DONE,0);
-    
+
 	MMProfileLogEx(MTKFB_MMP_Events.Debug, MMProfileFlagPulse, 0, 0);
 #if defined(LENOVO_PROJECT_PRADA_FOR_LCM)
 	OUTREG32(&DSI_CMDQ_REG->data[0], 0x00ff1500);
 	OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-		 
+
 	OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,0);
 	OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,1);
 	while(DSI_REG->DSI_INTSTA.CMD_DONE == 0);
@@ -976,14 +977,14 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 		DSI_RX_DATA_REG read_data0;
 		DSI_RX_DATA_REG read_data1;
 		DSI_clk_HS_mode(0);
-		 
+
     	MMProfileLogEx(MTKFB_MMP_Events.Debug, MMProfileFlagPulse, 0, 9);
 		while((INREG32(&DSI_REG->DSI_STATE_DBG0)&0x1) == 0);	 // polling bit0
-		
+
 		OUTREGBIT(DSI_COM_CTRL_REG,DSI_REG->DSI_COM_CTRL,DSI_RESET,0);
 		OUTREGBIT(DSI_COM_CTRL_REG,DSI_REG->DSI_COM_CTRL,DSI_RESET,1);//reset
 		OUTREGBIT(DSI_COM_CTRL_REG,DSI_REG->DSI_COM_CTRL,DSI_RESET,0);
-    	
+
 		MMProfileLogEx(MTKFB_MMP_Events.Debug, MMProfileFlagPulse, 0, 10);
 		if(i>0)
 			 {
@@ -1000,7 +1001,7 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 //			OUTREG32(&DSI_CMDQ_REG->data[0], 0x00290508);
 			OUTREG32(&DSI_CMDQ_REG->data[0], 0x00351508);
 		  OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-		 
+
 		  OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,0);
 	      OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,1);
 			read_timeout_cnt=1000000;
@@ -1022,13 +1023,13 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 		  t0.Data0 = 0;
 		  t0.Data_ID = 0;
 		  t0.Data1 = 0;
-	 
+
 		  OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
 		  OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
-		 
+
 		  OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,0);
 	      OUTREGBIT(DSI_START_REG,DSI_REG->DSI_START,DSI_START,1);
-		
+
 			read_timeout_cnt=1000;
     	MMProfileLogEx(MTKFB_MMP_Events.Debug, MMProfileFlagPulse, 0, 5);
 		start_time = sched_clock();
@@ -1061,7 +1062,7 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 		 if(((DSI_REG->DSI_TRIG_STA.TRIG2) )==1)
 		 {
 			break;
-//			continue;			 
+//			continue;
 		  }
 		 else
 			 {
@@ -1079,10 +1080,10 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 				}
 			  else
 				 {
-//	 				continue;			 
+//	 				continue;
 				  break;// jump out the for loop ,go to refresh
 				 }
-	 
+
 			 }
 	 	}
 #if 1
@@ -1095,17 +1096,17 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 	switch(lcm_params->dsi.LANE_NUM)
 	{
 		case LCM_FOUR_LANE:
-			OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x3CF3C7B1); 
+			OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x3CF3C7B1);
 			break;
 		case LCM_THREE_LANE:
-			OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x00F3C7B1); 
+			OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x00F3C7B1);
 			break;
         default:
-            OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x0003C7B1); 
-	}	
+            OUTREG32(MIPI_CONFIG_BASE + 0x84, 0x0003C7B1);
+	}
 
-	 OUTREG32(MIPI_CONFIG_BASE + 0x88, 0x0); 
-	 OUTREG32(MIPI_CONFIG_BASE + 0x80, 0x1); 
+	 OUTREG32(MIPI_CONFIG_BASE + 0x88, 0x0);
+	 OUTREG32(MIPI_CONFIG_BASE + 0x80, 0x1);
 
      DSI_REG->DSI_COM_CTRL.DSI_RESET = 0;
 	 DSI_REG->DSI_COM_CTRL.DSI_RESET = 1;
@@ -1115,7 +1116,7 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 
 	 while((INREG32(&DSI_REG->DSI_STATE_DBG0)&0x40000) == 0);	 // polling bit18
 
-     OUTREG32(MIPI_CONFIG_BASE + 0x80, 0x0); 
+     OUTREG32(MIPI_CONFIG_BASE + 0x80, 0x0);
 #endif
 	start_time = sched_clock();
 	while(DSI_REG->DSI_INTSTA.BUSY) {
@@ -1127,8 +1128,8 @@ unsigned int DSI_Detect_CLK_Glitch(void)
 		}
 	}
 	OUTREG32(&DSI_REG->DSI_INTSTA, 0x0);
-	
-	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,RD_RDY,1);	
+
+	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,RD_RDY,1);
 	OUTREGBIT(DSI_INT_ENABLE_REG,DSI_REG->DSI_INTEN,CMD_DONE,1);
 	DSI_RestoreCmdQ();
 	DSI_SetMode(lcm_params->dsi.mode);
@@ -1276,7 +1277,7 @@ DSI_STATUS DSI_handle_TE(void)
 
 	//lcm_mdelay(10);
 
-	// RACT	
+	// RACT
 	//data_array=1;
 	//OUTREG32(&DSI_REG->DSI_RACK, data_array);
 
@@ -1306,12 +1307,12 @@ DSI_STATUS DSI_handle_TE(void)
 
 		data_array=INREG32(&DSI_REG->DSI_INTSTA);
 		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI INT state : %x !! \n", data_array);
-	
+
 		data_array=INREG32(&DSI_REG->DSI_TRIG_STA);
 		DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI TRIG TE status check : %x !! \n", data_array);
 //	} while(!(data_array&0x4));
 
-	// RACT	
+	// RACT
 	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] DSI Set RACT !! \n");
 	data_array=1;
 	OUTREG32(&DSI_REG->DSI_RACK, data_array);
@@ -1373,7 +1374,7 @@ void DSI_Config_VDO_Timing(LCM_PARAMS *lcm_params)
 	else{
 		ASSERT(lcm_params->dsi.horizontal_sync_active * dsiTmpBufBpp > 9);
 		horizontal_sync_active_byte 		=	(lcm_params->dsi.horizontal_sync_active * dsiTmpBufBpp - 10);
-	
+
 		ASSERT(lcm_params->dsi.horizontal_backporch * dsiTmpBufBpp > 9);
 		horizontal_backporch_byte		=	(lcm_params->dsi.horizontal_backporch * dsiTmpBufBpp - 10);
 	}
@@ -1388,7 +1389,7 @@ void DSI_Config_VDO_Timing(LCM_PARAMS *lcm_params)
 	OUTREG32(&DSI_REG->DSI_HBP_WC, ALIGN_TO((horizontal_backporch_byte), 4));
 	OUTREG32(&DSI_REG->DSI_HFP_WC, ALIGN_TO((horizontal_frontporch_byte), 4));
 	OUTREG32(&DSI_REG->DSI_BLLP_WC, ALIGN_TO((horizontal_bllp_byte), 4));
-	
+
 	_dsiContext.vfp_period_us 		= LINE_PERIOD_US * lcm_params->dsi.vertical_frontporch / 1000;
 	_dsiContext.vsa_vs_period_us	= LINE_PERIOD_US * 1 / 1000;
 	_dsiContext.vsa_hs_period_us	= LINE_PERIOD_US * (lcm_params->dsi.vertical_sync_active - 2) / 1000;
@@ -1423,30 +1424,30 @@ void DSI_PHY_clk_setting(LCM_PARAMS *lcm_params)
 	mdelay(1);
 
 	MASKREG32(MIPI_CONFIG_BASE + 0x60, 0x600, 0x400);
-	
+
 	if((LCM_DSI_6589_PLL_CLOCK_NULL != lcm_params->dsi.PLL_CLOCK) && (lcm_params->dsi.PLL_CLOCK <= LCM_DSI_6589_PLL_CLOCK_520)){
 		unsigned int i = lcm_params->dsi.PLL_CLOCK - 1;
 		printk("LCM PLL Config = %d, %d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", i, pll_config[i].TXDIV0, pll_config[i].TXDIV1, pll_config[i].FBK_SEL, pll_config[i].FBK_DIV,
 		pll_config[i].PRE_DIV, pll_config[i].RG_BR, pll_config[i].RG_BC, pll_config[i].RG_BIR, pll_config[i].RG_BIC, pll_config[i].RG_BP);
-		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xFFFFFFFE, 
+		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xFFFFFFFE,
 			(pll_config[i].RG_BR<<30)|(pll_config[i].RG_BC<<28)|(pll_config[i].RG_BP<<24)|(pll_config[i].RG_BIR<<20)
 			|(pll_config[i].RG_BIC<<16)|(pll_config[i].FBK_DIV<<1)|(pll_config[i].FBK_SEL<<10)
 			|(pll_config[i].TXDIV1<<14)|(pll_config[i].TXDIV0<<12)|(pll_config[i].PRE_DIV<<8));
-	}	
+	}
 	else if((lcm_params->dsi.rg_bp == 0) | (lcm_params->dsi.rg_bir == 0) | (lcm_params->dsi.rg_bic == 0))
-		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xF0FE, 
+		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xF0FE,
 			(lcm_params->dsi.fbk_div<<1)|(lcm_params->dsi.pll_div2<<14)|(lcm_params->dsi.pll_div1<<12));
 	else
-		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xFFFFFCFE, 
+		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xFFFFFCFE,
 			(0xA<<28)|(lcm_params->dsi.rg_bp<<24)|(lcm_params->dsi.rg_bir<<20)
 			|(lcm_params->dsi.rg_bic<<16)|(lcm_params->dsi.fbk_div<<1)|(lcm_params->dsi.fbk_sel<<10)
 			|(lcm_params->dsi.pll_div2<<14)|(lcm_params->dsi.pll_div1<<12));
-	
+
 	MASKREG32(MIPI_CONFIG_BASE + 0x50, 0x1, 0x1);
 //	msleep(1);
 	mdelay(1);
 	MASKREG32(MIPI_CONFIG_BASE + 0x60, 0x600, 0x600);
-	
+
 	mdelay(1);
 	MASKREG32(MIPI_CONFIG_BASE + 0x4, 0x1, 0x1);
 	MASKREG32(MIPI_CONFIG_BASE + 0x8, 0x1, 0x1);
@@ -1457,7 +1458,7 @@ void DSI_PHY_clk_setting(LCM_PARAMS *lcm_params)
 	MASKREG32(MIPI_CONFIG_BASE + 0x40, 0x2, 0x2);
 	mdelay(1);//must
 	MASKREG32(MIPI_CONFIG_BASE + 0x40, 0x800, 0x0);
-	
+
 	MASKREG32(MIPI_CONFIG_BASE + 0x84, 0x600, 0x200);//Set DP/DN as mark-1 state
 	mdelay(1);//must
 	MASKREG32(MIPI_CONFIG_BASE + 0x84, 0x600, 0x600);//Set DP/DN as mark-1 state
@@ -1490,14 +1491,14 @@ void DSI_PHY_clk_switch(bool on)
 		MASKREG32(MIPI_CONFIG_BASE + 0x80, 0x1, 0x1);//switch MIPI TX config to SW mode
 
 		MASKREG32(MIPI_CONFIG_BASE + 0x40, 0x800, 0x800);
-		
+
 		MASKREG32(MIPI_CONFIG_BASE + 0x4, 0x1, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0x8, 0x1, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0xc, 0x1, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0x10, 0x1, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0x14, 0x1, 0x0);
 		//DSI_PHY_clk_adjusting();
-		
+
 //		MASKREG32(MIPI_CONFIG_BASE + 0x44, 0x3, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0x40, 0x2, 0x0);
 	//	msleep(1);
@@ -1506,7 +1507,7 @@ void DSI_PHY_clk_switch(bool on)
 		mdelay(1);
 		MASKREG32(MIPI_CONFIG_BASE + 0x60, 0x600, 0x0);
 		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0xF0FE, 0x26);
-	
+
 		MASKREG32(MIPI_CONFIG_BASE + 0x50, 0x1, 0x0);
 	//	msleep(1);
 		mdelay(1);
@@ -1529,7 +1530,7 @@ void DSI_PHY_clk_switch(bool on)
 void DSI_PHY_TIMCONFIG(LCM_PARAMS *lcm_params)
 {
 	DSI_PHY_TIMCON0_REG timcon0;
-	DSI_PHY_TIMCON1_REG timcon1;	
+	DSI_PHY_TIMCON1_REG timcon1;
 	DSI_PHY_TIMCON2_REG timcon2;
 	DSI_PHY_TIMCON3_REG timcon3;
 	unsigned int div1 = 0;
@@ -1603,12 +1604,12 @@ void DSI_PHY_TIMCONFIG(LCM_PARAMS *lcm_params)
 		pre_div = 4;
 		break;
 	}
-	
+
 //	div2_real=div2 ? div2*0x02 : 0x1;
 	cycle_time = (8 * 1000 * div2 * div1 * pre_div)/ (26 * (fbk_div+0x01) * fbk_sel * 2);
 	ui = (1000 * div2 * div1 * pre_div)/ (26 * (fbk_div+0x01) * fbk_sel * 2) + 1;
 
-	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] - kernel - DSI_PHY_TIMCONFIG, Cycle Time = %d(ns), Unit Interval = %d(ns). div1 = %d, div2 = %d, fbk_div = %d, lane# = %d \n", cycle_time, ui, div1, div2, fbk_div, lane_no); 		
+	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] - kernel - DSI_PHY_TIMCONFIG, Cycle Time = %d(ns), Unit Interval = %d(ns). div1 = %d, div2 = %d, fbk_div = %d, lane# = %d \n", cycle_time, ui, div1, div2, fbk_div, lane_no);
 
 	#define NS_TO_CYCLE(n, c)	((n) / c + (( (n) % c) ? 1 : 0))
 
@@ -1617,14 +1618,14 @@ void DSI_PHY_TIMCONFIG(LCM_PARAMS *lcm_params)
 
 	// +3 is recommended from designer becauase of HW latency
 	timcon0.HS_TRAIL	= ((hs_trail_m > hs_trail_n) ? hs_trail_m : hs_trail_n) + 0x0a;
-	
+
 	timcon0.HS_PRPR 	= (lcm_params->dsi.HS_PRPR == 0) ? NS_TO_CYCLE((60 + 5 * ui), cycle_time) : lcm_params->dsi.HS_PRPR;
 	// HS_PRPR can't be 1.
 	if (timcon0.HS_PRPR == 0)
 		timcon0.HS_PRPR = 1;
 
 	timcon0.HS_ZERO 	= (lcm_params->dsi.HS_ZERO == 0) ? NS_TO_CYCLE((0xC8 + 0x0a * ui - timcon0.HS_PRPR * cycle_time), cycle_time) : lcm_params->dsi.HS_ZERO;
-	
+
 	timcon0.LPX 		= (lcm_params->dsi.LPX == 0) ? NS_TO_CYCLE(65, cycle_time) : lcm_params->dsi.LPX;
 	if(timcon0.LPX == 0) timcon0.LPX = 1;
 //	timcon1.TA_SACK 	= (lcm_params->dsi.TA_SACK == 0) ? 1 : lcm_params->dsi.TA_SACK;
@@ -1637,21 +1638,21 @@ void DSI_PHY_TIMCONFIG(LCM_PARAMS *lcm_params)
 	// CLK_TRAIL can't be 1.
 	if (timcon2.CLK_TRAIL < 2)
 		timcon2.CLK_TRAIL = 2;
-	
+
 //	timcon2.LPX_WAIT 	= (lcm_params->dsi.LPX_WAIT == 0) ? 1 : lcm_params->dsi.LPX_WAIT;
 	timcon2.CONT_DET 	= lcm_params->dsi.CONT_DET;
 
 	timcon3.CLK_HS_PRPR	= (lcm_params->dsi.CLK_HS_PRPR == 0) ? NS_TO_CYCLE(0x40, cycle_time) : lcm_params->dsi.CLK_HS_PRPR;
 	if(timcon3.CLK_HS_PRPR == 0) timcon3.CLK_HS_PRPR = 1;
-	
+
 	timcon2.CLK_ZERO	= (lcm_params->dsi.CLK_ZERO == 0) ? NS_TO_CYCLE(0x190 - timcon3.CLK_HS_PRPR * cycle_time, cycle_time) : lcm_params->dsi.CLK_ZERO;
 
 	timcon3.CLK_HS_EXIT= (lcm_params->dsi.CLK_HS_EXIT == 0) ? (2 * timcon0.LPX) : lcm_params->dsi.CLK_HS_EXIT;
-	
+
 	timcon3.CLK_HS_POST= (lcm_params->dsi.CLK_HS_POST == 0) ? NS_TO_CYCLE((80 + 52 * ui), cycle_time) : lcm_params->dsi.CLK_HS_POST;
 
 	DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "[DISP] - kernel - DSI_PHY_TIMCONFIG, HS_TRAIL = %d, HS_ZERO = %d, HS_PRPR = %d, LPX = %d, TA_GET = %d, TA_SURE = %d, TA_GO = %d, CLK_TRAIL = %d, CLK_ZERO = %d, CLK_HS_PRPR = %d \n", \
-			timcon0.HS_TRAIL, timcon0.HS_ZERO, timcon0.HS_PRPR, timcon0.LPX, timcon1.TA_GET, timcon1.TA_SURE, timcon1.TA_GO, timcon2.CLK_TRAIL, timcon2.CLK_ZERO, timcon3.CLK_HS_PRPR);		
+			timcon0.HS_TRAIL, timcon0.HS_ZERO, timcon0.HS_PRPR, timcon0.LPX, timcon1.TA_GET, timcon1.TA_SURE, timcon1.TA_GO, timcon2.CLK_TRAIL, timcon2.CLK_ZERO, timcon3.CLK_HS_PRPR);
 
 	//DSI_REG->DSI_PHY_TIMECON0=timcon0;
 	//DSI_REG->DSI_PHY_TIMECON1=timcon1;
@@ -1720,7 +1721,7 @@ void DSI_clk_HS_mode(bool enter)
 		//lcm_mdelay(1);
 
 	}
-}	
+}
 
 
 bool DSI_clk_HS_state(void)
@@ -1791,12 +1792,12 @@ bool DSI_esd_check(void)
 	static const long WAIT_TIMEOUT = 2 * HZ;	// 2 sec
 	long ret;
 	wait_vm_done_irq = true;
-	ret = wait_event_interruptible_timeout(_dsi_wait_vm_done_queue, 
+	ret = wait_event_interruptible_timeout(_dsi_wait_vm_done_queue,
 													 !_IsEngineBusy(),
 													 WAIT_TIMEOUT);
 	if (0 == ret) {
 		xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for DSI engine read ready timeout!!!\n");
-	
+
 		DSI_DumpRegisters();
 		///do necessary reset here
 		DSI_Reset();
@@ -1814,7 +1815,7 @@ bool DSI_esd_check(void)
         ///keep polling
         msleep(1);
         read_timeout_ms --;
-        
+
         if(read_timeout_ms == 0)
         {
             DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " Polling DSI VM done timeout!!!\n");
@@ -1870,11 +1871,11 @@ bool DSI_handle_int_TE(void)
 		udelay(_dsiContext.vfp_period_us / 2);
 
 		if ((DSI_REG->DSI_STATE_DBG3.TCON_STATE == DSI_VDO_VFP_STATE) && DSI_REG->DSI_STATE_DBG0.CTL_STATE_0 == 0x1)
-		{			
+		{
 			// Can't do int. TE check while INUSE FB number is not 0 because later disable/enable DPI will set INUSE FB to number 0.
 			if(DPI_REG->STATUS.FB_INUSE != 0)
 				return false;
-			
+
 			DSI_clk_HS_mode(0);
 
 			//DSI_REG->DSI_COM_CTRL.DSI_RESET = 1;
@@ -1889,7 +1890,7 @@ bool DSI_handle_int_TE(void)
 			t0.Data0 = 0;
 			t0.Data_ID = 0;
 			t0.Data1 = 0;
-			
+
 			OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
 			OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 
@@ -1929,7 +1930,7 @@ bool DSI_handle_int_TE(void)
 			DPI_EnableClk();
 			DSI_EnableClk();
 		}
-	
+
 	}
 #endif
 	return false;
@@ -1970,7 +1971,7 @@ void DSI_handle_noncont_clk(void)
 				{
 					xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for %x state timeout %d (us)!!!\n", DSI_VDO_VSA_HS_STATE, _dsiContext.vsa_vs_period_us);
 					return ;
-				}			
+				}
 			}
 			break;
 
@@ -1981,7 +1982,7 @@ void DSI_handle_noncont_clk(void)
 				{
 					xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for %x state timeout %d (us)!!!\n", DSI_VDO_VSA_VE_STATE, _dsiContext.vsa_hs_period_us);
 					return ;
-				}			
+				}
 			}
 			break;
 
@@ -1992,7 +1993,7 @@ void DSI_handle_noncont_clk(void)
 				{
 					xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for %x state timeout %d (us)!!!\n", DSI_VDO_VBP_STATE, _dsiContext.vsa_ve_period_us);
 					return ;
-				}			
+				}
 			}
 			break;
 
@@ -2007,7 +2008,7 @@ void DSI_handle_noncont_clk(void)
 				{
 					xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for %x state timeout %d (us)!!!\n", DSI_VDO_VFP_STATE, _dsiContext.vfp_period_us );
 					return ;
-				}			
+				}
 			}
 			break;
 
@@ -2018,7 +2019,7 @@ void DSI_handle_noncont_clk(void)
 				{
 					xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for %x state timeout %d (us)!!!\n", DSI_VDO_VSA_VS_STATE, _dsiContext.vfp_period_us );
 					return ;
-				}			
+				}
 			}
 			break;
 
@@ -2042,8 +2043,8 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 {
 	UINT32 i;
 	UINT32 goto_addr, mask_para, set_para;
-	DSI_T0_INS t0;	
-	DSI_T2_INS t2;	
+	DSI_T0_INS t0;
+	DSI_T2_INS t2;
 	if (0 != DSI_REG->DSI_MODE_CTRL.MODE){//not in cmd mode
 		DSI_VM_CMD_CON_REG vm_cmdq;
 		OUTREG32(&vm_cmdq, AS_UINT32(&DSI_REG->DSI_VM_CMD_CON));
@@ -2056,18 +2057,18 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 				vm_cmdq.CM_DATA_ID = DSI_DCS_LONG_PACKET_ID;
 				vm_cmdq.CM_DATA_0 = count+1;
 				OUTREG32(&DSI_REG->DSI_VM_CMD_CON, AS_UINT32(&vm_cmdq));
-		
+
 				goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte0);
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (cmd<<((goto_addr&0x3)*8));
 				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-			
+
 				for(i=0; i<count; i++)
 				{
 					goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte1) + i;
 					mask_para = (0xFF<<((goto_addr&0x3)*8));
 					set_para = (para_list[i]<<((goto_addr&0x3)*8));
-					MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+					MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 				}
 			}
 			else
@@ -2094,18 +2095,18 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 				vm_cmdq.CM_DATA_ID = DSI_GERNERIC_LONG_PACKET_ID;
 				vm_cmdq.CM_DATA_0 = count+1;
 				OUTREG32(&DSI_REG->DSI_VM_CMD_CON, AS_UINT32(&vm_cmdq));
-		
+
 				goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte0);
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (cmd<<((goto_addr&0x3)*8));
 				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-			
+
 				for(i=0; i<count; i++)
 				{
 					goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte1) + i;
 					mask_para = (0xFF<<((goto_addr&0x3)*8));
 					set_para = (para_list[i]<<((goto_addr&0x3)*8));
-					MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+					MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 				}
 			}
 			else
@@ -2164,16 +2165,16 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 			mask_para = (0xFF<<((goto_addr&0x3)*8));
 			set_para = (cmd<<((goto_addr&0x3)*8));
 			MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-			
+
 			for(i=0; i<count; i++)
 			{
 				goto_addr = (UINT32)(&DSI_CMDQ_REG->data[1].byte1) + i;
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (para_list[i]<<((goto_addr&0x3)*8));
-				MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 			}
 
-			OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 2+(count)/4); 		
+			OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 2+(count)/4);
 		}
 		else
 		{
@@ -2207,13 +2208,13 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 			mask_para = (0xFF<<((goto_addr&0x3)*8));
 			set_para = (cmd<<((goto_addr&0x3)*8));
 			MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-			
+
 			for(i=0; i<count; i++)
 			{
 				goto_addr = (UINT32)(&DSI_CMDQ_REG->data[1].byte1) + i;
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (para_list[i]<<((goto_addr&0x3)*8));
-				MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 			}
 
 			OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 2+(count)/4);
@@ -2237,7 +2238,7 @@ void DSI_set_cmdq_V2(unsigned cmd, unsigned char count, unsigned char *para_list
 			OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 		}
 	}
-		
+
 //	for (i = 0; i < AS_UINT32(&DSI_REG->DSI_CMDQ_SIZE); i++)
 //        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "DSI_set_cmdq_V2. DSI_CMDQ+%04x : 0x%08x\n", i*4, INREG32(DSI_BASE + 0x180 + i*4));
 
@@ -2258,9 +2259,9 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 	UINT32 i, layer, layer_state, lane_num;
 	UINT32 goto_addr, mask_para, set_para;
 	UINT32 fbPhysAddr, fbVirAddr;
-	DSI_T0_INS t0;	
-	DSI_T1_INS t1;	
-	DSI_T2_INS t2;	
+	DSI_T0_INS t0;
+	DSI_T1_INS t1;
+	DSI_T2_INS t2;
 
 	UINT32 index = 0;
 
@@ -2291,18 +2292,18 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 				vm_cmdq.CM_DATA_ID = data_id;
 				vm_cmdq.CM_DATA_0 = count+1;
 				OUTREG32(&DSI_REG->DSI_VM_CMD_CON, AS_UINT32(&vm_cmdq));
-		
+
 				goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte0);
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (cmd<<((goto_addr&0x3)*8));
 				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-			
+
 				for(i=0; i<count; i++)
 				{
 					goto_addr = (UINT32)(&DSI_VM_CMD_REG->data[0].byte1) + i;
 					mask_para = (0xFF<<((goto_addr&0x3)*8));
 					set_para = (para_list[i]<<((goto_addr&0x3)*8));
-					MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+					MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 				}
 			}
 			else
@@ -2337,7 +2338,7 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 			//	OUTREG32(&DSI_CMDQ_REG->data0[i], 0);
 			//memset(&DSI_CMDQ_REG->data[0], 0, sizeof(DSI_CMDQ_REG->data[0]));
 			OUTREG32(&DSI_CMDQ_REG->data[0], 0);
-		
+
 			if (count > 1)
 			{
 				t2.CONFG = 2;
@@ -2350,16 +2351,16 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 				mask_para = (0xFF<<((goto_addr&0x3)*8));
 				set_para = (cmd<<((goto_addr&0x3)*8));
 				MASKREG32(goto_addr&(~0x3), mask_para, set_para);
-				
+
 				for(i=0; i<count; i++)
 				{
 					goto_addr = (UINT32)(&DSI_CMDQ_REG->data[1].byte1) + i;
 					mask_para = (0xFF<<((goto_addr&0x3)*8));
 					set_para = (para_list[i]<<((goto_addr&0x3)*8));
-					MASKREG32(goto_addr&(~0x3), mask_para, set_para);			
+					MASKREG32(goto_addr&(~0x3), mask_para, set_para);
 				}
 
-				OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 2+(count)/4); 		
+				OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 2+(count)/4);
 			}
 			else
 			{
@@ -2378,7 +2379,7 @@ void DSI_set_cmdq_V3(LCM_setting_table_V3 *para_tbl, unsigned int size, unsigned
 				OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
 				OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 			}
-			
+
 			for (i = 0; i < AS_UINT32(&DSI_REG->DSI_CMDQ_SIZE); i++)
 				DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "DSI_set_cmdq_V3[%d]. DSI_CMDQ+%04x : 0x%08x\n", index, i*4, INREG32(DSI_BASE + 0x180 + i*4));
 
@@ -2403,7 +2404,7 @@ void DSI_set_cmdq(unsigned int *pdata, unsigned int queue_size, unsigned char fo
 	ASSERT(queue_size<=16);
 
 //	_WaitForEngineNotBusy();
-	
+
 	if (0 != DSI_REG->DSI_MODE_CTRL.MODE){//not in cmd mode
 		DSI_VM_CMD_CON_REG vm_cmdq;
 		OUTREG32(&vm_cmdq, AS_UINT32(&DSI_REG->DSI_VM_CMD_CON));
@@ -2471,19 +2472,19 @@ void DSI_set_cmdq(unsigned int *pdata, unsigned int queue_size, unsigned char fo
 
 DSI_STATUS DSI_Write_T0_INS(DSI_T0_INS *t0)
 {
-    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t0));	
+    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t0));
 
 	OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 	OUTREG32(&DSI_REG->DSI_START, 0);
 	OUTREG32(&DSI_REG->DSI_START, 1);
 
-	return DSI_STATUS_OK;	
+	return DSI_STATUS_OK;
 }
 
 
 DSI_STATUS DSI_Write_T1_INS(DSI_T1_INS *t1)
 {
-    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t1));	
+    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t1));
 
 	OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 	OUTREG32(&DSI_REG->DSI_START, 0);
@@ -2496,7 +2497,7 @@ DSI_STATUS DSI_Write_T1_INS(DSI_T1_INS *t1)
 DSI_STATUS DSI_Write_T2_INS(DSI_T2_INS *t2)
 {
 	unsigned int i;
-	
+
 	OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t2));
 
 	for(i=0;i<((t2->WC16-1)>>2)+1;i++)
@@ -2512,7 +2513,7 @@ DSI_STATUS DSI_Write_T2_INS(DSI_T2_INS *t2)
 
 DSI_STATUS DSI_Write_T3_INS(DSI_T3_INS *t3)
 {
-    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t3));	
+    OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(t3));
 
 	OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 	OUTREG32(&DSI_REG->DSI_START, 0);
@@ -2521,9 +2522,9 @@ DSI_STATUS DSI_Write_T3_INS(DSI_T3_INS *t3)
 	return DSI_STATUS_OK;
 }
 
-DSI_STATUS DSI_TXRX_Control(bool cksm_en, 
-                                  bool ecc_en, 
-                                  unsigned char lane_num, 
+DSI_STATUS DSI_TXRX_Control(bool cksm_en,
+                                  bool ecc_en,
+                                  unsigned char lane_num,
                                   unsigned char vc_num,
                                   bool null_packet_en,
                                   bool err_correction_en,
@@ -2532,7 +2533,7 @@ DSI_STATUS DSI_TXRX_Control(bool cksm_en,
                                   unsigned int  max_return_size)
 {
     DSI_TXRX_CTRL_REG tmp_reg;
-    
+
     tmp_reg=DSI_REG->DSI_TXRX_CTRL;
 
     ///TODO: parameter checking
@@ -2544,7 +2545,7 @@ DSI_STATUS DSI_TXRX_Control(bool cksm_en,
 		case LCM_TWO_LANE:tmp_reg.LANE_NUM = 3;break;
 		case LCM_THREE_LANE:tmp_reg.LANE_NUM = 0x7;break;
 		case LCM_FOUR_LANE:tmp_reg.LANE_NUM = 0xF;break;
-	}	
+	}
     tmp_reg.VC_NUM=vc_num;
 //    tmp_reg.CORR_EN = err_correction_en;
     tmp_reg.DIS_EOT = dis_eotp_en;
@@ -2562,7 +2563,7 @@ DSI_STATUS DSI_PS_Control(unsigned int ps_type, unsigned int vact_line, unsigned
     DSI_PSCTRL_REG tmp_reg;
 	UINT32 tmp_hstx_cklp_wc;
     tmp_reg=DSI_REG->DSI_PSCTRL;
-    
+
     ///TODO: parameter checking
     ASSERT(ps_type <= PACKED_PS_18BIT_RGB666);
 	if(ps_type>LOOSELY_PS_18BIT_RGB666)
@@ -2573,7 +2574,7 @@ DSI_STATUS DSI_PS_Control(unsigned int ps_type, unsigned int vact_line, unsigned
     tmp_hstx_cklp_wc = ps_wc;
 
 	OUTREG32(&DSI_REG->DSI_VACT_NL, AS_UINT32(&vact_line));
-    OUTREG32(&DSI_REG->DSI_PSCTRL, AS_UINT32(&tmp_reg));   
+    OUTREG32(&DSI_REG->DSI_PSCTRL, AS_UINT32(&tmp_reg));
 	OUTREG32(&DSI_REG->DSI_HSTX_CKL_WC, tmp_hstx_cklp_wc);
     return DSI_STATUS_OK;
 }
@@ -2606,7 +2607,7 @@ DSI_STATUS DSI_ConfigVDOTiming(unsigned int dsi_vsa_nl,
 #endif
 	OUTREG32(&DSI_REG->DSI_HSA_WC, AS_UINT32(&dsi_hsa_wc));
 	OUTREG32(&DSI_REG->DSI_HBP_WC, AS_UINT32(&dsi_hbp_wc));
-	OUTREG32(&DSI_REG->DSI_HFP_WC, AS_UINT32(&dsi_hfp_wc));	
+	OUTREG32(&DSI_REG->DSI_HFP_WC, AS_UINT32(&dsi_hfp_wc));
 
     return DSI_STATUS_OK;
 }
@@ -2626,7 +2627,7 @@ void DSI_write_lcm_cmd(unsigned int cmd)
 	t0_tmp->CONFG = *((unsigned char *)(&CONFG_tmp));
 	t0_tmp->Data_ID= (cmd&0xFF);
 	t0_tmp->Data0 = 0x0;
-	t0_tmp->Data1 = 0x0;	
+	t0_tmp->Data1 = 0x0;
 
 	DSI_Write_T0_INS(t0_tmp);
 }
@@ -2646,8 +2647,8 @@ void DSI_write_lcm_regs(unsigned int addr, unsigned int *para, unsigned int nums
 
 	t2_tmp->CONFG = *((unsigned char *)(&CONFG_tmp));
 	t2_tmp->Data_ID = (addr&0xFF);
-	t2_tmp->WC16 = nums;	
-	t2_tmp->pdata = para;	
+	t2_tmp->WC16 = nums;
+	t2_tmp->pdata = para;
 
 	DSI_Write_T2_INS(t2_tmp);
 
@@ -2661,7 +2662,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
     unsigned int read_timeout_ms;
 //    unsigned char packet_type;
 #if 0
-    DSI_T0_INS t0;  
+    DSI_T0_INS t0;
 #if ENABLE_DSI_INTERRUPT
     static const long WAIT_TIMEOUT = 2 * HZ;    // 2 sec
     long ret;
@@ -2679,7 +2680,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        recv_data = 0;
        recv_data_cnt = 0;
        read_timeout_ms = 20;
-        
+
        _WaitForEngineNotBusy();
 
        t0.CONFG = 0x04;        ///BTA
@@ -2690,7 +2691,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
        OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 
-       ///clear read ACK 
+       ///clear read ACK
        DSI_REG->DSI_RACK.DSI_RACK = 1;
        DSI_REG->DSI_INTSTA.RD_RDY = 1;
        DSI_REG->DSI_INTSTA.CMD_DONE = 1;
@@ -2706,14 +2707,14 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        /// 3: wait for CMDQ_DONE
        /// 3: read data
 #if ENABLE_DSI_INTERRUPT
-        ret = wait_event_interruptible_timeout(_dsi_dcs_read_wait_queue, 
+        ret = wait_event_interruptible_timeout(_dsi_dcs_read_wait_queue,
                                                        !_IsEngineBusy(),
                                                        WAIT_TIMEOUT);
         if (0 == ret) {
             DISP_LOG_PRINT(ANDROID_LOG_WARN, "DSI", " Wait for DSI engine read ready timeout!!!\n");
 
 				DSI_DumpRegisters();
-				
+
 				///do necessary reset here
 				DSI_REG->DSI_RACK.DSI_RACK = 1;
 				DSI_Reset();
@@ -2729,7 +2730,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
             ///keep polling
             msleep(1);
             read_timeout_ms --;
-            
+
             if(read_timeout_ms == 0)
             {
                 DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " Polling DSI read ready timeout!!!\n");
@@ -2763,7 +2764,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        OUTREG32(&DSI_REG->DSI_START, 0);
 
 #endif
-   
+
        DSI_REG->DSI_INTEN.RD_RDY =  0;
 
     #ifdef DSI_DRV_DEBUG_LOG_ENABLE
@@ -2783,7 +2784,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_RX_DATA.BYTE7 : 0x%x \n", DSI_REG->DSI_RX_DATA.BYTE7);
     #endif
        packet_type = DSI_REG->DSI_RX_DATA.BYTE0;
-           
+
     #ifdef DSI_DRV_DEBUG_LOG_ENABLE
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI read packet_type is 0x%x \n",packet_type);
     #endif
@@ -2803,7 +2804,7 @@ UINT32 DSI_dcs_read_lcm_reg(UINT8 cmd)
        {
            memcpy((void*)&recv_data, (void*)&DSI_REG->DSI_RX_DATA.BYTE1, 2);
        }
-    
+
     #ifdef DSI_DRV_DEBUG_LOG_ENABLE
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI read 0x%x data is 0x%x \n",cmd,  recv_data);
     #endif
@@ -2827,7 +2828,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
 	DSI_RX_DATA_REG read_data2;
 	DSI_RX_DATA_REG read_data3;
 #if 1
-    DSI_T0_INS t0;  
+    DSI_T0_INS t0;
 
 #if ENABLE_DSI_INTERRUPT
     static const long WAIT_TIMEOUT = 2 * HZ;    // 2 sec
@@ -2846,7 +2847,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
        max_try_count--;
        recv_data_cnt = 0;
        read_timeout_ms = 20;
-        
+
        _WaitForEngineNotBusy();
 
        t0.CONFG = 0x04;        ///BTA
@@ -2860,7 +2861,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
        OUTREG32(&DSI_CMDQ_REG->data[0], AS_UINT32(&t0));
        OUTREG32(&DSI_REG->DSI_CMDQ_SIZE, 1);
 
-       ///clear read ACK 
+       ///clear read ACK
        //DSI_REG->DSI_RACK.DSI_RACK = 1;
        //DSI_REG->DSI_INTSTA.RD_RDY = 1;
        //DSI_REG->DSI_INTSTA.CMD_DONE = 1;
@@ -2883,14 +2884,14 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
        /// 3: wait for CMDQ_DONE
        /// 3: read data
 #if ENABLE_DSI_INTERRUPT
-       ret = wait_event_interruptible_timeout(_dsi_dcs_read_wait_queue, 
+       ret = wait_event_interruptible_timeout(_dsi_dcs_read_wait_queue,
                                                        !_IsEngineBusy(),
                                                        WAIT_TIMEOUT);
         if (0 == ret) {
             xlog_printk(ANDROID_LOG_WARN, "DSI", " Wait for DSI engine read ready timeout!!!\n");
 
 				DSI_DumpRegisters();
-				
+
 				///do necessary reset here
 				//DSI_REG->DSI_RACK.DSI_RACK = 1;
 				OUTREGBIT(DSI_RACK_REG,DSI_REG->DSI_RACK,DSI_RACK,1);
@@ -2908,7 +2909,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
             ///keep polling
             msleep(1);
             read_timeout_ms --;
-            
+
             if(read_timeout_ms == 0)
             {
                 DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " Polling DSI read ready timeout!!!\n");
@@ -2954,7 +2955,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_CMDQ_DATA1 : 0x%x \n", DSI_CMDQ_REG->data[0].byte1);
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_CMDQ_DATA2 : 0x%x \n", DSI_CMDQ_REG->data[0].byte2);
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_CMDQ_DATA3 : 0x%x \n", DSI_CMDQ_REG->data[0].byte3);
-#if 1	
+#if 1
 	   DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_RX_DATA0 : 0x%x \n", DSI_REG->DSI_RX_DATA0);
 	   DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_RX_DATA1 : 0x%x \n", DSI_REG->DSI_RX_DATA1);
 	   DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI_RX_DATA2 : 0x%x \n", DSI_REG->DSI_RX_DATA2);
@@ -2970,7 +2971,7 @@ UINT32 DSI_dcs_read_lcm_reg_v2(UINT8 cmd, UINT8 *buffer, UINT8 buffer_size)
 
 #if 1
 	packet_type = read_data0.byte0;
-           
+
     #ifdef DDI_DRV_DEBUG_LOG_ENABLE
 	if(dsi_log_on)
        DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", " DSI read packet_type is 0x%x \n",packet_type);
@@ -3043,7 +3044,7 @@ DSI_STATUS DSI_write_lcm_fb(unsigned int addr, bool long_length)
 	if(long_length)
 		CONFG_tmp.CL=CL_16BITS;
 	else
-		CONFG_tmp.CL=CL_8BITS;		
+		CONFG_tmp.CL=CL_8BITS;
 
 	CONFG_tmp.TE=DISABLE_TE;
 	CONFG_tmp.RPT=DISABLE_RPT;
@@ -3051,14 +3052,14 @@ DSI_STATUS DSI_write_lcm_fb(unsigned int addr, bool long_length)
 
 	t1_tmp->CONFG = *((unsigned char *)(&CONFG_tmp));
 	t1_tmp->Data_ID= 0x39;
-	t1_tmp->mem_start0 = (addr&0xFF);	
+	t1_tmp->mem_start0 = (addr&0xFF);
 
 	if(long_length)
 		t1_tmp->mem_start1 = ((addr>>8)&0xFF);
 
-	return DSI_Write_T1_INS(t1_tmp);	
+	return DSI_Write_T1_INS(t1_tmp);
 
-	
+
 }
 
 
@@ -3097,11 +3098,11 @@ DSI_STATUS DSI_enable_MIPI_txio(bool en)
 #if 0
     if(en)
     {
-        *(volatile unsigned int *) (INFRACFG_BASE+0x890) |= 0x00000100;    // enable MIPI TX IO    
+        *(volatile unsigned int *) (INFRACFG_BASE+0x890) |= 0x00000100;    // enable MIPI TX IO
     }
     else
     {
-        *(volatile unsigned int *) (INFRACFG_BASE+0x890) &= ~0x00000100;   // disable MIPI TX IO   
+        *(volatile unsigned int *) (INFRACFG_BASE+0x890) &= ~0x00000100;   // disable MIPI TX IO
     }
 #endif
 	return DSI_STATUS_OK;
@@ -3212,7 +3213,7 @@ DSI_STATUS DSI_DumpRegisters(void)
     UINT32 i;
 
     DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "---------- Start dump DSI registers ----------\n");
-    
+
     for (i = 0; i < sizeof(DSI_REGS); i += 4)
     {
         DISP_LOG_PRINT(ANDROID_LOG_INFO, "DSI", "DSI+%04x : 0x%08x\n", i, INREG32(DSI_BASE + i));
@@ -3315,10 +3316,10 @@ DSI_STATUS DSI_Capture_Framebuffer(unsigned int pvbuf, unsigned int bpp, bool cm
 	unsigned int mva;
     unsigned int ret = 0;
 	M4U_PORT_STRUCT portStruct;
-	
+
 	struct disp_path_config_mem_out_struct mem_out = {0};
 	printk("enter DSI_Capture_FB!\n");
-	
+
 	if(bpp == 32)
 		mem_out.outFormat = WDMA_OUTPUT_FORMAT_ARGB;
 	else if(bpp == 16)
@@ -3327,34 +3328,34 @@ DSI_STATUS DSI_Capture_Framebuffer(unsigned int pvbuf, unsigned int bpp, bool cm
 		mem_out.outFormat = WDMA_OUTPUT_FORMAT_RGB888;
 	else
 		printk("DSI_Capture_FB, fb color format not support\n");
-	
+
 	printk("before alloc MVA: va = 0x%x, size = %d\n", pvbuf, DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8);
-   	ret = m4u_alloc_mva(M4U_CLNTMOD_WDMA, 
-		                pvbuf, 
-		                DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8, 
+   	ret = m4u_alloc_mva(M4U_CLNTMOD_WDMA,
+		                pvbuf,
+		                DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8,
 		                0,
 		                0,
 		                &mva);
 	if(ret!=0)
 	{
         printk("m4u_alloc_mva() fail! \n");
-		return DSI_STATUS_OK;  
+		return DSI_STATUS_OK;
 	}
 	printk("addr=0x%x, format=%d \n", mva, mem_out.outFormat);
 
-	m4u_dma_cache_maint(M4U_CLNTMOD_WDMA, 
-		                &pvbuf, 
+	m4u_dma_cache_maint(M4U_CLNTMOD_WDMA,
+		                &pvbuf,
 		                DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8,
 		                DMA_BIDIRECTIONAL);
-	
+
 	portStruct.ePortID = M4U_PORT_WDMA1;		   //hardware port ID, defined in M4U_PORT_ID_ENUM
-	portStruct.Virtuality = 1;						   
+	portStruct.Virtuality = 1;
 	portStruct.Security = 0;
     portStruct.domain = 0;            //domain : 0 1 2 3
 	portStruct.Distance = 1;
-	portStruct.Direction = 0; 	
+	portStruct.Direction = 0;
 	m4u_config_port(&portStruct);
-	
+
 	mem_out.enable = 1;
 	mem_out.dstAddr = mva;
 	mem_out.srcROI.x = 0;
@@ -3377,23 +3378,23 @@ DSI_STATUS DSI_Capture_Framebuffer(unsigned int pvbuf, unsigned int bpp, bool cm
 	disp_path_get_mutex();
 	mem_out.enable = 0;
 	disp_path_config_mem_out(&mem_out);
-	
+
 	if(cmd_mode)
 		DSI_EnableClk();
 
 	disp_path_release_mutex();
 
 	portStruct.ePortID = M4U_PORT_WDMA1;		   //hardware port ID, defined in M4U_PORT_ID_ENUM
-	portStruct.Virtuality = 0;						   
+	portStruct.Virtuality = 0;
 	portStruct.Security = 0;
 	portStruct.domain = 0;			  //domain : 0 1 2 3
 	portStruct.Distance = 1;
-	portStruct.Direction = 0;	
+	portStruct.Direction = 0;
 	m4u_config_port(&portStruct);
 
-    m4u_dealloc_mva(M4U_CLNTMOD_WDMA, 
-                    pvbuf, 
-		                DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8, 
+    m4u_dealloc_mva(M4U_CLNTMOD_WDMA,
+                    pvbuf,
+		                DISP_GetScreenHeight()*DISP_GetScreenWidth()*bpp/8,
 		                mva);
 
 	return DSI_STATUS_OK;

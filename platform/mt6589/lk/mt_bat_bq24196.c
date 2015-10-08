@@ -48,17 +48,17 @@ typedef enum
 } usb_state_enum;
 
 /*****************************************************************************
-*   JEITA battery temperature standard 
+*   JEITA battery temperature standard
     charging info ,like temperatue, charging current, re-charging voltage, CV threshold would be reconfigurated.
-    Temperature hysteresis default 6C.  
+    Temperature hysteresis default 6C.
     Reference table:
-    degree    AC Current   USB current    CV threshold    Recharge Vol    hysteresis condition 
-    > 60      no charging current,              X                X              <54(Down) 
-    45~60     FULL         500mA           4.096V           3.996V              <39(Down) >60(Up) 
-    10~45     FULL         500mA           4.208V           4.108V              <10(Down) >45(Up) 
-    0~10      FULL         500mA           4.096V           3.996V              <0(Down)  >16(Up) 
-    -10~0     500mA        500mA               4V             3.9V              <-10(Down) >6(Up) 
-    <-10      no charging current,              X                X              >-10(Up)  
+    degree    AC Current   USB current    CV threshold    Recharge Vol    hysteresis condition
+    > 60      no charging current,              X                X              <54(Down)
+    45~60     FULL         500mA           4.096V           3.996V              <39(Down) >60(Up)
+    10~45     FULL         500mA           4.208V           4.108V              <10(Down) >45(Up)
+    0~10      FULL         500mA           4.096V           3.996V              <0(Down)  >16(Up)
+    -10~0     500mA        500mA               4V             3.9V              <-10(Down) >6(Up)
+    <-10      no charging current,              X                X              >-10(Up)
 ****************************************************************************/
 typedef enum
 {
@@ -69,9 +69,9 @@ typedef enum
     TEMP_POS_45_TO_POS_60,
     TEMP_ABOVE_POS_60
 }temp_state_enum;
-    
+
 #define TEMP_POS_60_THRESHOLD  60
-#define TEMP_POS_60_THRES_MINUS_X_DEGREE 54  
+#define TEMP_POS_60_THRES_MINUS_X_DEGREE 54
 
 #define TEMP_POS_45_THRESHOLD  45
 #define TEMP_POS_45_THRES_MINUS_X_DEGREE 39
@@ -105,7 +105,7 @@ kal_bool temp_error_recovery_chr_flag =KAL_TRUE;
 #define MAX_PreCC_CHARGING_TIME             1*30*60     // 0.5hr
 #define MAX_CV_CHARGING_TIME                3*60*60     // 3hr
 #define BAT_TASK_PERIOD                     1           // 1sec
-#define BL_SWITCH_TIMEOUT                   1*6         // 6s  
+#define BL_SWITCH_TIMEOUT                   1*6         // 6s
 #define POWER_ON_TIME                       4*1         // 0.5s
 
 /*****************************************************************************
@@ -118,10 +118,10 @@ kal_bool temp_error_recovery_chr_flag =KAL_TRUE;
  *  Pulse Charging State
  ****************************************************************************/
 #define  CHR_PRE                            0x1000
-#define  CHR_CC                             0x1001 
-#define  CHR_TOP_OFF                        0x1002 
+#define  CHR_CC                             0x1001
+#define  CHR_TOP_OFF                        0x1002
 #define  CHR_POST_FULL                      0x1003
-#define  CHR_BATFULL                        0x1004 
+#define  CHR_BATFULL                        0x1004
 #define  CHR_ERROR                          0x1005
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -219,10 +219,10 @@ int g_temp_CC_value = 0;
 ****************************************************************************/
 int g_chr_event = 0;
 int bat_volt_cp_flag = 0;
-int Enable_BATDRV_LOG = 1;
+int Enable_BATDRV_LOG = 0;
 
 /***************************************************
- * LK 
+ * LK
 ****************************************************/
 int prog = 25;
 int prog_temp = 0;
@@ -241,8 +241,8 @@ int vbat_compensate_value = 80; //80mV
 
 extern BOOT_ARGUMENT *g_boot_arg;
 
-/********************************************** 
- * Battery Temprature Parameters and functions    
+/**********************************************
+ * Battery Temprature Parameters and functions
  ***********************************************/
 typedef struct{
     INT32 BatteryTemp;
@@ -253,7 +253,7 @@ int get_bat_sense_volt_ch0(int times)
 {
     kal_uint32 ret;
 	//RG_SOURCE_CH0_NORM_SEL set to 0 for bat_sense
-    ret=pmic_config_interface(AUXADC_CON14, 0x0, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);	
+    ret=pmic_config_interface(AUXADC_CON14, 0x0, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);
 	printf("%s, ret=%d\n", __FUNCTION__, ret);
     return PMIC_IMM_GetOneChannelValue(0,times,1);
 }
@@ -261,20 +261,20 @@ int get_bat_sense_volt_ch0(int times)
 int get_i_sense_volt_ch0(int times)
 {
 	//RG_SOURCE_CH0_NORM_SEL set to 1 for i_sense
-    pmic_config_interface(AUXADC_CON14, 0x1, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);	
+    pmic_config_interface(AUXADC_CON14, 0x1, PMIC_RG_SOURCE_CH0_NORM_SEL_MASK, PMIC_RG_SOURCE_CH0_NORM_SEL_SHIFT);
     return PMIC_IMM_GetOneChannelValue(0,times,1); //i sense use channel 0 as well
 }
 
 #ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
 kal_bool is_low_battery(void)
 {
-#ifdef MTK_BQ27541_SUPPORT   
+#ifdef MTK_BQ27541_SUPPORT
     int returnData = 0;
     int ret = 0;
 #endif
-    
+
     kal_uint32 bq24196_chrg_status;
-    
+
     BMT_status.bat_vol = get_i_sense_volt_ch0(5);
 
     if (BMT_status.bat_vol < BATTERY_LOWVOL_THRESOLD)
@@ -284,33 +284,33 @@ kal_bool is_low_battery(void)
     }
     else
     {
-        //battery protect check for S3 platform        
+        //battery protect check for S3 platform
         if (BMT_status.bat_vol <= 3800)
         {
 #ifdef MTK_BQ27541_SUPPORT
             ret = bq27541_set_cmd_read(BQ27541_CMD_Voltage,&returnData);
             if(ret == I2C_OK)
-            {                                
+            {
                 printf("battery voltage = %d\n", (INT32)returnData);
-                
+
                 if (BMT_status.bat_vol - (INT32)returnData >= 150)
                 {
                     printf("%s, battery real voltage is %d, TRUE\n", __FUNCTION__, (INT32)returnData);
                     return KAL_TRUE;
                 }
         	}
-#endif     
+#endif
             bq24196_chrg_status = bq24196_get_chrg_stat();
             printf("bq24196_chrg_status = %d\n", bq24196_chrg_status);
-            
+
             if(bq24196_chrg_status == 0x1) //Pre-charge
             {
                 printf("%s, battery protect TRUE\n", __FUNCTION__);
                 return KAL_TRUE;
-            }    
-        }    
+            }
+        }
     }
-    
+
     printf("%s, FALSE\n", __FUNCTION__);
     return KAL_FALSE;
 }
@@ -323,7 +323,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
     INT32 RES1 = 0, RES2 = 0;
     INT32 TBatt_Value = -200, TMP1 = 0, TMP2 = 0;
 
-#if defined(BAT_NTC_10_TDK_1)        
+#if defined(BAT_NTC_10_TDK_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
      {-20,95327},
      {-15,71746},
@@ -347,7 +347,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
 
 #if defined(BAT_NTC_TSM_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
-    {-20,70603},    
+    {-20,70603},
     {-15,55183},
     {-10,43499},
     { -5,34569},
@@ -367,7 +367,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
     };
 #endif
 
-#if defined(BAT_NTC_10_SEN_1)        
+#if defined(BAT_NTC_10_SEN_1)
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
      {-20,74354},
      {-15,57626},
@@ -407,7 +407,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
         { 45,4917},
         { 50,4161},
         { 55,3535},
-        { 60,3014}        
+        { 60,3014}
     };
 #endif
 
@@ -429,7 +429,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
         { 45,20048},
         { 50,16433},
         { 55,13539},
-        { 60,11210}        
+        { 60,11210}
     };
 #endif
 
@@ -451,7 +451,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
         {45,    42172},
         {50,    34512},
         {55,    28402},
-        {60,    23499},                    
+        {60,    23499},
     };
 #endif
 
@@ -478,7 +478,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
 #endif
 
     if (Enable_BATDRV_LOG == 1) {
-        printf("###### %d <-> %d ######\r\n", Batt_Temperature_Table[9].BatteryTemp, 
+        printf("###### %d <-> %d ######\r\n", Batt_Temperature_Table[9].BatteryTemp,
             Batt_Temperature_Table[9].TemperatureR);
     }
 
@@ -500,7 +500,7 @@ INT16 BattThermistorConverTemp(INT32 Res)
     {
         RES1 = Batt_Temperature_Table[0].TemperatureR;
         TMP1 = Batt_Temperature_Table[0].BatteryTemp;
-        
+
         for (i = 0; i <= 16; i++)
         {
             if(Res >= Batt_Temperature_Table[i].TemperatureR)
@@ -515,15 +515,15 @@ INT16 BattThermistorConverTemp(INT32 Res)
                 TMP1 = Batt_Temperature_Table[i].BatteryTemp;
             }
         }
-        
+
         TBatt_Value = (((Res - RES2) * TMP1) + ((RES1 - Res) * TMP2)) / (RES1-RES2);
     }
-    
+
     #ifdef CONFIG_DEBUG_MSG_NO_BQ27500
     printf("BattThermistorConverTemp() : TBatt_Value = %d\n",TBatt_Value);
     #endif
-    
-    return TBatt_Value;    
+
+    return TBatt_Value;
 }
 
 /* convert ADC_bat_temp_volt to register */
@@ -532,15 +532,15 @@ INT16 BattVoltToTemp(INT32 dwVolt)
     INT32 TRes;
     INT32 dwVCriBat = (TBAT_OVER_CRITICAL_LOW * RBAT_PULL_UP_VOLT) / (TBAT_OVER_CRITICAL_LOW + RBAT_PULL_UP_R); //~2000mV
     INT32 sBaTTMP = -100;
-    
+
     if(dwVolt > dwVCriBat)
         TRes = TBAT_OVER_CRITICAL_LOW;
     else
-        TRes = (RBAT_PULL_UP_R*dwVolt) / (RBAT_PULL_UP_VOLT-dwVolt);        
-        
+        TRes = (RBAT_PULL_UP_R*dwVolt) / (RBAT_PULL_UP_VOLT-dwVolt);
+
     /* convert register to temperature */
     sBaTTMP = BattThermistorConverTemp(TRes);
-    
+
     #ifdef CONFIG_DEBUG_MSG_NO_BQ27500
     printf("BattVoltToTemp() : TBAT_OVER_CRITICAL_LOW = %d\n", TBAT_OVER_CRITICAL_LOW);
     printf("BattVoltToTemp() : RBAT_PULL_UP_VOLT = %d\n", RBAT_PULL_UP_VOLT);
@@ -548,16 +548,16 @@ INT16 BattVoltToTemp(INT32 dwVolt)
     printf("BattVoltToTemp() : TRes = %d\n", TRes);
     printf("BattVoltToTemp() : sBaTTMP = %d\n", sBaTTMP);
     #endif
-    
+
 #ifdef BEFORE_TREF_REWORK
 //    if(upmu_get_cid() == 0x1020)
-        sBaTTMP=22; 
+        sBaTTMP=22;
 #endif
     return sBaTTMP;
 }
 
 //////////////////////////////////////////////////////
-//// Pulse Charging Algorithm 
+//// Pulse Charging Algorithm
 //////////////////////////////////////////////////////
 void charger_hv_init(void)
 {
@@ -579,7 +579,7 @@ void kick_charger_wdt(void)
 
 kal_bool pmic_chrdet_status(void)
 {
-    if( upmu_is_chr_det() == KAL_TRUE )    
+    if( upmu_is_chr_det() == KAL_TRUE )
     {
         if (Enable_BATDRV_LOG == 1) {
             printf("[pmic_chrdet_status] Charger exist\r\n");
@@ -610,18 +610,18 @@ void bq24196_set_ac_current(void)
     }
     else
     {
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
         if(g_temp_status == TEMP_NEG_10_TO_POS_0)
-        {    
+        {
             ichg_val = 0; //lowest possible charge current for bq24196 is 500mA
         }
         else
         {
             ichg_val = (g_temp_CC_value - 500)/64;
-        }     
+        }
 #else
         ichg_val = (g_temp_CC_value - 500)/64;
-#endif    
+#endif
         bq24196_set_ichg(ichg_val);
     }
 }
@@ -631,7 +631,7 @@ void bq24196_set_low_chg_current(void)
     if (Enable_BATDRV_LOG == 1) {
         printf("[BATTERY:bq24196] bq24196_set_low_chg_current \r\n");
     }
-    bq24196_set_iinlim(0x0); //IN current limit at 100mA	
+    bq24196_set_iinlim(0x0); //IN current limit at 100mA
     bq24196_set_ichg(0); //charging current limit at 500mA
 }
 
@@ -640,7 +640,7 @@ void select_charging_curret_bq24196(void)
     if ( BMT_status.charger_type == STANDARD_HOST )
     {
         g_temp_CC_value = USB_CHARGER_CURRENT;
-        bq24196_set_iinlim(0x2); //IN current limit at 500mA		  
+        bq24196_set_iinlim(0x2); //IN current limit at 500mA
         bq24196_set_ac_current();
         if (Enable_BATDRV_LOG == 1) {
             printf("Power/Battery", "[BATTERY:bq24196] bq24196_set_ac_current(), CC value(%d) \r\n", g_temp_CC_value);
@@ -649,19 +649,19 @@ void select_charging_curret_bq24196(void)
     else if (BMT_status.charger_type == NONSTANDARD_CHARGER)
     {
         g_temp_CC_value = AC_CHARGER_CURRENT;
-        bq24196_set_iinlim(0x6); //IN current limit at 2A			
+        bq24196_set_iinlim(0x6); //IN current limit at 2A
         bq24196_set_ac_current();
     }
     else if (BMT_status.charger_type == STANDARD_CHARGER)
     {
         g_temp_CC_value = AC_CHARGER_CURRENT;
-        bq24196_set_iinlim(0x6); //IN current limit at 2A			
+        bq24196_set_iinlim(0x6); //IN current limit at 2A
         bq24196_set_ac_current();
     }
     else if (BMT_status.charger_type == CHARGING_HOST)
     {
         g_temp_CC_value = AC_CHARGER_CURRENT;
-        bq24196_set_iinlim(0x6); //IN current limit at 2A			
+        bq24196_set_iinlim(0x6); //IN current limit at 2A
         bq24196_set_ac_current();
     }
     else
@@ -670,8 +670,8 @@ void select_charging_curret_bq24196(void)
             printf("[BATTERY:bq24196] Unknown charger type\n");
         }
         g_temp_CC_value = 500;
-        bq24196_set_iinlim(0x2); //IN current limit at 500mA		  
-        bq24196_set_ac_current();     		
+        bq24196_set_iinlim(0x2); //IN current limit at 500mA
+        bq24196_set_ac_current();
 //        bq24196_set_low_chg_current();
     }
 }
@@ -682,7 +682,7 @@ void ChargerHwInit_bq24196(void)
 		printf("[BATTERY:bq24196] ChargerHwInit_bq24196\n" );
 	}
 
-    upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL    
+    upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL
     upmu_set_rg_bc11_rst(1);        //BC11_RST
 
     //TODO: pull PSEL low
@@ -694,26 +694,26 @@ void ChargerHwInit_bq24196(void)
 //    if(upmu_get_cid() == 0x1020)
     if(0)
 	    bq24196_set_sys_min(0x0); //Minimum system voltage 3.0V (MT6320 E1 workaround, disable powerpath)
-    else	    
-        bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V		
+    else
+        bq24196_set_sys_min(0x5); //Minimum system voltage 3.5V
 	bq24196_set_iprechg(0x3); //Precharge current 512mA
 	bq24196_set_iterm(0x0); //Termination current 128mA
 
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
     if(g_temp_status == TEMP_NEG_10_TO_POS_0)
-    {    
+    {
 		bq24196_set_vreg(0x1F); //VREG 4.0V
     }
     else
     {
         if(g_temp_status == TEMP_POS_10_TO_POS_45)
-		    bq24196_set_vreg(0x2C); //VREG 4.208V			
+		    bq24196_set_vreg(0x2C); //VREG 4.208V
 		else
 		    bq24196_set_vreg(0x25); //VREG 4.096V
-    }     
+    }
 #else
     bq24196_set_vreg(0x2C); //VREG 4.208V
-#endif    
+#endif
     bq24196_set_batlowv(0x1); //BATLOWV 3.0V
     bq24196_set_vrechg(0x0); //VRECHG 0.1V (4.108V)
     bq24196_set_en_term(0x1); //Enable termination
@@ -764,7 +764,7 @@ void pchr_turn_on_charging_bq24196 (void)
 		}
         else
         {
-            bq24196_set_en_hiz(0x0);	        	
+            bq24196_set_en_hiz(0x0);
             bq24196_set_chg_config(0x1); // charger enable
             if (Enable_BATDRV_LOG == 1) {
                printf("[BATTERY:bq24196] charger enable !\r\n");
@@ -808,23 +808,23 @@ int g_Get_I_Charging(void)
     kal_int32 ADC_BAT_SENSE=0;
     kal_int32 ADC_I_SENSE_tmp[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     kal_int32 ADC_I_SENSE_sum=0;
-    kal_int32 ADC_I_SENSE=0;    
+    kal_int32 ADC_I_SENSE=0;
     int repeat=20;
     int i=0;
     int j=0;
     kal_int32 temp=0;
-    int ICharging=0;    
+    int ICharging=0;
 
     for(i=0 ; i<repeat ; i++)
     {
         ADC_BAT_SENSE_tmp[i] = get_bat_sense_volt_ch0(1);
         ADC_I_SENSE_tmp[i] = get_i_sense_volt_ch0(1);
-    
+
         ADC_BAT_SENSE_sum += ADC_BAT_SENSE_tmp[i];
-        ADC_I_SENSE_sum += ADC_I_SENSE_tmp[i];    
+        ADC_I_SENSE_sum += ADC_I_SENSE_tmp[i];
     }
 
-    //sorting    BAT_SENSE 
+    //sorting    BAT_SENSE
     for(i=0 ; i<repeat ; i++)
     {
         for(j=i; j<repeat ; j++)
@@ -838,7 +838,7 @@ int g_Get_I_Charging(void)
         }
     }
     if (Enable_BATDRV_LOG == 1) {
-        printf("[g_Get_I_Charging:BAT_SENSE]\r\n");    
+        printf("[g_Get_I_Charging:BAT_SENSE]\r\n");
         for(i=0 ; i<repeat ; i++ )
         {
             printf("%d,", ADC_BAT_SENSE_tmp[i]);
@@ -846,7 +846,7 @@ int g_Get_I_Charging(void)
         printf("\n");
     }
 
-    //sorting    I_SENSE 
+    //sorting    I_SENSE
     for(i=0 ; i<repeat ; i++)
     {
         for(j=i ; j<repeat ; j++)
@@ -860,18 +860,18 @@ int g_Get_I_Charging(void)
         }
     }
     if (Enable_BATDRV_LOG == 1) {
-        printf("[g_Get_I_Charging:I_SENSE]\r\n");    
+        printf("[g_Get_I_Charging:I_SENSE]\r\n");
         for(i=0 ; i<repeat ; i++ )
         {
             printf("%d,", ADC_I_SENSE_tmp[i]);
         }
         printf("\n");
     }
-        
+
     ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[0];
     ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[1];
     ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[18];
-    ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[19];        
+    ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[19];
     ADC_BAT_SENSE = ADC_BAT_SENSE_sum / (repeat-4);
 
     if (Enable_BATDRV_LOG == 1) {
@@ -887,7 +887,7 @@ int g_Get_I_Charging(void)
     if (Enable_BATDRV_LOG == 1) {
         printf("[g_Get_I_Charging] ADC_I_SENSE(Before)=%d\n", ADC_I_SENSE);
     }
-    
+
     ADC_I_SENSE += gADC_I_SENSE_offset;
 
     if (Enable_BATDRV_LOG == 1) {
@@ -896,7 +896,7 @@ int g_Get_I_Charging(void)
 
     BMT_status.ADC_BAT_SENSE = ADC_BAT_SENSE;
     BMT_status.ADC_I_SENSE = ADC_I_SENSE;
-    
+
     if(ADC_I_SENSE > ADC_BAT_SENSE)
     {
         ICharging = (ADC_I_SENSE - ADC_BAT_SENSE)*10/R_CURRENT_SENSE;
@@ -958,15 +958,15 @@ UINT32 BattVoltToPercent(UINT16 dwVoltage)
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
 int do_jeita_state_machine(void)
 {
-    //JEITA battery temp Standard 
-    if (BMT_status.temperature >= TEMP_POS_60_THRESHOLD) 
+    //JEITA battery temp Standard
+    if (BMT_status.temperature >= TEMP_POS_60_THRESHOLD)
     {
-        printf("[BATTERY] Battery Over high Temperature(%d) !!\n\r", 
-            TEMP_POS_60_THRESHOLD);  
-        
+        printf("[BATTERY] Battery Over high Temperature(%d) !!\n\r",
+            TEMP_POS_60_THRESHOLD);
+
         g_temp_status = TEMP_ABOVE_POS_60;
-        
-        return PMU_STATUS_FAIL; 
+
+        return PMU_STATUS_FAIL;
     }
     else if(BMT_status.temperature > TEMP_POS_45_THRESHOLD)
     {
@@ -974,31 +974,31 @@ int do_jeita_state_machine(void)
         if((g_temp_status == TEMP_ABOVE_POS_60) && (BMT_status.temperature >= TEMP_POS_60_THRES_MINUS_X_DEGREE))
         {
             printf("[BATTERY] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-                TEMP_POS_60_THRES_MINUS_X_DEGREE,TEMP_POS_60_THRESHOLD); 
-            
-            return PMU_STATUS_FAIL; 
+                TEMP_POS_60_THRES_MINUS_X_DEGREE,TEMP_POS_60_THRESHOLD);
+
+            return PMU_STATUS_FAIL;
         }
         else
         {
             printf("[BATTERY] Battery Temperature between %d and %d !!\n\r",
-                TEMP_POS_45_THRESHOLD,TEMP_POS_60_THRESHOLD); 
-            
+                TEMP_POS_45_THRESHOLD,TEMP_POS_60_THRESHOLD);
+
             g_temp_status = TEMP_POS_45_TO_POS_60;
-            g_jeita_recharging_voltage = 3980; 
+            g_jeita_recharging_voltage = 3980;
         }
     }
     else if(BMT_status.temperature >= TEMP_POS_10_THRESHOLD)
     {
         if( ((g_temp_status == TEMP_POS_45_TO_POS_60) && (BMT_status.temperature >= TEMP_POS_45_THRES_MINUS_X_DEGREE)) ||
-            ((g_temp_status == TEMP_POS_0_TO_POS_10 ) && (BMT_status.temperature <= TEMP_POS_10_THRES_PLUS_X_DEGREE ))    )    
+            ((g_temp_status == TEMP_POS_0_TO_POS_10 ) && (BMT_status.temperature <= TEMP_POS_10_THRES_PLUS_X_DEGREE ))    )
         {
-            printf("[BATTERY] Battery Temperature not recovery to normal temperature charging mode yet!!\n\r");     
+            printf("[BATTERY] Battery Temperature not recovery to normal temperature charging mode yet!!\n\r");
         }
         else
         {
             if(Enable_BATDRV_LOG >=1)
             {
-                printf("[BATTERY] Battery Normal Temperature between %d and %d !!\n\r",TEMP_POS_10_THRESHOLD,TEMP_POS_45_THRESHOLD); 
+                printf("[BATTERY] Battery Normal Temperature between %d and %d !!\n\r",TEMP_POS_10_THRESHOLD,TEMP_POS_45_THRESHOLD);
             }
 
             g_temp_status = TEMP_POS_10_TO_POS_45;
@@ -1011,21 +1011,21 @@ int do_jeita_state_machine(void)
         {
             if (g_temp_status == TEMP_NEG_10_TO_POS_0) {
                 printf("[BATTERY] Battery Temperature between %d and %d !!\n\r",
-                TEMP_POS_0_THRES_PLUS_X_DEGREE,TEMP_POS_10_THRESHOLD); 
+                TEMP_POS_0_THRES_PLUS_X_DEGREE,TEMP_POS_10_THRESHOLD);
             }
             if (g_temp_status == TEMP_BELOW_NEG_10) {
                 printf("[BATTERY] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-                TEMP_POS_0_THRESHOLD,TEMP_POS_0_THRES_PLUS_X_DEGREE); 
-                return PMU_STATUS_FAIL; 
+                TEMP_POS_0_THRESHOLD,TEMP_POS_0_THRES_PLUS_X_DEGREE);
+                return PMU_STATUS_FAIL;
             }
-        }    
+        }
         else
         {
             printf("[BATTERY] Battery Temperature between %d and %d !!\n\r",
-                TEMP_POS_0_THRESHOLD,TEMP_POS_10_THRESHOLD); 
-            
+                TEMP_POS_0_THRESHOLD,TEMP_POS_10_THRESHOLD);
+
             g_temp_status = TEMP_POS_0_TO_POS_10;
-            g_jeita_recharging_voltage = 3980; 
+            g_jeita_recharging_voltage = 3980;
         }
     }
     else if(BMT_status.temperature >= TEMP_NEG_10_THRESHOLD)
@@ -1033,27 +1033,27 @@ int do_jeita_state_machine(void)
         if((g_temp_status == TEMP_BELOW_NEG_10) && (BMT_status.temperature <= TEMP_NEG_10_THRES_PLUS_X_DEGREE))
         {
             printf("[BATTERY] Battery Temperature between %d and %d,not allow charging yet!!\n\r",
-                TEMP_NEG_10_THRESHOLD,TEMP_NEG_10_THRES_PLUS_X_DEGREE); 
-            
-            return PMU_STATUS_FAIL; 
+                TEMP_NEG_10_THRESHOLD,TEMP_NEG_10_THRES_PLUS_X_DEGREE);
+
+            return PMU_STATUS_FAIL;
         }
         else
         {
             printf("[BATTERY] Battery Temperature between %d and %d !!\n\r",
-                TEMP_NEG_10_THRESHOLD,TEMP_POS_0_THRESHOLD); 
-            
+                TEMP_NEG_10_THRESHOLD,TEMP_POS_0_THRESHOLD);
+
             g_temp_status = TEMP_NEG_10_TO_POS_0;
             g_jeita_recharging_voltage = 3880;
         }
     }
     else
     {
-        printf("[BATTERY] Battery below low Temperature(%d) !!\n\r", 
-            TEMP_NEG_10_THRESHOLD);  
-        
+        printf("[BATTERY] Battery below low Temperature(%d) !!\n\r",
+            TEMP_NEG_10_THRESHOLD);
+
         g_temp_status = TEMP_BELOW_NEG_10;
-        
-        return PMU_STATUS_FAIL; 
+
+        return PMU_STATUS_FAIL;
     }
 }
 #endif
@@ -1084,7 +1084,7 @@ void BAT_LkAnimationControl(kal_bool display)
                 printf("[BATTERY:bq24196] mt65xx_backlight_off\r\n");
 				return;
             }
-			
+
             if ( (g_HW_Charging_Done == 1) || (user_view_flag == KAL_TRUE) )
             {
                 if(g_bl_on == 1)
@@ -1175,10 +1175,10 @@ int BAT_CheckBatteryStatus_bq24196(void)
     bat_temperature_volt = get_tbat_volt(5);
     if(bat_temperature_volt == 0)
     {
-#ifdef BEFORE_TREF_REWORK	
+#ifdef BEFORE_TREF_REWORK
 //	    if(upmu_get_cid() == 0x1020)
 	        g_bat_temperature_pre = 22; // MT6320 E1 workaround
-#endif	        
+#endif
         BMT_status.temperature = g_bat_temperature_pre;
         if (Enable_BATDRV_LOG == 1) {
             printf("[BATTERY:bq24196] Warning !! bat_temperature_volt == 0, restore temperature value\n\r");
@@ -1195,10 +1195,10 @@ int BAT_CheckBatteryStatus_bq24196(void)
     if(ret != I2C_OK)
     {
         printf("[BATTERY:ADC:bq27541] bq27541 i2c access error, use MT6320 measured battery temperature\n");
-    }	
+    }
     else
     {
-        printf("[BATTERY:ADC:bq27541] battery temperature read raw data(%d)0.1K\n", returnData); 
+        printf("[BATTERY:ADC:bq27541] battery temperature read raw data(%d)0.1K\n", returnData);
         BMT_status.temperature = ((returnData/10) - 273);
     }
 #endif
@@ -1214,7 +1214,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
     /* Get Battery Information : end --------------------------------------------------------------------------*/
 
     /* Re-calculate Battery Percentage (SOC) */
-#ifndef MTK_BQ27541_SUPPORT	
+#ifndef MTK_BQ27541_SUPPORT
 	cnt++;
 	if(cnt >= 10) //update SOC every 10 seconds
 	{
@@ -1224,7 +1224,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
 		mtk_sleep(50, KAL_FALSE);
 		vol_batfet_disabled = get_i_sense_volt_ch0(5);
         BMT_status.SOC = BattVoltToPercent(vol_batfet_disabled);
-//		bq24196_set_batfet_disable(0x0);		
+//		bq24196_set_batfet_disable(0x0);
         bq24196_set_chg_config(0x1);
         printf("[BATTERY:bq24196] vol_batfet_disabled = %d\n", vol_batfet_disabled);
 	}
@@ -1232,13 +1232,13 @@ int BAT_CheckBatteryStatus_bq24196(void)
     ret = bq27541_set_cmd_read(BQ27541_CMD_StateOfCharge,&returnData);
     if(ret != I2C_OK)
     {
-        BMT_status.SOC = BattVoltToPercent(vol_batfet_disabled);    
+        BMT_status.SOC = BattVoltToPercent(vol_batfet_disabled);
 	    printf("[BATTERY:bq27541] bq27541 i2c access error\n");
     }
 	else
 	{
-        BMT_status.SOC = (INT32)returnData;	
-        printf("[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);		    
+        BMT_status.SOC = (INT32)returnData;
+        printf("[BATTERY:bq27541] bq27541 read SOC raw data = %d\n", returnData);
 	}
 #endif
 
@@ -1247,7 +1247,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
     {
         bat_volt_cp_flag = 1;
         bat_volt_check_point = BMT_status.SOC;
-        
+
         /* sync mechanism to avoid ambiguous full battery */
 		if (bat_volt_check_point >= 100)
 		{
@@ -1264,14 +1264,14 @@ int BAT_CheckBatteryStatus_bq24196(void)
         for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
             batteryVoltageBuffer[i] = BMT_status.bat_vol;
             batteryCurrentBuffer[i] = BMT_status.ICharging;
-#ifndef MTK_BQ27541_SUPPORT				
+#ifndef MTK_BQ27541_SUPPORT
             batterySOCBuffer[i] = BMT_status.SOC;
 #endif
         }
 
         batteryVoltageSum = BMT_status.bat_vol * BATTERY_AVERAGE_SIZE;
         batteryCurrentSum = BMT_status.ICharging * BATTERY_AVERAGE_SIZE;
-#ifndef MTK_BQ27541_SUPPORT			
+#ifndef MTK_BQ27541_SUPPORT
         batterySOCSum = BMT_status.SOC * BATTERY_AVERAGE_SIZE;
 #endif
     }
@@ -1289,7 +1289,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
     if (g_bat_full_user_view)
         BMT_status.SOC = 100;
 
-#ifndef MTK_BQ27541_SUPPORT	
+#ifndef MTK_BQ27541_SUPPORT
     batterySOCSum -= batterySOCBuffer[batteryIndex];
     batterySOCSum += BMT_status.SOC;
     batterySOCBuffer[batteryIndex] = BMT_status.SOC;
@@ -1297,7 +1297,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
 
     BMT_status.bat_vol = batteryVoltageSum / BATTERY_AVERAGE_SIZE;
     BMT_status.ICharging = batteryCurrentSum / BATTERY_AVERAGE_SIZE;
-#ifndef MTK_BQ27541_SUPPORT		
+#ifndef MTK_BQ27541_SUPPORT
     BMT_status.SOC = batterySOCSum / BATTERY_AVERAGE_SIZE;
 #endif
 
@@ -1317,14 +1317,14 @@ int BAT_CheckBatteryStatus_bq24196(void)
         /* SOC only UP when charging */
         if ( BMT_status.SOC > bat_volt_check_point ) {
             bat_volt_check_point = BMT_status.SOC;
-            
+
             /* sync mechanism to avoid ambiguous full battery */
     		if (bat_volt_check_point >= 100)
     		{
     		    bat_volt_check_point = 99;
     		}
         }
-           	
+
         /* LK charging LED */
         if ( (bat_volt_check_point >= 90)  || (user_view_flag == KAL_TRUE) ) {
             leds_battery_full_charging();
@@ -1346,32 +1346,32 @@ int BAT_CheckBatteryStatus_bq24196(void)
 	/* Protection Check : start*/
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
     if (Enable_BATDRV_LOG == 1) {
-        printf("[BATTERY:bq24196] support JEITA, Tbat=%d\n", BMT_status.temperature);			 
+        printf("[BATTERY:bq24196] support JEITA, Tbat=%d\n", BMT_status.temperature);
     }
-	
+
     if( do_jeita_state_machine() == PMU_STATUS_FAIL)
     {
         printf("[BATTERY] JEITA : fail\n");
-        BMT_status.bat_charging_state = CHR_ERROR;  
+        BMT_status.bat_charging_state = CHR_ERROR;
         return PMU_STATUS_FAIL;
     }
 #else
 #if (BAT_TEMP_PROTECT_ENABLE == 1)
-    if ((BMT_status.temperature < MIN_CHARGE_TEMPERATURE) || 
+    if ((BMT_status.temperature < MIN_CHARGE_TEMPERATURE) ||
         (BMT_status.temperature == ERR_CHARGE_TEMPERATURE))
     {
-        printf(  "[BATTERY:bq24196] Battery Under Temperature or NTC fail !!\n\r"); 			   
+        printf(  "[BATTERY:bq24196] Battery Under Temperature or NTC fail !!\n\r");
         BMT_status.bat_charging_state = CHR_ERROR;
-        return PMU_STATUS_FAIL; 	  
+        return PMU_STATUS_FAIL;
     }
-#endif                
+#endif
     if (BMT_status.temperature >= MAX_CHARGE_TEMPERATURE)
     {
-        printf(  "[BATTERY:bq24196] Battery Over Temperature !!\n\r");				  
+        printf(  "[BATTERY:bq24196] Battery Over Temperature !!\n\r");
         BMT_status.bat_charging_state = CHR_ERROR;
-        return PMU_STATUS_FAIL; 	  
+        return PMU_STATUS_FAIL;
     }
-#endif    
+#endif
 
     if( upmu_is_chr_det() == KAL_TRUE)
     {
@@ -1398,9 +1398,9 @@ int BAT_CheckBatteryStatus_bq24196(void)
     {
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
         if ((BMT_status.bat_vol < g_jeita_recharging_voltage) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail))
-#else    
-        if ((BMT_status.bat_vol < RECHARGING_VOLTAGE) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail))    
-#endif       
+#else
+        if ((BMT_status.bat_vol < RECHARGING_VOLTAGE) && (BMT_status.bat_full) && (g_HW_Charging_Done == 1) && (!g_Battery_Fail))
+#endif
         {
             if (Enable_BATDRV_LOG == 1) {
             	printf("[BATTERY:bq24196] Battery Re-charging !!\n\r");
@@ -1461,22 +1461,22 @@ PMU_STATUS BAT_ChargingOTAction(void)
 
 PMU_STATUS BAT_BatteryFullAction(void)
 {
-    if (Enable_BATDRV_LOG == 1) {    
-        printf("[BATTERY:bq24196] check Battery full !!\n\r");            
+    if (Enable_BATDRV_LOG == 1) {
+        printf("[BATTERY:bq24196] check Battery full !!\n\r");
     }
-    
+
     BMT_status.bat_full = KAL_TRUE;
     BMT_status.total_charging_time = 0;
     BMT_status.PRE_charging_time = 0;
     BMT_status.CC_charging_time = 0;
     BMT_status.TOPOFF_charging_time = 0;
     BMT_status.POSTFULL_charging_time = 0;
-    
+
     g_HW_Charging_Done = 1;
-    
+
     /*  Disable charger */
     pchr_turn_off_charging_bq24196();
-        
+
     return PMU_STATUS_OK;
 }
 
@@ -1499,16 +1499,16 @@ void pmic_init_for_bq24196(void)
 
     upmu_set_rg_bc11_bb_ctrl(1);    //BC11_BB_CTRL
     upmu_set_rg_bc11_rst(1);        //BC11_RST
-    
+
     upmu_set_rg_csdac_mode(0);      //CSDAC_MODE
     upmu_set_rg_vbat_ov_en(0);      //VBAT_OV_EN
-    upmu_set_rg_vbat_ov_vth(0x0);   //VBAT_OV_VTH, 4.3V    
+    upmu_set_rg_vbat_ov_vth(0x0);   //VBAT_OV_VTH, 4.3V
     upmu_set_rg_baton_en(1);        //BATON_EN
 
     //Tim, for TBAT
     upmu_set_rg_buf_pwd_b(1);       //RG_BUF_PWD_B
     upmu_set_rg_baton_ht_en(0);     //BATON_HT_EN
-    
+
     upmu_set_rg_ulc_det_en(0);      // RG_ULC_DET_EN=1
     upmu_set_rg_low_ich_db(1);      // RG_LOW_ICH_DB=000001'b
 
@@ -1524,15 +1524,15 @@ void bmt_charger_ov_check(void)
      {
          pchr_turn_off_charging_bq24196();
          printf("[bmt_charger_ov_check]LK charger ov, turn off charging\r\n");
-         while(1)             
-         {  
+         while(1)
+         {
              printf("[bmt_charger_ov_check] mtk_wdt_restart()\n");
              mtk_wdt_restart();
-             
+
              if(charger_ov_boot_display == 0)
              {
                 mt_disp_power(TRUE);
-                mt_disp_show_charger_ov_logo(); 
+                mt_disp_show_charger_ov_logo();
                 mt_disp_wait_idle();
                 charger_ov_boot_display = 1;
                 printf("LK charger ov, Set low brightness\r\n");
@@ -1540,21 +1540,21 @@ void bmt_charger_ov_check(void)
              }
              BMT_status.charger_vol = get_charger_volt(5);
              BMT_status.charger_vol = BMT_status.charger_vol / 100;
-             if (BMT_status.charger_vol < 4000) //charger out detection        
-             {             
-                 #ifndef NO_POWER_OFF                
-                 mt6575_power_off();              
-                 #endif             
-                 while(1);            
-             } 
-             #ifdef GPT_TIMER                  
-             mtk_sleep(500, KAL_FALSE);          
-             #else              
-             tmo = get_timer(0);              
-             while(get_timer(tmo) <= 500 /* ms */);            
-             #endif        
+             if (BMT_status.charger_vol < 4000) //charger out detection
+             {
+                 #ifndef NO_POWER_OFF
+                 mt6575_power_off();
+                 #endif
+                 while(1);
+             }
+             #ifdef GPT_TIMER
+             mtk_sleep(500, KAL_FALSE);
+             #else
+             tmo = get_timer(0);
+             while(get_timer(tmo) <= 500 /* ms */);
+             #endif
          }
-    }    
+    }
 }
 
 void BAT_thread_bq24196(void)
@@ -1568,7 +1568,7 @@ void BAT_thread_bq24196(void)
 
     if (Enable_BATDRV_LOG == 1) {
         printf("[BAT_thread_bq24196] LOG. %d,%d----------------------------\n", BATTERY_AVERAGE_SIZE, RECHARGING_VOLTAGE);
-    }    
+    }
 
     /* If charger does not exist */
 //    if(get_charger_hv_status() == 1 || (upmu_is_chr_det() == KAL_FALSE))
@@ -1604,7 +1604,7 @@ void BAT_thread_bq24196(void)
     {
         chr_err_cnt --;
     }
-	
+
     if( BAT_status == PMU_STATUS_FAIL )
         g_Battery_Fail = KAL_TRUE;
     else if( chr_err_cnt > 0 )
@@ -1643,7 +1643,7 @@ void BAT_thread_bq24196(void)
         BMT_status.TOPOFF_charging_time = 0;
         BMT_status.POSTFULL_charging_time = 0;
         g_HW_Charging_Done = 1;
-        pchr_turn_off_charging_bq24196();		
+        pchr_turn_off_charging_bq24196();
     }
 
     /* Charging Overtime, can not charging (not for total charging timer) */
@@ -1738,13 +1738,13 @@ void batdrv_init(void)
     for (i=0; i<BATTERY_AVERAGE_SIZE; i++) {
         batteryCurrentBuffer[i] = 0;
         batteryVoltageBuffer[i] = 0;
-#ifndef MTK_BQ27541_SUPPORT		
+#ifndef MTK_BQ27541_SUPPORT
         batterySOCBuffer[i] = 0;
 #endif
     }
     batteryVoltageSum = 0;
     batteryCurrentSum = 0;
-#ifndef MTK_BQ27541_SUPPORT			
+#ifndef MTK_BQ27541_SUPPORT
     batterySOCSum = 0;
 #endif
     BMT_status.bat_exist = 1;       /* phone must have battery */
@@ -1780,7 +1780,7 @@ void check_point_sync_leds(void)
 {
     int battery_level = BattVoltToPercent(BMT_status.bat_vol);
     printf("[BATTERY] %s  battery_level = %d \n", __func__, battery_level);
-    
+
     if(battery_level >= 90)   //Full ARGB
     {
         leds_battery_full_charging();
@@ -1793,46 +1793,46 @@ void check_point_sync_leds(void)
 
 //enter this function when low battery with charger
 void check_bat_protect_status()
-{        
+{
 #ifdef MTK_BQ27541_SUPPORT
     int returnData = 0;
     int ret = 0;
     U32 external_bat_vol = 0;
 #endif
-    
+
     printf("%s\n", __FUNCTION__);
-    
+
     if ((BMT_status.charger_type != STANDARD_HOST) && (BMT_status.charger_type != CHARGER_UNKNOWN))
     {
         printf("no trap, keep booting!\n");
         return;
     }
-    
+
 #ifdef MTK_BQ27541_SUPPORT
-    // check battery protect condition    
+    // check battery protect condition
     ret = bq27541_set_cmd_read(BQ27541_CMD_Voltage, &returnData);
     if(ret != I2C_OK)
     {
         printf("[BATTERY:ADC:bq27541] bq27541 i2c access error, use MT6320 measured battery voltage\n");
         return;
-    }	
+    }
     else
     {
         printf("[BATTERY:ADC:bq27541] battery voltage read raw data(%d)mV\n", returnData);
         external_bat_vol = returnData;
     }
-        
-    kick_charger_wdt();               
+
+    kick_charger_wdt();
     upmu_set_rg_vcdt_hv_en(1);      //VCDT_HV_EN
 
     //add charger ov detection
     bmt_charger_ov_check();
-    
+
     //for debug
     printf("external_bat_vol = %d, ISENSE = %d\n", external_bat_vol, BMT_status.bat_vol);
-    
+
     while ((external_bat_vol < 3200) && (((int)BMT_status.bat_vol - (int)external_bat_vol) > 150))
-    {                
+    {
         rtc_boot_check(false);
         BAT_thread_bq24196();
         printf("-");
@@ -1843,51 +1843,51 @@ void check_bat_protect_status()
         tmo2 = get_timer(0);
         while(get_timer(tmo2) <= 5000 /* ms */);
     #endif
-    
+
         //update voltage from 27541
         ret = bq27541_set_cmd_read(BQ27541_CMD_Voltage, &returnData);
         if(ret != I2C_OK)
         {
             printf("[BATTERY:ADC:bq27541] bq27541 i2c access error, use MT6320 measured battery voltage\n");
             break;
-        }	
+        }
         else
         {
             printf("[BATTERY:ADC:bq27541] battery voltage read raw data(%d)mV\n", returnData);
-            external_bat_vol = returnData;                    
+            external_bat_vol = returnData;
         }
-        
+
         //update isense
-        bq24196_set_chg_config(0x0);    
+        bq24196_set_chg_config(0x0);
         BMT_status.bat_vol = get_i_sense_volt_ch0(5);
-        
+
         //for debug
         printf("external_bat_vol = %d, ISENSE = %d\n", external_bat_vol, BMT_status.bat_vol);
     }
-#endif    
+#endif
 }
 
 extern bool g_boot_menu;
 
 #ifdef MTK_KERNEL_POWER_OFF_CHARGING
 void mt65xx_bat_init(void)
-{            
+{
     BMT_status.bat_full = false;
-    bq24196_set_chg_config(0x0);    
-    BMT_status.bat_vol = get_i_sense_volt_ch0(5);    
-    
+    bq24196_set_chg_config(0x0);
+    BMT_status.bat_vol = get_i_sense_volt_ch0(5);
+
     printf("g_boot_mode = %d\n", g_boot_mode);
     printf("check VBAT=%d mV with %d mV\n", BMT_status.bat_vol, BATTERY_LOWVOL_THRESOLD);
 
     if ((upmu_is_chr_det() == KAL_TRUE))
-    {        
+    {
         printf("[mt65xx_bat_init] bq24196 init\n");
         pmic_init_for_bq24196();
         bq24196_dump_register();
-        
+
         CHR_Type_num = mt_charger_type_detection();
         BMT_status.charger_type = CHR_Type_num;
-                
+
 		pchr_turn_on_charging_bq24196();
     }
 	pmic_config_interface(INT_STATUS0,0x1,0x1,9);
@@ -1917,11 +1917,11 @@ void mt65xx_bat_init(void)
                 printf("with power path, keep booting!");
                 return;
             }
-            
+
             printf("[BATTERY] battery voltage(%dmV) <= CLV ! Can not Boot Linux Kernel !! \n\r",BMT_status.bat_vol);
 #ifndef NO_POWER_OFF
             mt6575_power_off();
-#endif			
+#endif
             while(1)
             {
                 printf("If you see the log, please check with RTC power off API\n\r");
@@ -1934,12 +1934,12 @@ void mt65xx_bat_init(void)
 
 void mt65xx_bat_init(void)
 {
-#ifndef GPT_TIMER	
+#ifndef GPT_TIMER
     long tmo;
     long tmo2;
-#endif	
+#endif
     BOOL print_msg = FALSE;
-    int press_pwrkey_count=0, loop_count = 0;	
+    int press_pwrkey_count=0, loop_count = 0;
     BOOL pwrkey_ready = false;
     BOOL back_to_charging_animation_flag = false;
 
@@ -1958,13 +1958,13 @@ void mt65xx_bat_init(void)
     BMT_status.bat_vol = get_i_sense_volt_ch0(5);
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
     if((BMT_status.bat_vol > g_jeita_recharging_voltage) && (upmu_is_chr_det() == KAL_TRUE))
-#else		
+#else
     if((BMT_status.bat_vol > RECHARGING_VOLTAGE) && (upmu_is_chr_det() == KAL_TRUE))
-#endif		
+#endif
     {
         if(Enable_BATDRV_LOG == 1)
         {
-#if defined(MTK_JEITA_STANDARD_SUPPORT)        
+#if defined(MTK_JEITA_STANDARD_SUPPORT)
             printf("battery voltage during charging (%d) > %d\n", BMT_status.bat_vol, g_jeita_recharging_voltage);
 #else
             printf("battery voltage during charging (%d) > %d\n", BMT_status.bat_vol, RECHARGING_VOLTAGE);
@@ -1976,16 +1976,16 @@ void mt65xx_bat_init(void)
 
 #if defined(MTK_JEITA_STANDARD_SUPPORT)
     if ( BMT_status.bat_vol > g_jeita_recharging_voltage )
-#else		
+#else
     if ( BMT_status.bat_vol > RECHARGING_VOLTAGE )
-#endif	
+#endif
     {
         user_view_flag = KAL_TRUE;
     } else {
         user_view_flag = KAL_FALSE;
     }
 
-	if (pmic_detect_powerkey()) 	 
+	if (pmic_detect_powerkey())
 		pwrkey_ready = true;
 	else
 		pwrkey_ready = false;
@@ -2001,13 +2001,13 @@ void mt65xx_bat_init(void)
 
         while (1)
         {
-            kick_charger_wdt();               
+            kick_charger_wdt();
             upmu_set_rg_vcdt_hv_en(1);      //VCDT_HV_EN
 
             //add charger ov detection
             bmt_charger_ov_check();
-			
-            if (rtc_boot_check(true) || meta_mode_check() || (pwrkey_ready == true) 
+
+            if (rtc_boot_check(true) || meta_mode_check() || (pwrkey_ready == true)
             	|| mtk_wdt_boot_check()==WDT_BY_PASS_PWK_REBOOT || g_boot_arg->boot_reason==BR_TOOL_BY_PASS_PWK || g_boot_menu==true || g_boot_mode == FASTBOOT)
             {
                 // Low Battery Safety Booting
@@ -2017,7 +2017,7 @@ void mt65xx_bat_init(void)
                 {
                     if(BMT_status.charger_type != STANDARD_HOST)
                         break;
-					
+
                     if (low_bat_boot_display == 0)
                     {
                         mt_disp_power(TRUE);
@@ -2067,11 +2067,11 @@ void mt65xx_bat_init(void)
                 if(back_to_charging_animation_flag == false)
                 {
                     mt_disp_power(TRUE);
-    
+
                     if (g_boot_mode != ALARM_BOOT)
                     {
                         //mt_disp_show_boot_logo();
-                        
+
                         // update twice here to ensure the LCM is ready to show the
                         // boot logo before turn on backlight, OR user may glimpse
                         // at the previous battery charging screen
@@ -2081,25 +2081,25 @@ void mt65xx_bat_init(void)
                     else
                     {
                         printf("Power off alarm trigger! Boot Linux Kernel!!\n\r");
-                        
+
                         // fill the screen with a whole black image
                         mt_disp_fill_rect(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT, 0x0);
                         mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
                         mt_disp_wait_idle();
                     }
-    
+
                     printf("Restore brightness\r\n");
                     mt65xx_leds_brightness_set(6, 255);
-                    check_point_sync_leds();					
+                    check_point_sync_leds();
                     mt65xx_backlight_on();
 
                     pchr_turn_on_charging_bq24196(); //turn on charging for powerpath
-                
+
                     sc_mod_exit();
                     return;
                 }
                 back_to_charging_animation_flag = false;
-                low_bat_boot_display = 0;                
+                low_bat_boot_display = 0;
             }
             else
             {
@@ -2127,7 +2127,7 @@ void mt65xx_bat_init(void)
                 {
                     g_lk_anime_on = 1;
                     BAT_LkAnimationControl(KAL_TRUE);
-                }            
+                }
                 printf("Charging !! Press Power Key to Booting !!! \n\r");
                 print_msg = TRUE;
             }
@@ -2143,7 +2143,7 @@ void mt65xx_bat_init(void)
             #endif
 
             if (loop_count++ == 60) loop_count = 0;
-        			
+
             if (mtk_detect_key(BACKLIGHT_KEY) || (!pmic_detect_powerkey() && press_pwrkey_count > 0))
             {
                 bl_switch = KAL_FALSE;
@@ -2151,22 +2151,22 @@ void mt65xx_bat_init(void)
                 g_bl_on = 1;
                 printf("mt65xx_backlight_on\r\n");
             }
-            			
+
             if (pmic_detect_powerkey())
-            { 
+            {
                 press_pwrkey_count++;
                 printf("press_pwrkey_count = %d, POWER_ON_TIME = %d\n", press_pwrkey_count, POWER_ON_TIME);
             }
             else
-            { 
+            {
                 press_pwrkey_count = 0;
             }
-            				 
-            if (press_pwrkey_count > POWER_ON_TIME) 
+
+            if (press_pwrkey_count > POWER_ON_TIME)
                 pwrkey_ready = true;
             else
                 pwrkey_ready = false;
-            				            				
+
             if (((loop_count % 5) == 0) && bl_switch == false) // update charging screen every 1s (200ms * 5)
             {
                 if (Enable_BATDRV_LOG == 1)
@@ -2181,8 +2181,8 @@ void mt65xx_bat_init(void)
                 {
                     g_lk_anime_on = 1;
                     BAT_LkAnimationControl(KAL_TRUE);
-                }            
-            }  
+                }
+            }
         }
     }
     else
@@ -2190,16 +2190,16 @@ void mt65xx_bat_init(void)
         bmt_charger_ov_check();
         upmu_set_rg_chrind_on(0);  //We must turn off HW Led Power.
 
-        //if (BMT_status.bat_vol >= BATTERY_LOWVOL_THRESOLD)        
+        //if (BMT_status.bat_vol >= BATTERY_LOWVOL_THRESOLD)
         if ( (rtc_boot_check(false)||mtk_wdt_boot_check()==WDT_BY_PASS_PWK_REBOOT) && BMT_status.bat_vol >= BATTERY_LOWVOL_THRESOLD)
         {
             printf("battery voltage(%dmV) >= CLV ! Boot Linux Kernel !! \n\r",BMT_status.bat_vol);
             mt_disp_power(TRUE);
-    
+
             if (g_boot_mode != ALARM_BOOT)
             {
                 //mt_disp_show_boot_logo();
-                        
+
                 // update twice here to ensure the LCM is ready to show the
                 // boot logo before turn on backlight, OR user may glimpse
                 // at the previous battery charging screen
@@ -2209,17 +2209,17 @@ void mt65xx_bat_init(void)
             else
             {
                 printf("Power off alarm trigger! Boot Linux Kernel!!\n\r");
-                        
+
                 // fill the screen with a whole black image
                 mt_disp_fill_rect(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT, 0x0);
                 mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
                 mt_disp_wait_idle();
             }
-    
+
             printf("Restore brightness\r\n");
             mt65xx_leds_brightness_set(6, 255);
-            check_point_sync_leds();					
-            mt65xx_backlight_on();            
+            check_point_sync_leds();
+            mt65xx_backlight_on();
             sc_mod_exit();
             return;
         }

@@ -134,7 +134,7 @@ int get_eint_attribute(char *, unsigned int , unsigned int , char *, unsigned in
 static unsigned int mt_eint_get_mask(unsigned int eint_num)
 {
 	unsigned int base;
-	unsigned int st;    
+	unsigned int st;
     unsigned int bit = 1 << (eint_num % 32);
 
 	if (eint_num < EINT_AP_MAXNUMBER) {
@@ -143,7 +143,7 @@ static unsigned int mt_eint_get_mask(unsigned int eint_num)
 		base = PMIC_EINT_MASK_BASE;
 	}
 	st = readl(base);
- 
+
     if (st & bit) {
         st = 1; //masked
     } else {
@@ -155,7 +155,7 @@ static unsigned int mt_eint_get_mask(unsigned int eint_num)
 
 /*
  *  * mt_eint_mask_all: Mask all the specified EINT number.
- *   * 
+ *   *
  *    */
 void mt_eint_mask_all(void)
 {
@@ -180,7 +180,7 @@ void mt_eint_mask_all(void)
 
 /*
  *  * mt_eint_unmask_all: Mask the specified EINT number.
- *   * 
+ *   *
  *    */
 void mt_eint_unmask_all(void)
 {
@@ -431,7 +431,7 @@ unsigned int mt_eint_get_polarity(unsigned int eint_num)
         } else {
                 pol = MT_EINT_POL_NEG;
         }
-        return pol;  
+        return pol;
 
 }
 
@@ -491,7 +491,7 @@ static unsigned int mt_eint_get_sens(unsigned int eint_num)
 }
 
 /*
- * mt_eint_ack: To ack the interrupt 
+ * mt_eint_ack: To ack the interrupt
  * @eint_num: the EINT number to set
  */
 static unsigned int mt_eint_ack(unsigned int eint_num)
@@ -531,7 +531,7 @@ static unsigned int mt_eint_read_status(unsigned int eint_num)
 }
 
 /*
- * mt_eint_get_status: To get the interrupt status 
+ * mt_eint_get_status: To get the interrupt status
  * @eint_num: the EINT number to get
  */
 static unsigned int mt_eint_get_status(unsigned int eint_num)
@@ -625,8 +625,8 @@ void mt_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms)
 	clr_base = (eint_num / 4) * 4 + EINT_DBNC_CLR_BASE;
 	EINT_FUNC.deb_time[eint_num] = ms;
 
-	/* 
-	 * Don't enable debounce once debounce time is 0 or 
+	/*
+	 * Don't enable debounce once debounce time is 0 or
 	 * its type is edge sensitive.
 	 */
 	if (!mt_can_en_debounce(eint_num)) {
@@ -678,7 +678,7 @@ void mt_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms)
 		/* step 2.3: set new debounce value */
 		bit =
 		    ((dbnc << EINT_DBNC_SET_DBNC_BITS) |
-		     (EINT_DBNC_SET_EN << EINT_DBNC_SET_EN_BITS)) << 
+		     (EINT_DBNC_SET_EN << EINT_DBNC_SET_EN_BITS)) <<
                     ((eint_num % 4) * 8);
 		mt65xx_reg_sync_writel(bit, base);
 	}
@@ -700,7 +700,7 @@ DECLARE_TASKLET(eint_tasklet, eint_do_tasklet, 0);
 
 /*
  * mt_eint_timer_event_handler: EINT sw debounce handler
- * @eint_num: the EINT number and use unsigned long to prevent 
+ * @eint_num: the EINT number and use unsigned long to prevent
  *            compile warning of timer usage.
  */
 static void mt_eint_timer_event_handler(unsigned long eint_num)
@@ -757,7 +757,7 @@ void mt65xx_eint_registration_threaded(unsigned int eint_num, unsigned int is_de
 		EINT_FUNC.eint_threaded_func[eint_num] = threaed_isr;
 		mt65xx_eint_unmask(eint_num);
 	}
-	
+
 	mt65xx_eint_registration(eint_num, is_deb_en, pol, EINT_FUNC_PTR, is_auto_umask);
 }
 
@@ -790,10 +790,10 @@ static irqreturn_t mt_eint_isr(int irq, void *dev_id)
        unsigned long long t1, t2;
 /*Lenovo-sw chenglong1 add for threaded isr*/
 	#ifdef LENOVO_TP_OPTIMIZED
-	unsigned int need_wake_thread = 0; 
+	unsigned int need_wake_thread = 0;
 	#endif
 /*Lenovo-sw add end*/
-     /* 
+     /*
      * NoteXXX: Need to get the wake up for 0.5 seconds when an EINT intr tirggers.
      *          This is used to prevent system from suspend such that other drivers
      *          or applications can have enough time to obtain their own wake lock.
@@ -811,10 +811,10 @@ static irqreturn_t mt_eint_isr(int irq, void *dev_id)
                   reg_base, status);
             }
             /* lenovo.sw begin chenyb1 20130926 add for eint interrupt detail */
-            if(status){
-                printk(KERN_DEBUG "EINT Module - index:%d,EINT_STA = 0x%x\n",
-                  reg_base, status);
-            }            
+//            if(status){
+//                printk(KERN_DEBUG "EINT Module - index:%d,EINT_STA = 0x%x\n",
+//                  reg_base, status);
+//            }
             /* lenovo.sw begin chenyb1 20130926 add for eint interrupt detail */
             else{
                 continue;
@@ -909,7 +909,7 @@ static void mt_eint_dis_debounce(unsigned int eint_num)
 /*
  * mt_eint_registration: register a EINT.
  * @eint_num: the EINT number to register
- * @is_deb_en: the indication flag of HW de-bounce time 
+ * @is_deb_en: the indication flag of HW de-bounce time
  * @pol: polarity value
  * @EINT_FUNC_PTR: the ISR callback function
  * @is_auto_unmask: the indication flag of auto unmasking after ISR callback is processed
@@ -944,7 +944,7 @@ void mt65xx_eint_registration(unsigned int eint_num, unsigned int is_deb_en,
                              eint_num, EINT_FUNC.deb_time[eint_num], is_deb_en,
                              EINT_FUNC.is_deb_en[eint_num]);
                 }
-        
+
                 EINT_FUNC.eint_func[eint_num] = EINT_FUNC_PTR;
                 EINT_FUNC.eint_auto_umask[eint_num] = is_auto_umask;
 
@@ -1300,7 +1300,7 @@ static ssize_t cur_eint_reg_isr_show(struct device_driver *driver, char *buf)
 {
 	//if ISR has been registered return 1
 	//else return 0
-	
+
 	unsigned int sens, pol, deb, autounmask, base, dbnc;
 	base = (cur_eint_num / 4) * 4 + EINT_DBNC_BASE;
 	sens = mt_eint_get_sens(cur_eint_num);
@@ -1363,7 +1363,7 @@ static ssize_t cur_eint_reg_isr_store(struct device_driver *driver,
 	} else {
 		// register its ISR: mt_eint_soft_isr
 		// level, high, deb time: 64ms, not auto unmask
-		mt_eint_set_sens(cur_eint_num, MT_LEVEL_SENSITIVE); 
+		mt_eint_set_sens(cur_eint_num, MT_LEVEL_SENSITIVE);
 		mt_eint_set_hw_debounce(cur_eint_num, EINT_FUNC.deb_time[cur_eint_num] );
 		mt65xx_eint_registration(cur_eint_num, 1, MT_EINT_POL_POS, mt_eint_soft_isr, 0);
 	}
@@ -1467,7 +1467,7 @@ int get_eint_attribute(char *name, unsigned int name_len, unsigned int type, cha
                     memcpy(sim_info, &md_sim_info[i].socket_type, *len);
                     printk("[EINT]socket_type:%d\n", md_sim_info[i].socket_type);
                     break;
-  
+
                 default:
                     ret = ERR_SIM_HOT_PLUG_QUERY_TYPE;
                     *len = sizeof(int);
@@ -1480,7 +1480,7 @@ int get_eint_attribute(char *name, unsigned int name_len, unsigned int type, cha
 
     *len = sizeof(int);
     memset(sim_info, 0xff, *len);
- 
+
     return ERR_SIM_HOT_PLUG_QUERY_STRING;
 }
 int get_type(char *name)
@@ -1508,7 +1508,7 @@ int get_type(char *name)
         return type2;
     else if (!strncmp(name, "MD2_SIM2_HOT_PLUG_EINT", strlen("MD2_SIM2_HOT_PLUG_EINT")))
         return type2;
-    else 
+    else
         return 0;
 }
 
@@ -1761,7 +1761,7 @@ void mt_eint_print_status(void)
                 if (index >= EINT_MAX_CHANNEL) break;
 
                 status_check = status & (1 << offset);
-                if (status_check) 
+                if (status_check)
                         printk(KERN_DEBUG" %d",index);
             }
 
