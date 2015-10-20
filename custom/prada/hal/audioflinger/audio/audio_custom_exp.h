@@ -56,13 +56,5 @@
 //#define USING_CLASSAB_AMP
 #define USING_EXTAMP_HP                // define using which flag
 
-#ifdef MIC_FORCE_MODE_CONFIG
-#define PHONE_MIC_MODE (MIC_FORCE_MODE_CONFIG)
-#define HEADSET_MIC_MODE (MIC_FORCE_MODE_CONFIG)
-#else
-#define PHONE_MIC_MODE (1)
-#define HEADSET_MIC_MODE (1)
-#endif
-
 #endif
 

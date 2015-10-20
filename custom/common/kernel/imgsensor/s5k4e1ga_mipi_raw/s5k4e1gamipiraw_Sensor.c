@@ -1382,26 +1382,10 @@ UINT32 S5K4E1GAGetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
                                                 MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
 {
 	#if defined( S5K4E1GA_1M_SIZE_PREVIEW )
-		#if defined(MT6575) || defined(MT6577)
-			switch(ScenarioId){
-				case MSDK_SCENARIO_ID_CAMERA_ZSD:
-					pSensorInfo->SensorPreviewResolutionX= S5K4E1GA_IMAGE_SENSOR_FULL_WIDTH; //S5K4E1GA_IMAGE_SENSOR_FULL_WIDTH;
-					pSensorInfo->SensorPreviewResolutionY=S5K4E1GA_IMAGE_SENSOR_FULL_HEIGHT ;//S5K4E1GAMIPI_REAL_CAP_HEIGHT;
-					pSensorInfo->SensorCameraPreviewFrameRate=15;
-					break;
-
-				default:
-					pSensorInfo->SensorPreviewResolutionX= S5K4E1GA_IMAGE_SENSOR_PV_WIDTH; //S5K4E1GAMIPI_REAL_PV_WIDTH;
-        			pSensorInfo->SensorPreviewResolutionY= S5K4E1GA_IMAGE_SENSOR_PV_HEIGHT; //S5K4E1GAMIPI_REAL_PV_HEIGHT;
-					pSensorInfo->SensorCameraPreviewFrameRate=30;
-					break;
-			}
-		#else
-			printk("[sofia]SensorPreviewResolutionX!!\n");
-			pSensorInfo->SensorPreviewResolutionX= S5K4E1GA_IMAGE_SENSOR_PV_WIDTH; //S5K4E1GAMIPI_REAL_PV_WIDTH;
-        	pSensorInfo->SensorPreviewResolutionY= S5K4E1GA_IMAGE_SENSOR_PV_HEIGHT; //S5K4E1GAMIPI_REAL_PV_HEIGHT;
-			pSensorInfo->SensorCameraPreviewFrameRate=30;	
-		#endif
+		printk("[sofia]SensorPreviewResolutionX!!\n");
+		pSensorInfo->SensorPreviewResolutionX= S5K4E1GA_IMAGE_SENSOR_PV_WIDTH; //S5K4E1GAMIPI_REAL_PV_WIDTH;
+        pSensorInfo->SensorPreviewResolutionY= S5K4E1GA_IMAGE_SENSOR_PV_HEIGHT; //S5K4E1GAMIPI_REAL_PV_HEIGHT;
+		pSensorInfo->SensorCameraPreviewFrameRate=30;	
 	#else
 		pSensorInfo->SensorPreviewResolutionX= S5K4E1GA_IMAGE_SENSOR_FULL_WIDTH; //S5K4E1GA_IMAGE_SENSOR_FULL_WIDTH;
 		pSensorInfo->SensorPreviewResolutionY=S5K4E1GA_IMAGE_SENSOR_FULL_HEIGHT ;//S5K4E1GAMIPI_REAL_CAP_HEIGHT;
@@ -1508,9 +1492,6 @@ UINT32 S5K4E1GAGetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
             break;
         case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
         case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
-		#if defined(MT6575)
-			case MSDK_SCENARIO_ID_CAMERA_ZSD:
-		#endif
             pSensorInfo->SensorClockFreq=24;
             pSensorInfo->SensorClockDividCount=	5;
             pSensorInfo->SensorClockRisingCount= 0;
@@ -1574,9 +1555,6 @@ UINT32 S5K4E1GAControl(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WI
         	#endif
         case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
         case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
-		#if defined(MT6575) || defined(MT6577)
-			case MSDK_SCENARIO_ID_CAMERA_ZSD:
-		#endif
             S5K4E1GACapture(pImageWindow, pSensorConfigData);
             break;
 
@@ -1714,55 +1692,21 @@ UINT32 S5K4E1GAFeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
             break;
         case SENSOR_FEATURE_GET_PERIOD:
 			#if defined( S5K4E1GA_1M_SIZE_PREVIEW )
-				#if defined(MT6575) || defined(MT6577) 
-        			switch(S5K4E1GACurrentScenarioId)
-        			{
-        				case MSDK_SCENARIO_ID_CAMERA_ZSD:
-		            		*pFeatureReturnPara16++= S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
-		            		*pFeatureReturnPara16= S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;	
-		            		SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels, S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
-		            		*pFeatureParaLen=4;        				
-        					break;
-        			
-        				default:	
-		            		*pFeatureReturnPara16++= S5K4E1GA_PV_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
-		            		*pFeatureReturnPara16= S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;
-		            		SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_PV_PERIOD_PIXEL_NUMS  + s5k4e1ga.DummyPixels, S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
-		            		*pFeatureParaLen=4;
-	            			break;
-          				}
-				#else
-					*pFeatureReturnPara16++= S5K4E1GA_PV_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
-		            *pFeatureReturnPara16= S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;		   
-		            SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_PV_PERIOD_PIXEL_NUMS  + s5k4e1ga.DummyPixels, S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
-					*pFeatureParaLen=4;
-				#endif
+				*pFeatureReturnPara16++= S5K4E1GA_PV_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
+		      	*pFeatureReturnPara16= S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;		   
+		       	SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_PV_PERIOD_PIXEL_NUMS  + s5k4e1ga.DummyPixels, S5K4E1GA_PV_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
+				*pFeatureParaLen=4;
 			#else
-		            *pFeatureReturnPara16++= S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
-		            *pFeatureReturnPara16= S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;	
-		            SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels, S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
-		            *pFeatureParaLen=4;
+		       	*pFeatureReturnPara16++= S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels;  
+		       	*pFeatureReturnPara16= S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines;	
+		       	SENSORDB("Sensor period:%d ,%d\n", S5K4E1GA_FULL_PERIOD_PIXEL_NUMS + s5k4e1ga.DummyPixels, S5K4E1GA_FULL_PERIOD_LINE_NUMS + s5k4e1ga.DummyLines); 
+		       	*pFeatureParaLen=4;
 			#endif
           	break;
         case SENSOR_FEATURE_GET_PIXEL_CLOCK_FREQ:
 			#if defined( S5K4E1GA_1M_SIZE_PREVIEW )
-				#if defined(MT6575) || defined(MT6577)
-        			switch(S5K4E1GACurrentScenarioId)
-        			{
-        				case MSDK_SCENARIO_ID_CAMERA_ZSD:
-		            	 	*pFeatureReturnPara32 = 81600000; 
-		            	 	*pFeatureParaLen=4;		         	
-		         			 break;
-		         		
-		         		default:
-		            		*pFeatureReturnPara32 = 81600000; 
-		            		*pFeatureParaLen=4;
-		            		break;
-		        	}
-				#else
-						*pFeatureReturnPara32 = 81600000; 
-		            	*pFeatureParaLen=4;
-				#endif
+				*pFeatureReturnPara32 = 81600000; 
+		       	*pFeatureParaLen=4;
 			#else
 				*pFeatureReturnPara32 = 81600000; 
 		         *pFeatureParaLen=4;

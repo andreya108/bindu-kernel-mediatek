@@ -1,70 +1,3 @@
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- */
-
-
-
-/*****************************************************************************
-*  Copyright Statement:
-*  --------------------
-*  This software is protected by Copyright and the information contained
-*  herein is confidential. The software may not be copied and the information
-*  contained herein may not be used or disclosed except with the written
-*  permission of MediaTek Inc. (C) 2005
-*
-*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
-*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
-*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
-*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
-*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
-*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
-*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
-*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
-*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
-*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
-*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
-*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
-*
-*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
-*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
-*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
-*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
-*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE. 
-*
-*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
-*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
-*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
-*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
-*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
-*
-*****************************************************************************/
 /*****************************************************************************
  *
  * Filename:
@@ -794,6 +727,10 @@ static kal_uint16 OV5647MIPIReg2Gain(const kal_uint8 iReg)
  kal_uint8 OV5647MIPIGain2Reg(const kal_uint16 iGain)
 {
     kal_uint16 iReg = 0x00;
+	if(iGain>=(16*BASEGAIN)){
+		SENSORDB("[Waring] OV5647MIPI_SetGain, The Max iGain must < 16xBaseGain!");
+		}
+		
 	iReg = ((iGain / BASEGAIN) << 4) + ((iGain % BASEGAIN) * 16 / BASEGAIN);
 	iReg = iReg & 0xFF;
     return (kal_uint8)iReg;
@@ -1169,39 +1106,39 @@ static void OV5647MIPI_Sensor_Init(void)
 	OV5647MIPI_write_cmos_sensor(0x3f01,0x0a);
 	//OV5647MIPI_write_cmos_sensor(0x3a08, 0x01);
 	OV5647MIPI_write_cmos_sensor(0x3a08, 0x00);
-OV5647MIPI_write_cmos_sensor(0x3a0f,0x58);
-OV5647MIPI_write_cmos_sensor(0x3a10,0x50);
-OV5647MIPI_write_cmos_sensor(0x3a1b,0x58);
-OV5647MIPI_write_cmos_sensor(0x3a1e,0x50);
-OV5647MIPI_write_cmos_sensor(0x3a11,0x60);
-OV5647MIPI_write_cmos_sensor(0x3a1f,0x28);
-	
-	OV5647MIPI_write_cmos_sensor(0x4001, 0x02);  //blc
-OV5647MIPI_write_cmos_sensor(0x4000,0x09);
+	OV5647MIPI_write_cmos_sensor(0x3a0f,0x58);
+	OV5647MIPI_write_cmos_sensor(0x3a10,0x50);
+	OV5647MIPI_write_cmos_sensor(0x3a1b,0x58);
+	OV5647MIPI_write_cmos_sensor(0x3a1e,0x50);
+	OV5647MIPI_write_cmos_sensor(0x3a11,0x60);
+	OV5647MIPI_write_cmos_sensor(0x3a1f,0x28);
 
-OV5647MIPI_write_cmos_sensor(0x3000,0x00);
-OV5647MIPI_write_cmos_sensor(0x3001,0x00);
+	OV5647MIPI_write_cmos_sensor(0x4001, 0x02);  //blc
+	OV5647MIPI_write_cmos_sensor(0x4000,0x09);
+
+	OV5647MIPI_write_cmos_sensor(0x3000,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3001,0x00);
 	OV5647MIPI_write_cmos_sensor(0x3002, 0x00); //modify
-OV5647MIPI_write_cmos_sensor(0x3017,0xe0);
-OV5647MIPI_write_cmos_sensor(0x301c,0xfc);
-OV5647MIPI_write_cmos_sensor(0x3636,0x06);
-OV5647MIPI_write_cmos_sensor(0x3016,0x08);
-OV5647MIPI_write_cmos_sensor(0x3827,0xec);
-OV5647MIPI_write_cmos_sensor(0x3018,0x44);
-    OV5647MIPI_write_cmos_sensor(0x3035, 0x21);
+	OV5647MIPI_write_cmos_sensor(0x3017,0xe0);
+	OV5647MIPI_write_cmos_sensor(0x301c,0xfc);
+	OV5647MIPI_write_cmos_sensor(0x3636,0x06);
+	OV5647MIPI_write_cmos_sensor(0x3016,0x08);
+	OV5647MIPI_write_cmos_sensor(0x3827,0xec);
+	OV5647MIPI_write_cmos_sensor(0x3018,0x44);
+	OV5647MIPI_write_cmos_sensor(0x3035, 0x21);
 	OV5647MIPI_write_cmos_sensor(0x3106, 0xf5);
-    OV5647MIPI_write_cmos_sensor(0x3034, 0x1a);
-OV5647MIPI_write_cmos_sensor(0x301c,0xf8);
-	
- 
-	
+	OV5647MIPI_write_cmos_sensor(0x3034, 0x1a);
+	OV5647MIPI_write_cmos_sensor(0x301c,0xf8);
+
+
+
 	OV5647MIPI_write_cmos_sensor(0x3503, 0x07);
 	//OV5647MIPI_write_cmos_sensor(0x3501, 0x3c);
 	//OV5647MIPI_write_cmos_sensor(0x3502, 0x00);
 
 	OV5647MIPI_write_cmos_sensor(0x3501, 0x10);
 	OV5647MIPI_write_cmos_sensor(0x3502, 0x80);
-	
+
 	OV5647MIPI_write_cmos_sensor(0x350a, 0x00);
 	OV5647MIPI_write_cmos_sensor(0x350b, 0x7f);
 	OV5647MIPI_write_cmos_sensor(0x5001, 0x01);
@@ -1218,52 +1155,53 @@ OV5647MIPI_write_cmos_sensor(0x301c,0xf8);
 	OV5647MIPI_write_cmos_sensor(0x4000, 0x09);		//add							  
 	//OV5647MIPI_write_cmos_sensor(0x0010, 0x01);	    //add
 
-	OV5647MIPI_write_cmos_sensor(0x3013,0x00);//liurui modfiy
+	OV5647MIPI_write_cmos_sensor(0x3013,0x00);//
 	OV5647MIPI_write_cmos_sensor(0x4005,0x18);//gain triger
 	OV5647MIPI_write_cmos_sensor(0x4050,0x37);//blc max
 	OV5647MIPI_write_cmos_sensor(0x4051,0x8f);//blc level trigger
 	OV5647MIPI_write_cmos_sensor(0x0100,0x01);   //modify
-	
+
 
 }   /*  OV5647MIPI_Sensor_Init  */   /*  OV5647MIPI_Sensor_Init  */
 static void OV5647MIPI_Sensor_1080P(void) 
 {
 	SENSORDB("OV5647MIPIVideo Setting \n");
 
-OV5647MIPI_write_cmos_sensor(0x0100,0x00);      
-OV5647MIPI_write_cmos_sensor(0x3036, 0x64);
-OV5647MIPI_write_cmos_sensor(0x3612, 0x5b);
-OV5647MIPI_write_cmos_sensor(0x3618, 0x04);
-OV5647MIPI_write_cmos_sensor(0x3709, 0x12);
-OV5647MIPI_write_cmos_sensor(0x3800, 0x01);
-OV5647MIPI_write_cmos_sensor(0x3801, 0x5c);
-OV5647MIPI_write_cmos_sensor(0x3802, 0x01);
-OV5647MIPI_write_cmos_sensor(0x3803, 0xb2);
-OV5647MIPI_write_cmos_sensor(0x3804, 0x08);
-OV5647MIPI_write_cmos_sensor(0x3805, 0xe3);
-OV5647MIPI_write_cmos_sensor(0x3806, 0x05);
-OV5647MIPI_write_cmos_sensor(0x3807, 0xf1);
-OV5647MIPI_write_cmos_sensor(0x3808,0x07);
-OV5647MIPI_write_cmos_sensor(0x3809,0x80);
-OV5647MIPI_write_cmos_sensor(0x380a,0x04);
-OV5647MIPI_write_cmos_sensor(0x380b,0x38);       
-OV5647MIPI_write_cmos_sensor(0x380c,0x09);       
-OV5647MIPI_write_cmos_sensor(0x380d,0x70);
-OV5647MIPI_write_cmos_sensor(0x380e,0x04);      
-OV5647MIPI_write_cmos_sensor(0x380f,0x50);       
-OV5647MIPI_write_cmos_sensor(0x3814,0x11);
-OV5647MIPI_write_cmos_sensor(0x3815,0x11);              
-OV5647MIPI_write_cmos_sensor(0x3821,0x00);//0x01
-OV5647MIPI_write_cmos_sensor(0x3820,0x06);//0x47
-OV5647MIPI_write_cmos_sensor(0x3a09,0x4b);
-OV5647MIPI_write_cmos_sensor(0x3a0a,0x01);
-OV5647MIPI_write_cmos_sensor(0x3a0b,0x13);       
-OV5647MIPI_write_cmos_sensor(0x3a0d,0x04);
-OV5647MIPI_write_cmos_sensor(0x3a0e,0x03);       
-OV5647MIPI_write_cmos_sensor(0x4004, 0x04);
-OV5647MIPI_write_cmos_sensor(0x4005,0x18);//gain triger
-OV5647MIPI_write_cmos_sensor(0x4837,0x19);             
-OV5647MIPI_write_cmos_sensor(0x0100,0x01);
+	OV5647MIPI_write_cmos_sensor(0x0100,0x00);      
+	OV5647MIPI_write_cmos_sensor(0x3036, 0x64);
+	OV5647MIPI_write_cmos_sensor(0x3612, 0x5b);
+	OV5647MIPI_write_cmos_sensor(0x3618, 0x04);
+	OV5647MIPI_write_cmos_sensor(0x3709, 0x12);
+	OV5647MIPI_write_cmos_sensor(0x3800, 0x01);
+	OV5647MIPI_write_cmos_sensor(0x3801, 0x5c);
+	OV5647MIPI_write_cmos_sensor(0x3802, 0x01);
+	OV5647MIPI_write_cmos_sensor(0x3803, 0xb2);
+	OV5647MIPI_write_cmos_sensor(0x3804, 0x08);
+	OV5647MIPI_write_cmos_sensor(0x3805, 0xe3);
+	OV5647MIPI_write_cmos_sensor(0x3806, 0x05);
+	OV5647MIPI_write_cmos_sensor(0x3807, 0xf1);
+	OV5647MIPI_write_cmos_sensor(0x3808,0x07);
+	OV5647MIPI_write_cmos_sensor(0x3809,0x80);
+	OV5647MIPI_write_cmos_sensor(0x380a,0x04);
+	OV5647MIPI_write_cmos_sensor(0x380b,0x38);       
+	OV5647MIPI_write_cmos_sensor(0x380c,0x09);       
+	OV5647MIPI_write_cmos_sensor(0x380d,0x70);
+	OV5647MIPI_write_cmos_sensor(0x380e,0x04);      
+	OV5647MIPI_write_cmos_sensor(0x380f,0x50);       
+	OV5647MIPI_write_cmos_sensor(0x3814,0x11);
+	OV5647MIPI_write_cmos_sensor(0x3815,0x11);              
+	OV5647MIPI_write_cmos_sensor(0x3821,0x00);//0x01
+	OV5647MIPI_write_cmos_sensor(0x3820,0x06);//0x47
+	OV5647MIPI_write_cmos_sensor(0x3a09,0x4b);
+	OV5647MIPI_write_cmos_sensor(0x3a0a,0x01);
+	OV5647MIPI_write_cmos_sensor(0x3a0b,0x13);       
+	OV5647MIPI_write_cmos_sensor(0x3a0d,0x04);
+	OV5647MIPI_write_cmos_sensor(0x3a0e,0x03);       
+	OV5647MIPI_write_cmos_sensor(0x4004, 0x04);
+	//OV5647MIPI_write_cmos_sensor(0x4005,0x18);//gain triger
+	OV5647MIPI_write_cmos_sensor(0x4005,0x1a);//gain triger
+	OV5647MIPI_write_cmos_sensor(0x4837,0x19);             
+	OV5647MIPI_write_cmos_sensor(0x0100,0x01);
 
 
 }
@@ -1293,35 +1231,35 @@ static void OV5647MIPI_Sensor_1M(void)
 	
 	SENSORDB("OV5647MIPIPreview Setting \n");
 	OV5647MIPI_write_cmos_sensor(0x0100, 0x00);	
-    OV5647MIPI_write_cmos_sensor(0x3036, 0x46);	
-OV5647MIPI_write_cmos_sensor(0x3612,0x59);
+	OV5647MIPI_write_cmos_sensor(0x3036, 0x46);	
+	OV5647MIPI_write_cmos_sensor(0x3612,0x59);
 	OV5647MIPI_write_cmos_sensor(0x3618, 0x00);	
-OV5647MIPI_write_cmos_sensor(0x3709,0x52);
-OV5647MIPI_write_cmos_sensor(0x3800,0x00);
-OV5647MIPI_write_cmos_sensor(0x3801,0x08);
-OV5647MIPI_write_cmos_sensor(0x3802,0x00);
-OV5647MIPI_write_cmos_sensor(0x3803,0x02);
-OV5647MIPI_write_cmos_sensor(0x3804,0x0a);
-OV5647MIPI_write_cmos_sensor(0x3805,0x37);
-OV5647MIPI_write_cmos_sensor(0x3806,0x07);
-OV5647MIPI_write_cmos_sensor(0x3807,0xa1);
-OV5647MIPI_write_cmos_sensor(0x3808,0x05);
-OV5647MIPI_write_cmos_sensor(0x3809,0x10);
-OV5647MIPI_write_cmos_sensor(0x380a,0x03);
-OV5647MIPI_write_cmos_sensor(0x380b,0xcc);
-OV5647MIPI_write_cmos_sensor(0x380c,0x07);
-OV5647MIPI_write_cmos_sensor(0x380d,0x68);
-OV5647MIPI_write_cmos_sensor(0x380e,0x03);
-OV5647MIPI_write_cmos_sensor(0x380f,0xd8);
+	OV5647MIPI_write_cmos_sensor(0x3709,0x52);
+	OV5647MIPI_write_cmos_sensor(0x3800,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3801,0x08);
+	OV5647MIPI_write_cmos_sensor(0x3802,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3803,0x02);
+	OV5647MIPI_write_cmos_sensor(0x3804,0x0a);
+	OV5647MIPI_write_cmos_sensor(0x3805,0x37);
+	OV5647MIPI_write_cmos_sensor(0x3806,0x07);
+	OV5647MIPI_write_cmos_sensor(0x3807,0xa1);
+	OV5647MIPI_write_cmos_sensor(0x3808,0x05);
+	OV5647MIPI_write_cmos_sensor(0x3809,0x10);
+	OV5647MIPI_write_cmos_sensor(0x380a,0x03);
+	OV5647MIPI_write_cmos_sensor(0x380b,0xcc);
+	OV5647MIPI_write_cmos_sensor(0x380c,0x07);
+	OV5647MIPI_write_cmos_sensor(0x380d,0x68);
+	OV5647MIPI_write_cmos_sensor(0x380e,0x03);
+	OV5647MIPI_write_cmos_sensor(0x380f,0xd8);
 	OV5647MIPI_write_cmos_sensor(0x3814, 0x31);	
 	OV5647MIPI_write_cmos_sensor(0x3815, 0x31);	
-OV5647MIPI_write_cmos_sensor(0x3821,0x01);
-OV5647MIPI_write_cmos_sensor(0x3820,0x47);
-OV5647MIPI_write_cmos_sensor(0x3a09,0x27);
-OV5647MIPI_write_cmos_sensor(0x3a0a,0x00);
-OV5647MIPI_write_cmos_sensor(0x3a0b,0xf6);
-OV5647MIPI_write_cmos_sensor(0x3a0d,0x04);
-OV5647MIPI_write_cmos_sensor(0x3a0e,0x03);
+	OV5647MIPI_write_cmos_sensor(0x3821,0x01);
+	OV5647MIPI_write_cmos_sensor(0x3820,0x47);
+	OV5647MIPI_write_cmos_sensor(0x3a09,0x27);
+	OV5647MIPI_write_cmos_sensor(0x3a0a,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3a0b,0xf6);
+	OV5647MIPI_write_cmos_sensor(0x3a0d,0x04);
+	OV5647MIPI_write_cmos_sensor(0x3a0e,0x03);
 	OV5647MIPI_write_cmos_sensor(0x4004, 0x02);	
 	OV5647MIPI_write_cmos_sensor(0x4005,0x18);//gain triger
 	OV5647MIPI_write_cmos_sensor(0x4837, 0x23);
@@ -1351,34 +1289,34 @@ static void OV5647MIPI_Sensor_5M(void)
 		
 	OV5647MIPI_write_cmos_sensor(0x0100,0x00); 	
 	OV5647MIPI_write_cmos_sensor(0x3036,0x64); 	
-OV5647MIPI_write_cmos_sensor(0x3612,0x5b);
+	OV5647MIPI_write_cmos_sensor(0x3612,0x5b);
 	OV5647MIPI_write_cmos_sensor(0x3618,0x04); 
-OV5647MIPI_write_cmos_sensor(0x3709,0x12);      
-OV5647MIPI_write_cmos_sensor(0x3800,0x00);
-OV5647MIPI_write_cmos_sensor(0x3801,0x0c);
-OV5647MIPI_write_cmos_sensor(0x3802,0x00);
-OV5647MIPI_write_cmos_sensor(0x3803,0x04);
-OV5647MIPI_write_cmos_sensor(0x3804,0x0a);
-OV5647MIPI_write_cmos_sensor(0x3805,0x33);
-OV5647MIPI_write_cmos_sensor(0x3806,0x07);
-OV5647MIPI_write_cmos_sensor(0x3807,0xa3);
-OV5647MIPI_write_cmos_sensor(0x3808,0x0a);
-OV5647MIPI_write_cmos_sensor(0x3809,0x20);
-OV5647MIPI_write_cmos_sensor(0x380a,0x07);
-OV5647MIPI_write_cmos_sensor(0x380b,0x98);      
+	OV5647MIPI_write_cmos_sensor(0x3709,0x12);      
+	OV5647MIPI_write_cmos_sensor(0x3800,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3801,0x0c);
+	OV5647MIPI_write_cmos_sensor(0x3802,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3803,0x04);
+	OV5647MIPI_write_cmos_sensor(0x3804,0x0a);
+	OV5647MIPI_write_cmos_sensor(0x3805,0x33);
+	OV5647MIPI_write_cmos_sensor(0x3806,0x07);
+	OV5647MIPI_write_cmos_sensor(0x3807,0xa3);
+	OV5647MIPI_write_cmos_sensor(0x3808,0x0a);
+	OV5647MIPI_write_cmos_sensor(0x3809,0x20);
+	OV5647MIPI_write_cmos_sensor(0x380a,0x07);
+	OV5647MIPI_write_cmos_sensor(0x380b,0x98);      
 	OV5647MIPI_write_cmos_sensor(0x380c,0x0a); 	
-OV5647MIPI_write_cmos_sensor(0x380d,0xc0);
+	OV5647MIPI_write_cmos_sensor(0x380d,0xc0);
 	OV5647MIPI_write_cmos_sensor(0x380e,0x07); 	
 	OV5647MIPI_write_cmos_sensor(0x380f,0xb6); 	
 	OV5647MIPI_write_cmos_sensor(0x3814,0x11); 	
 	OV5647MIPI_write_cmos_sensor(0x3815,0x11); 	
-OV5647MIPI_write_cmos_sensor(0x3821,0x00);//0x01
-OV5647MIPI_write_cmos_sensor(0x3820,0x06); //0x47     
-OV5647MIPI_write_cmos_sensor(0x3a09,0x28);       
-OV5647MIPI_write_cmos_sensor(0x3a0a,0x00);
-OV5647MIPI_write_cmos_sensor(0x3a0b,0xf6);       
-OV5647MIPI_write_cmos_sensor(0x3a0d,0x08);
-OV5647MIPI_write_cmos_sensor(0x3a0e,0x06);       
+	OV5647MIPI_write_cmos_sensor(0x3821,0x00);//0x01
+	OV5647MIPI_write_cmos_sensor(0x3820,0x06); //0x47     
+	OV5647MIPI_write_cmos_sensor(0x3a09,0x28);       
+	OV5647MIPI_write_cmos_sensor(0x3a0a,0x00);
+	OV5647MIPI_write_cmos_sensor(0x3a0b,0xf6);       
+	OV5647MIPI_write_cmos_sensor(0x3a0d,0x08);
+	OV5647MIPI_write_cmos_sensor(0x3a0e,0x06);       
 	OV5647MIPI_write_cmos_sensor(0x4004,0x04); 
 	OV5647MIPI_write_cmos_sensor(0x4005,0x1a);//always triger
 	OV5647MIPI_write_cmos_sensor(0x4837,0x19);
@@ -1485,7 +1423,8 @@ UINT32 OV5647MIPIGetSensorID(UINT32 *sensorID)
 #ifdef OV5647MIPI_DRIVER_TRACE
 	SENSORDB("OV5647MIPIOpen, sensor_id:%x \n",*sensorID);
 #endif		
-	if (*sensorID != OV5647MIPI_SENSOR_ID) {		
+	if (*sensorID != OV5647MIPI_SENSOR_ID) {
+		*sensorID = 0xFFFFFFFF;
 		return ERROR_SENSOR_CONNECT_FAIL;
 	}
 	
@@ -1642,20 +1581,20 @@ UINT32 OV5647MIPICapture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	spin_unlock(&ov5647mipi_drv_lock);
 
 
-		OV5647MIPI_Sensor_5M();
-		spin_lock(&ov5647mipi_drv_lock);
-		OV5647MIPI_sensor.pv_mode = KAL_FALSE;
-	
-		OV5647MIPI_sensor.pclk = OV5647MIPI_CAPTURE_CLK;
-		spin_unlock(&ov5647mipi_drv_lock);
-		cap_fps = OV5647MIPI_FPS(15);
+	OV5647MIPI_Sensor_5M();
+	spin_lock(&ov5647mipi_drv_lock);
+	OV5647MIPI_sensor.pv_mode = KAL_FALSE;
 
-		OV5647MIPI_Set_Dummy(0, 0);
-		spin_lock(&ov5647mipi_drv_lock);
-		OV5647MIPI_sensor.line_length = OV5647MIPI_FULL_PERIOD_PIXEL_NUMS;
-		OV5647MIPI_sensor.frame_height = OV5647MIPI_FULL_PERIOD_LINE_NUMS;
-		spin_unlock(&ov5647mipi_drv_lock);
-        mdelay(40);
+	OV5647MIPI_sensor.pclk = OV5647MIPI_CAPTURE_CLK;
+	spin_unlock(&ov5647mipi_drv_lock);
+	cap_fps = OV5647MIPI_FPS(15);
+
+	OV5647MIPI_Set_Dummy(0, 0);
+	spin_lock(&ov5647mipi_drv_lock);
+	OV5647MIPI_sensor.line_length = OV5647MIPI_FULL_PERIOD_PIXEL_NUMS;
+	OV5647MIPI_sensor.frame_height = OV5647MIPI_FULL_PERIOD_LINE_NUMS;
+	spin_unlock(&ov5647mipi_drv_lock);
+    mdelay(40);
 
 	return ERROR_NONE;
 }   /* OV5647MIPI_Capture() */
@@ -1666,9 +1605,9 @@ UINT32 OV5647MIPI3DPreview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	kal_uint16 dummy_line;
 	
 	OV5647MIPI_Sensor_1080P();
-		spin_lock(&ov5647mipi_drv_lock);
+	spin_lock(&ov5647mipi_drv_lock);
 	OV5647MIPI_sensor.pv_mode = KAL_TRUE;
-		spin_unlock(&ov5647mipi_drv_lock);
+	spin_unlock(&ov5647mipi_drv_lock);
 	
 	//OV5647MIPIZsdCameraPreview=KAL_FALSE;
 	
@@ -1688,12 +1627,12 @@ UINT32 OV5647MIPI3DPreview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 		dummy_line = 0;
 		break;
 	}
-		spin_lock(&ov5647mipi_drv_lock);
+	spin_lock(&ov5647mipi_drv_lock);
 	OV5647MIPI_sensor.line_length = OV5647MIPI_PV_PERIOD_PIXEL_NUMS;
 	OV5647MIPI_sensor.frame_height = OV5647MIPI_PV_PERIOD_LINE_NUMS+dummy_line;
 
 	OV5647MIPI_sensor.pclk = OV5647MIPI_PREVIEW_CLK;
-		spin_unlock(&ov5647mipi_drv_lock);
+	spin_unlock(&ov5647mipi_drv_lock);
 
 	OV5647MIPI_Set_Dummy(0, dummy_line); /* modify dummy_pixel must gen AE table again */
 	//OV5647MIPI_Write_Shutter(OV5647MIPI_sensor.shutter);
@@ -1946,7 +1885,7 @@ UINT32 OV5647MIPISetVideoMode(UINT16 u2FrameRate)
 	spin_lock(&ov5647mipi_drv_lock);
 	OV5647MIPI_sensor.video_mode = KAL_TRUE;
 	spin_unlock(&ov5647mipi_drv_lock);
-
+	#if 0
 	if(u2FrameRate == 30){
 		spin_lock(&ov5647mipi_drv_lock);
 		OV5647MIPI_sensor.NightMode = KAL_FALSE;
@@ -1955,7 +1894,10 @@ UINT32 OV5647MIPISetVideoMode(UINT16 u2FrameRate)
 	    spin_lock(&ov5647mipi_drv_lock);
 		OV5647MIPI_sensor.NightMode = KAL_TRUE;
 		spin_unlock(&ov5647mipi_drv_lock);
-	}else{
+	}
+	#endif
+	if((u2FrameRate<0)||(u2FrameRate> 30))
+	{
 		SENSORDB("[soso][OV5647MIPISetMaxFrameRate],Error Framerate, u2FrameRate=%d",u2FrameRate);
 		return ERROR_NONE;
 		// TODO: Wrong configuratioin
@@ -1972,7 +1914,7 @@ UINT32 OV5647MIPISetVideoMode(UINT16 u2FrameRate)
 	
 	OV5647MIPISetMaxFrameRate(u2FrameRate);
 	OV5647MIPI_Write_Shutter(OV5647MIPI_sensor.shutter);//From Meimei Video issue
-    return TRUE;
+    return ERROR_NONE;
 }
 
 UINT32 OV5647MIPISetAutoFlickerMode(kal_bool bEnable, UINT16 u2FrameRate)
@@ -1994,7 +1936,7 @@ UINT32 OV5647MIPISetAutoFlickerMode(kal_bool bEnable, UINT16 u2FrameRate)
 		if((OV5647MIPI_sensor.FixedFps == 30)&&(OV5647MIPI_sensor.video_mode==KAL_TRUE))
 			OV5647MIPISetMaxFrameRate(300);
 	}
-	return TRUE;
+	return ERROR_NONE;
 }
 
 UINT32 OV5647MIPISetCalData(PSET_SENSOR_CALIBRATION_DATA_STRUCT pSetSensorCalData){

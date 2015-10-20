@@ -14,8 +14,8 @@
 *
  */
 
-#ifndef _CFG_CUSTOMSN_D_H
-#define _CFG_CUSTOMSN_D_H
+#ifndef _CFG_CUSTOMIMEI_D_H
+#define _CFG_CUSTOMIMEI_D_H
 
 File_Custom_Data_Struct stCustomIMEIDefault =
 {

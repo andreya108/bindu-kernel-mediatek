@@ -89,10 +89,9 @@ typedef enum
     AP_CFG_RDCL_FILE_AUDIO_HD_REC_48K_PAR_LID,
     AP_CFG_RDCL_FILE_AUDIO_BUFFER_DC_CALIBRATION_PAR_LID,
     AP_CFG_RDCL_FILE_VIBSPK_COMPFLT_LID,
-    /*lenovo-sw jixj 2013.1.28 add begin*/
+    AP_CFG_CUSTOM_FILE_CUSTOM_SN_LID,
     AP_CFG_RDCL_NVRAM_DATA_LID,
     AP_CFG_RDCL_CUSTOM_DATA_LID,
-    /*lenovo-sw jixj 2013.1.28 add end*/
     AP_CFG_CUSTOM_FILE_MAX_LID,
 } CUSTOM_CFG_FILE_LID;
 
@@ -154,8 +153,11 @@ typedef enum
 #define AP_CFG_RDEB_WIFI_CUSTOM_LID_VERNO				"000"
 #define AP_CFG_REEB_PRODUCT_INFO_LID_VERNO      "000"
 
+/*lenovo-sw jixj add sn 20120213*/	
+#define AP_CFG_CUSTOM_FILE_CUSTOM_SN_LID_VERNO    "000"
 /*lenovo-sw jixj 2013.1.28 add begin*/
 #define AP_CFG_RDCL_NVRAM_DATA_LID_VERNO   "000"
 #define AP_CFG_RDCL_CUSTOM_DATA_LID_VERNO   "000"
 /*lenovo-sw jixj 2013.1.28 add end*/
+
 #endif /* CFG_FILE_LID_H */

@@ -43,8 +43,14 @@
     		 android:storageDescription="@string/storage_sd_card"
     		 android:removable="true"
 	       android:allowMassStorage="true" />
-    		 
+
+  <!--  lenovo-sw yexh1 2014_03_19 add for usbotg sdcard2  -->      		 
     <storage android:mountPoint="/storage/usbotg"
     		 android:storageDescription="@string/storage_external_usb"
     		 android:removable="true" />
+    <storage android:mountPoint="/storage/usbotg1"
+    		 android:storageDescription="@string/storage_external_usb"
+    		 android:removable="true" />
+<!--  lenovo-sw yexh1 2014_03_19 end --> 
+
 </StorageList>

@@ -17,7 +17,6 @@
 
 #include "cust_gpio_usage.h"
 
-//lenovo_sw liaohj merged from putaoya 2012-09-12
  
  
 extern struct tpd_device *tpd;
@@ -26,34 +25,62 @@ struct i2c_client *i2c_client = NULL;
 struct task_struct *thread = NULL;
  
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
+static DEFINE_MUTEX(i2c_access);
  
  
 static void tpd_eint_interrupt_handler(void);
- #if 0
-extern void mt65xx_eint_unmask(unsigned int line);
-extern void mt65xx_eint_mask(unsigned int line);
-extern void mt65xx_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms);
-extern unsigned int mt65xx_eint_set_sens(unsigned int eint_num, unsigned int sens);
-extern void mt65xx_eint_registration(unsigned int eint_num, unsigned int is_deb_en, unsigned int pol, void (EINT_FUNC_PTR)(void), unsigned int is_auto_umask);
-#endif
  
+#ifdef MT6575 
+ extern void mt_eint_unmask(unsigned int line);
+ extern void mt_eint_mask(unsigned int line);
+ extern void mt65xx_eint_set_hw_debounce(kal_uint8 eintno, kal_uint32 ms);
+ extern kal_uint32 mt65xx_eint_set_sens(kal_uint8 eintno, kal_bool sens);
+ extern void mt65xx_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En,
+									  kal_bool ACT_Polarity, void (EINT_FUNC_PTR)(void),
+									  kal_bool auto_umask);
+#endif
+#ifdef MT6577
+	extern void mt_eint_unmask(unsigned int line);
+	extern void mt_eint_mask(unsigned int line);
+	extern void mt65xx_eint_set_hw_debounce(unsigned int eint_num, unsigned int ms);
+	extern unsigned int mt65xx_eint_set_sens(unsigned int eint_num, unsigned int sens);
+	extern void mt65xx_eint_registration(unsigned int eint_num, unsigned int is_deb_en, unsigned int pol, void (EINT_FUNC_PTR)(void), unsigned int is_auto_umask);
+#endif
+#ifdef MT6589
+extern void mt_eint_unmask(unsigned int line);
+extern void mt_eint_mask(unsigned int line);
+/*
+extern void mt65xx_eint_set_hw_debounce(kal_uint8 eintno, kal_uint32 ms);
+extern kal_uint32 mt65xx_eint_set_sens(kal_uint8 eintno, kal_bool sens);
+extern void mt65xx_eint_registration(kal_uint8 eintno, kal_bool Dbounce_En, kal_bool ACT_Polarity, void (EINT_FUNC_PTR)(void), kal_bool auto_umask);
+*/
+#endif
+
+/* lenovo-sw, zhouwl, 20130109, config for chg plug-in/out */
+extern kal_bool upmu_is_chr_det(void);
+kal_bool tpd_first_config_det_chg = KAL_FALSE;
+/* lenovo-sw, zhouwl, 20130109, config for chg plug-in/out */
+
 static int __devinit tpd_probe(struct i2c_client *client, const struct i2c_device_id *id);
 static int tpd_detect (struct i2c_client *client, struct i2c_board_info *info);
 static int __devexit tpd_remove(struct i2c_client *client);
 static int touch_event_handler(void *unused);
- 
+static  void tpd_up(int x, int y,int *count);
+
 static int boot_mode = 0;
-static int tpd_halt=0; 
 static int tpd_flag = 0;
+static int tpd_halt=0;
 static int point_num = 0;
 static int p_point_num = 0;
 static bool discard_resume_first_eint = KAL_FALSE;
 static int tpd_state = 0;
+/* Lenovo-sw yexm1 add for detect charger plug-in/out */
+static int usb_cable_flag = 0;
 //#define TPD_CLOSE_POWER_IN_SLEEP
 
 #define TPD_OK 0
 //register define
-
+#define SYSFS_DEBUG
 #define DEVICE_MODE 0x00
 #define GEST_ID 0x01
 #define TD_STATUS 0x02
@@ -73,11 +100,19 @@ static int tpd_state = 0;
 #define TOUCH3_YH 0x11
 #define TOUCH3_YL 0x12
 
-/*add for portugal evt*/
-/* Lenovo-sw yexm1 modify, 2012-10-18, open the FW upgrade fun */
-//#define CONFIG_SUPPORT_FTS_CTP_UPG
+#define CONFIG_SUPPORT_FTS_CTP_UPG  
 
-#define ESD_CHECK
+//register define
+//#define ESD_CHECK
+#define FTS_CTL_IIC
+
+#ifdef FTS_CTL_IIC
+#include "focaltech_ctl.h"
+#endif
+
+#ifdef SYSFS_DEBUG
+#include "ft5x06_ex_fun.h"
+#endif
 
 #define TPD_RESET_ISSUE_WORKAROUND
 
@@ -123,6 +158,66 @@ static int tpd_def_calmat_local[8] = TPD_CALIBRATION_MATRIX;
 
 int g_v_magnify_x =TPD_VELOCITY_CUSTOM_X;
 int g_v_magnify_y =TPD_VELOCITY_CUSTOM_Y;
+
+int ft5x0x_i2c_Read(struct i2c_client *client, char *writebuf,
+		    int writelen, char *readbuf, int readlen)
+{
+	int ret;
+
+	if (writelen > 0) {
+		struct i2c_msg msgs[] = {
+			{
+			 .addr = client->addr,
+			 .flags = 0,
+			 .len = writelen,
+			 .buf = writebuf,
+			 },
+			{
+			 .addr = client->addr,
+			 .flags = I2C_M_RD,
+			 .len = readlen,
+			 .buf = readbuf,
+			 },
+		};
+		ret = i2c_transfer(client->adapter, msgs, 2);
+		if (ret < 0)
+			dev_err(&client->dev, "f%s: i2c read error.\n",
+				__func__);
+	} else {
+		struct i2c_msg msgs[] = {
+			{
+			 .addr = client->addr,
+			 .flags = I2C_M_RD,
+			 .len = readlen,
+			 .buf = readbuf,
+			 },
+		};
+		ret = i2c_transfer(client->adapter, msgs, 1);
+		if (ret < 0)
+			dev_err(&client->dev, "%s:i2c read error.\n", __func__);
+	}
+	return ret;
+}
+/*write data by i2c*/
+int ft5x0x_i2c_Write(struct i2c_client *client, char *writebuf, int writelen)
+{
+	int ret;
+
+	struct i2c_msg msg[] = {
+		{
+		 .addr = client->addr,
+		 .flags = 0,
+		 .len = writelen,
+		 .buf = writebuf,
+		 },
+	};
+
+	ret = i2c_transfer(client->adapter, msg, 1);
+	if (ret < 0)
+		dev_err(&client->dev, "%s i2c write error.\n", __func__);
+
+	return ret;
+}
 static int tpd_misc_open(struct inode *inode, struct file *file)
 {
 /*
@@ -234,8 +329,11 @@ struct touch_info {
     int y[5];
     int x[5];
     int p[5];
-	int id[5];
+    int finger_id[5];
     int count;
+	#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+    int size[5];
+	#endif
 };
  
  static const struct i2c_device_id ft5206_tpd_id[] = {{"ft5206",0},{}};
@@ -256,6 +354,7 @@ struct touch_info {
   .detect = tpd_detect,
 //  .address_data = &addr_data,
  };
+ 
  #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
 static u8 *CTPI2CDMABuf_va = NULL;
 static u32 CTPI2CDMABuf_pa = NULL;
@@ -437,16 +536,18 @@ static unsigned char ft5x0x_read_fw_ver(void)
 {
 	unsigned char ver;
 	ft5x0x_read_reg(0xa6, &ver);
+	printk("[TSP]%s, version = %x\n", __func__, ver);
 	return(ver);
 }
 static unsigned char ft5x0x_read_ID_ver(void)
 {
 	unsigned char ver;
 	ft5x0x_read_reg(0xa8, &ver);
+	printk("[TSP]%s, version = %x\n", __func__, ver);
 	return(ver);
 }
 
-void delay_qt_ms(unsigned long  w_ms)
+static void delay_qt_ms(unsigned long  w_ms)
 {
     unsigned long i;
     unsigned long j;
@@ -642,10 +743,10 @@ FTS_BOOL byte_read(FTS_BYTE* pbt_buf, FTS_BYTE bt_len)
 
 static unsigned char CTPM_FW[]=
 {
-#include "Ver0x0D_Amman_20121015_app.i"
+   #include "Snoopy_BIEL_ID3B_V0a_20130410_app.i" 
 };
 
-E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
+E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 {
     FTS_BYTE reg_val[2] = {0};
     FTS_DWRD i = 0;
@@ -670,7 +771,8 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-    //printk("[TSP] Step 1: Reset CTPM test\n");
+	//msleep(10);//add this line 
+    printk("[TSP] Step 1: Reset CTPM test\n");
    
     delay_qt_ms(50);   
     /*********Step 2:Enter upgrade mode *****/
@@ -693,9 +795,8 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
         i_ret = byte_read(reg_val,2);
         delay_qt_ms(10);
     }while(i_ret <= 0 && i < 5 );
-        //printk("[TSP] Step 2: CTPM ID,ID1 = 0x%x,ID2 = 0x%x\n",reg_val[0],reg_val[1]);
-#if 0 /*zhouwl, temp disable this line???*/
-    if (reg_val[0] == 0x79 && reg_val[1] == 0x3)
+        printk("[TSP] Step 2: CTPM ID,ID1 = 0x%x,ID2 = 0x%x\n",reg_val[0],reg_val[1]);
+    if (reg_val[0] == 0x79 && reg_val[1] == 0x3) //0x03
     {
         printk("[TSP] Step 3: CTPM ID,ID1 = 0x%x,ID2 = 0x%x\n",reg_val[0],reg_val[1]);
     }
@@ -704,16 +805,16 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
         return ERR_READID;
         //i_is_new_protocol = 1;
     }
-#endif
+
      /*********Step 4:erase app*******************************/
     ret = cmd_write(0x61,0x00,0x00,0x00,1);
    
     delay_qt_ms(1500);
-    //printk("[TSP] Step 4: erase.ret=%d\n",ret);
+    printk("[TSP] Step 4: erase.ret=%d\n",ret);
 
     /*********Step 5:write firmware(FW) to ctpm flash*********/
     bt_ecc = 0;
-   // printk("[TSP] Step 5: start upgrade. \n");
+    printk("[TSP] Step 5: start upgrade. \n");
     dw_lenth = dw_lenth - 8;
     packet_number = (dw_lenth) / FTS_PACKET_LENGTH;
     packet_buf[0] = 0xbf;
@@ -738,7 +839,7 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
         //delay_qt_ms(FTS_PACKET_LENGTH/6 + 1);
         if ((j * FTS_PACKET_LENGTH % 1024) == 0)
         {
-              //printk("[TSP] upgrade the 0x%x th byte.\n", ((unsigned int)j) * FTS_PACKET_LENGTH);
+              printk("[TSP] upgrade the 0x%x th byte.\n", ((unsigned int)j) * FTS_PACKET_LENGTH);
         }
     }
 
@@ -757,9 +858,9 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
             packet_buf[6+i] = pbt_buf[ packet_number*FTS_PACKET_LENGTH + i]; 
             bt_ecc ^= packet_buf[6+i];
         }
-             // printk("[TSP]temp 0x%x \n", temp);
+              printk("[TSP]temp 0x%x \n", temp);
         ret = CTPDMA_i2c_write(0x70, &packet_buf[0],temp+6);    
-              //printk("[TSP] 222 ret 0x%x \n", ret);
+              printk("[TSP] 222 ret 0x%x \n", ret);
         delay_qt_ms(20);
     }
 
@@ -784,7 +885,7 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
     //cmd_write(0xcc,0x00,0x00,0x00,1);
     //byte_read(reg_val,1);
 i2c_smbus_read_i2c_block_data(i2c_client, 0xcc, 1, &(reg_val[0]));
-    //printk("[TSP] Step 6:  ecc read 0x%x, new firmware 0x%x. \n", reg_val[0], bt_ecc);
+    printk("[TSP] Step 6:  ecc read 0x%x, new firmware 0x%x. \n", reg_val[0], bt_ecc);
     if(reg_val[0] != bt_ecc)
     {
         //return ERR_ECC;
@@ -795,11 +896,10 @@ i2c_smbus_read_i2c_block_data(i2c_client, 0xcc, 1, &(reg_val[0]));
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-    msleep(1);  
+    msleep(10);  
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-
     return ERR_OK;
 }
 
@@ -813,12 +913,8 @@ static int fts_ctpm_fw_upgrade_with_i_file(void)
     FTS_DWRD i = 0;
     //=========FW upgrade========================*/
    pbt_buf = CTPM_FW;
-	
-	printk("version=%x ,pbt_buf[sizeof(CTPM_FW)-2]=%d\n",version,pbt_buf[sizeof(CTPM_FW)-2]);
-	printk("[TSP]ID_ver=%x, fw_ver=%x\n", ft5x0x_read_ID_ver(), ft5x0x_read_fw_ver());
-#if 0 /*zhouwl, temp disable this line*/
-if(0xa8 != ft5x0x_read_ID_ver())
-{
+#if 0	
+	printk("version=%x,pbt_buf[sizeof(CTPM_FW)-2]=%d\n",version,pbt_buf[sizeof(CTPM_FW)-2]);
 	if(ft5x0x_read_ID_ver() != pbt_buf[sizeof(CTPM_FW)-1])
 	{
         return;
@@ -831,17 +927,29 @@ if(0xa8 != ft5x0x_read_ID_ver())
         delay_qt_ms(2);
     }while( i < 5 );
     
-	if(version==pbt_buf[sizeof(CTPM_FW)-2])
+	//if(version==pbt_buf[sizeof(CTPM_FW)-2])
+	//{
+	//	return;
+	//}
+#else
+	do
 	{
+		i ++;
+		version =ft5x0x_read_fw_ver();
+		delay_qt_ms(2);
+	}while( i < 5 );
+	printk("[wj]version is 0x%02x.\n", version);
+	/*Lenovo huangdra 20130617 close firmware update func*/
+	//if(version>=0xa)
+	{
+		printk("[wj]version is new, no need to update.\n");
 		return;
 	}
-}
 #endif
    /*call the upgrade function*/
-   i_ret =  fts_ctpm_fw_upgrade(pbt_buf,sizeof(CTPM_FW));
+   i_ret =  fts_ctpm_fw_upgrade_1(pbt_buf,sizeof(CTPM_FW));
    if (i_ret != 0)
    {
-	printk("[TSP]upgrade error\n");
        //error handling ...
        //TBD
    }
@@ -850,7 +958,7 @@ if(0xa8 != ft5x0x_read_ID_ver())
 	msleep(4000);
 	flag=0;
 	i2c_smbus_read_i2c_block_data(i2c_client, 0xFC, 1, &flag);
-	//printk("flag=%d\n",flag);
+	printk("flag=%d\n",flag);
    return i_ret;
 }
 
@@ -869,6 +977,7 @@ unsigned char fts_ctpm_get_upg_ver(void)
     }
 }
 #endif
+
 #ifdef ESD_CHECK	
 static void ESD_read_id_workqueue(struct work_struct *work)
 {
@@ -876,8 +985,8 @@ static void ESD_read_id_workqueue(struct work_struct *work)
 	if(tpd_halt) 
 		return; 
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x88, 1, &data);
-//	TPD_DEBUG("ESD_read_id_workqueue data: %d\n", data);
-	printk("ESD_read_id_workqueue data: %d\n", data);
+	TPD_DEBUG("ESD_read_id_workqueue data: %d\n", data);
+	
 	if((data > 5)&&(data < 10))
 	{
 		//add_timer();
@@ -894,26 +1003,10 @@ static void ESD_read_id_workqueue(struct work_struct *work)
 		 }
 		msleep(5);  
 	
-//#ifdef MT6575
 		    //power on, need confirm with SA
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    		hwPowerDown(TPD_POWER_SOURCE_CUSTOM,  "TP");
-#else
-    		hwPowerDown(MT65XX_POWER_LDO_VGP2,  "TP");
-#endif
-#ifdef TPD_POWER_SOURCE_1800
-    		hwPowerDown(TPD_POWER_SOURCE_1800,  "TP");
-#endif    
+		hwPowerDown(MT65XX_POWER_LDO_VGP2,"TP");
 		msleep(5);  
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    		hwPowerOn(TPD_POWER_SOURCE_CUSTOM, VOL_2800, "TP");
-#else
-    		hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
-#endif
-#ifdef TPD_POWER_SOURCE_1800
-    		hwPowerOn(TPD_POWER_SOURCE_1800, VOL_1800, "TP");
-#endif    
-//#endif	
+		hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
 		msleep(100);
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
@@ -922,9 +1015,9 @@ static void ESD_read_id_workqueue(struct work_struct *work)
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
 		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-	 	 mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
-		 
-		 msleep(200);
+		mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
+
+		msleep(200);
 	}
 	if(tpd_halt) 
 		mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM); 
@@ -933,17 +1026,29 @@ static void ESD_read_id_workqueue(struct work_struct *work)
 
 }
 #endif
-static  void tpd_down(int x, int y, int p) {
+#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+
+static void tpd_down(int x, int y, int p,int finger_id, int Xw, int Yw) {
+#else
+static  void tpd_down(int x, int y, int p,int finger_id) {
+#endif
 	// input_report_abs(tpd->dev, ABS_PRESSURE, p);
+	if(x > TPD_RES_X)
+	{
+		TPD_DEBUG("warning: IC have sampled wrong value.\n");;
+		return;
+	}
 	 input_report_key(tpd->dev, BTN_TOUCH, 1);
-	 input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 20);
+	 input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 1);
 	 input_report_abs(tpd->dev, ABS_MT_POSITION_X, x);
 	 input_report_abs(tpd->dev, ABS_MT_POSITION_Y, y);
-	 /* Lenovo-sw yexm1, optimize the code, 2012-9-19 begin */
-	// printk("D[%4d %4d %4d] ", x, y, p);
-	/* Lenovo-sw yexm1, optimize the code, 2012-9-19 end */
-	 /* track id Start 0 */
-       input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, p); 
+	#if defined(LENOVO_AREA_TOUCH)//lenovo jixu add
+	input_report_abs(tpd->dev, ABS_MT_POSITION_X_W, Xw);
+	input_report_abs(tpd->dev, ABS_MT_POSITION_Y_W, Yw);
+	#endif
+	 input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, finger_id);
+	 
+	 printk("D[%4d %4d %4d] ", x, y, p);
 	 input_mt_sync(tpd->dev);
      if (FACTORY_BOOT == get_boot_mode()|| RECOVERY_BOOT == get_boot_mode())
      {   
@@ -951,7 +1056,6 @@ static  void tpd_down(int x, int y, int p) {
      }
 	 if(y > TPD_RES_Y) //virtual key debounce to avoid android ANR issue
 	 {
-         /* Lenovo-sw yexm1 modify, 2012-10-15, delete the delay */
          //msleep(50);
 		 printk("D virtual key \n");
 	 }
@@ -965,7 +1069,7 @@ static  void tpd_up(int x, int y,int *count) {
 		 //input_report_abs(tpd->dev, ABS_MT_TOUCH_MAJOR, 0);
 		 //input_report_abs(tpd->dev, ABS_MT_POSITION_X, x);
 		 //input_report_abs(tpd->dev, ABS_MT_POSITION_Y, y);
-		 //printk("U[%4d %4d %4d] ", x, y, 0);
+		 printk("U[%4d %4d %4d] ", x, y, 0);
 		 input_mt_sync(tpd->dev);
 		 TPD_EM_PRINT(x, y, x, y, 0, 0);
 	//	 (*count)--;
@@ -980,21 +1084,28 @@ static  void tpd_up(int x, int y,int *count) {
  {
 
 	int i = 0;
-	
+
 	char data[40] = {0};
 
     u16 high_byte,low_byte;
 	u8 report_rate =0;
 
 	p_point_num = point_num;
+    memcpy(pinfo, cinfo, sizeof(struct touch_info));
+    memset(cinfo, 0, sizeof(struct touch_info));
 
-	 /* Lenovo-sw yexm1, optimize the code, 2012-9-19 begin */
-	i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 32, &(data[0]));
-	//i2c_smbus_read_i2c_block_data(i2c_client, 0x08, 8, &(data[8]));
-	//i2c_smbus_read_i2c_block_data(i2c_client, 0x10, 8, &(data[16]));
-	//i2c_smbus_read_i2c_block_data(i2c_client, 0x18, 8, &(data[24]));
-	//i2c_smbus_read_i2c_block_data(i2c_client, 0xa6, 1, &(data[32]));
-	/* Lenovo-sw yexm1, optimize the code, 2012-9-19 end */
+	mutex_lock(&i2c_access);
+	if (tpd_halt)
+	{
+		mutex_unlock(&i2c_access);
+		TPD_DMESG( "tpd_touchinfo return ..\n");
+		return false;
+	}
+	i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 8, &(data[0]));
+	i2c_smbus_read_i2c_block_data(i2c_client, 0x08, 8, &(data[8]));
+	i2c_smbus_read_i2c_block_data(i2c_client, 0x10, 8, &(data[16]));
+	i2c_smbus_read_i2c_block_data(i2c_client, 0x18, 8, &(data[24]));
+	i2c_smbus_read_i2c_block_data(i2c_client, 0xa6, 1, &(data[32]));
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x88, 1, &report_rate);
 	//TPD_DEBUG("received raw data from touch panel as following:\n");
 	//TPD_DEBUG("[data[0]=%x,data[1]= %x ,data[2]=%x ,data[3]=%x ,data[4]=%x ,data[5]=%x]\n",data[0],data[1],data[2],data[3],data[4],data[5]);
@@ -1005,6 +1116,21 @@ static  void tpd_up(int x, int y,int *count) {
     //    
 	 //we have  to re update report rate
     // TPD_DMESG("report rate =%x\n",report_rate);
+/* Lenovo-sw yexm1 add for detect charger plug-in/out begin*/
+/*
+	if((upmu_is_chr_det() == KAL_TRUE) && (tpd_first_config_det_chg== KAL_FALSE))
+	{
+		ft5x0x_write_reg(0x8b, 0x01);
+		tpd_first_config_det_chg = KAL_TRUE;
+	}
+	else if((upmu_is_chr_det() == KAL_FALSE) && (tpd_first_config_det_chg== KAL_TRUE))
+	{
+		ft5x0x_write_reg(0x8b, 0x00);
+		tpd_first_config_det_chg = KAL_FALSE;
+	}
+*/
+/* Lenovo-sw yexm1 add for detect charger plug-in/out out */
+
 	 if(report_rate < 8)
 	 {
 	   report_rate = 0x8;
@@ -1013,7 +1139,8 @@ static  void tpd_up(int x, int y,int *count) {
 		   TPD_DMESG("I2C read report rate error, line: %d\n", __LINE__);
 	   }
 	 }
-	
+	 
+	mutex_unlock(&i2c_access);
 	/* Device Mode[2:0] == 0 :Normal operating Mode*/
 	if((data[0] & 0x70) != 0) return false; 
 
@@ -1030,7 +1157,7 @@ static  void tpd_up(int x, int y,int *count) {
 		for(i = 0; i < point_num; i++)
 		{
 			cinfo->p[i] = data[3+6*i] >> 6; //event flag 
-            cinfo->id[i] = data[3+6*i+2]>>4; //touch id
+                   cinfo->finger_id[i] = data[3+6*i+2]>>4; //touch id
 	       /*get the X coordinate, 2 bytes*/
 			high_byte = data[3+6*i];
 			high_byte <<= 8;
@@ -1043,13 +1170,13 @@ static  void tpd_up(int x, int y,int *count) {
 			/*get the Y coordinate, 2 bytes*/
 			
 			high_byte = data[3+6*i+2];
-			
-//		    TPD_DEBUG(" cinfo->finger_id= %d,high_byte=%d\n", cinfo->finger_id[i],high_byte);	
 			high_byte <<= 8;
 			high_byte &= 0x0f00;
 			low_byte = data[3+6*i+3];
 			cinfo->y[i] = high_byte |low_byte;
-
+			#if defined(LENOVO_AREA_TOUCH)//lenovo jixu add
+			cinfo->size[i] = data[8+6*i];
+			#endif
 			  //cinfo->y[i]=  cinfo->y[i] * 800 >> 11;
 		
 			cinfo->count++;
@@ -1062,65 +1189,100 @@ static  void tpd_up(int x, int y,int *count) {
 	 return true;
 
  };
+/* Lenovo-sw yexm1 add for detect charger plug-in/out begin*/
+int set_tp_protect(bool flag)
+{
+	if(flag)
+	{
+		usb_cable_flag = 1;
+		ft5x0x_write_reg(0x8b, 0x01);
+	}
+	else
+	{
+		usb_cable_flag = 0;
+		ft5x0x_write_reg(0x8b, 0x00);
+	}
+}
+EXPORT_SYMBOL(set_tp_protect);
+/* Lenovo-sw yexm1 add for detect charger plug-in/out end*/
 
  static int touch_event_handler(void *unused)
  {
   
     struct touch_info cinfo, pinfo;
-	 int i=0;
 
 	 struct sched_param param = { .sched_priority = RTPM_PRIO_TPD };
 	 sched_setscheduler(current, SCHED_RR, &param);
  
 	 do
 	 {
-	  mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
-		 set_current_state(TASK_INTERRUPTIBLE); 
-		  wait_event_interruptible(waiter,tpd_flag!=0);
-						 
-			 tpd_flag = 0;
-			 
-		 set_current_state(TASK_RUNNING);
-		 
+	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
+        set_current_state(TASK_INTERRUPTIBLE); 
+	  	/*lenovo -xm zhangjiano add begin in supend avoid int wake up 11*/
+        while (tpd_halt)
+		{
+			tpd_flag = 0; 
+			msleep(20);
+		}
+		/*end*/
+        wait_event_interruptible(waiter,tpd_flag!=0);
 
-		  if (tpd_touchinfo(&cinfo, &pinfo)) 
-		  {
-		    //TPD_DEBUG("point_num = %d\n",point_num);
-			TPD_DEBUG_SET_TIME;
-			if(point_num >0) 
-			{
-			    for(i =0; i<point_num && i<5; i++)//only support 3 point
-			    {
+        tpd_flag = 0;
 
-			         tpd_down(cinfo.x[i], cinfo.y[i], cinfo.id[i]);
-			       
-			    }
-			    input_sync(tpd->dev);
-			}
+        set_current_state(TASK_RUNNING);
 
-			else  
-            {
-			    tpd_up(cinfo.x[0], cinfo.y[0], 0);
-                //TPD_DEBUG("release --->\n"); 
-                //input_mt_sync(tpd->dev);
-                input_sync(tpd->dev);
+        if (tpd_touchinfo(&cinfo, &pinfo)) {
+            TPD_DEBUG("point_num = %d\n",point_num);
+            if(point_num > 0) {
+				#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+					tpd_down(cinfo.x[0], cinfo.y[0], 1,cinfo.finger_id[0], cinfo.size[0], cinfo.size[0]);
+				#else
+                tpd_down(cinfo.x[0], cinfo.y[0], 1,cinfo.finger_id[0]);
+				#endif
+
+				#ifdef TPD_HAVE_BUTTON
+                if (((boot_mode == META_BOOT)||(boot_mode == RECOVERY_BOOT)||(boot_mode == FACTORY_BOOT)) && (point_num == 1)) {
+					tpd_button(cinfo.x[0], cinfo.y[0], 1);	
+                }
+				#endif
+                
+                if(point_num > 1) {
+					#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+					tpd_down(cinfo.x[1], cinfo.y[1], 2,cinfo.finger_id[1], 0, 0);
+					#else
+	                tpd_down(cinfo.x[1], cinfo.y[1], 2,cinfo.finger_id[1]);
+					#endif
+                    if(point_num >2) 
+						#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+						tpd_down(cinfo.x[2], cinfo.y[2], 3,cinfo.finger_id[2], 0, 0);
+						#else
+                        tpd_down(cinfo.x[2], cinfo.y[2], 3,cinfo.finger_id[2]);
+						#endif
+            			if(point_num >3) 
+						#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+						tpd_down(cinfo.x[3], cinfo.y[3], 4,cinfo.finger_id[3], 0, 0);
+						#else
+                        tpd_down(cinfo.x[3], cinfo.y[3], 4,cinfo.finger_id[3]);	
+						#endif
+    	              	 if(point_num >4) 
+						 	#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
+							tpd_down(cinfo.x[4], cinfo.y[4], 5,cinfo.finger_id[4], 0, 0);
+							#else
+							tpd_down(cinfo.x[4], cinfo.y[4], 5,cinfo.finger_id[4]);
+							#endif
+                }
+
+            } else  {
+                tpd_up(cinfo.x[0], cinfo.y[0], 0);
+
+				#ifdef TPD_HAVE_BUTTON
+				if (((boot_mode == META_BOOT)||(boot_mode == RECOVERY_BOOT)||(boot_mode == FACTORY_BOOT)) && (p_point_num == 1)) {
+					tpd_button(pinfo.x[0], pinfo.y[0], 0);
+				}
+				#endif
+				
             }
-        }
-
-        if(tpd_mode==12)
-        {
-           //power down for desence debug
-           //power off, need confirm with SA
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    		hwPowerDown(TPD_POWER_SOURCE_CUSTOM,  "TP");
-#else
-    		hwPowerDown(MT65XX_POWER_LDO_VGP2,  "TP");
-#endif
-#ifdef TPD_POWER_SOURCE_1800
-    		hwPowerDown(TPD_POWER_SOURCE_1800,  "TP");
-#endif    
-	    msleep(20);
-          
+            input_sync(tpd->dev);
         }
 
  }while(!kthread_should_stop());
@@ -1136,8 +1298,12 @@ static  void tpd_up(int x, int y,int *count) {
  
  static void tpd_eint_interrupt_handler(void)
  {
-	 //TPD_DEBUG("TPD interrupt has been triggered\n");
-	 TPD_DEBUG_PRINT_INT;
+	 TPD_DEBUG("TPD interrupt has been triggered\n");
+	 if(discard_resume_first_eint)
+	 {
+		discard_resume_first_eint = KAL_FALSE;
+		return;
+	 }
 	 tpd_flag = 1;
 	 wake_up_interruptible(&waiter);
 	 
@@ -1156,51 +1322,42 @@ static  void tpd_up(int x, int y,int *count) {
 reset_proc:   
 	i2c_client = client;
 
-   
-    //power on, need confirm with SA
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    	hwPowerOn(TPD_POWER_SOURCE_CUSTOM, VOL_2800, "TP");
-#else
-    	hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
-#endif
-#ifdef TPD_POWER_SOURCE_1800
-    	hwPowerOn(TPD_POWER_SOURCE_1800, VOL_1800, "TP");
-#endif    
+	
+	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
+    mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
+	msleep(10);  
 
-	#ifdef TPD_CLOSE_POWER_IN_SLEEP	 
+#ifdef TPD_POWER_SOURCE_1800
+	hwPowerOn(TPD_POWER_SOURCE_1800, VOL_1800, "TP");
+#endif 
+   
+		//power on, need confirm with SA
+#ifdef TPD_POWER_SOURCE_CUSTOM
+	hwPowerOn(TPD_POWER_SOURCE_CUSTOM, VOL_2800, "TP");
+#else
+	hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
+#endif
+
+
+#ifdef TPD_CLOSE_POWER_IN_SLEEP	 
 	hwPowerDown(TPD_POWER_SOURCE,"TP");
 	hwPowerOn(TPD_POWER_SOURCE,VOL_3300,"TP");
 	msleep(100);
-	#else
+#else
+
+	TPD_DMESG(" ft5306 reset\n");
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
-	mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-	mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-	msleep(10);  
-		
-	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
-   	 mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-   	 mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-	msleep(200);
-	#endif
+    mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
+	msleep(100);
+#endif
 
 	mt_set_gpio_mode(GPIO_CTP_EINT_PIN, GPIO_CTP_EINT_PIN_M_EINT);
     mt_set_gpio_dir(GPIO_CTP_EINT_PIN, GPIO_DIR_IN);
     mt_set_gpio_pull_enable(GPIO_CTP_EINT_PIN, GPIO_PULL_ENABLE);
     mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_UP);
  
-	  //mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
-	  //mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
-	  mt_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_TYPE, tpd_eint_interrupt_handler, 1);
-	  mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
- 
-	msleep(100);
-#ifdef CONFIG_SUPPORT_FTS_CTP_UPG
-	CTPI2CDMABuf_va = (u8 *)dma_alloc_coherent(NULL, 4096, &CTPI2CDMABuf_pa, GFP_KERNEL);
-    	if(!CTPI2CDMABuf_va)
-	{
-    		printk("[TSP] dma_alloc_coherent error\n");
-	}
-#endif		
 	if((i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 1, &data))< 0)
 	{
 		TPD_DMESG("I2C transfer error, line: %d\n", __LINE__);
@@ -1213,6 +1370,21 @@ reset_proc:
 #endif
 		   return -1; 
 	}
+
+	  mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
+	  mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
+          mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_TOUCH_PANEL_POLARITY, tpd_eint_interrupt_handler, 1); 
+          mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+ 
+	msleep(100);
+
+#ifdef CONFIG_SUPPORT_FTS_CTP_UPG
+	CTPI2CDMABuf_va = (u8 *)dma_alloc_coherent(NULL, 4096, &CTPI2CDMABuf_pa, GFP_KERNEL);
+    	if(!CTPI2CDMABuf_va)
+	{
+    		printk("[TSP] dma_alloc_coherent error\n");
+	}
+#endif		
 
 	//set report rate 80Hz
 	report_rate = 0x8; 
@@ -1234,14 +1406,22 @@ reset_proc:
 		
 	}
 	#endif
- #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
+#ifdef CONFIG_SUPPORT_FTS_CTP_UPG
     	printk("[TSP] Step 0:init \n");
-	msleep(100);
-	fts_ctpm_fw_upgrade_with_i_file();
+//	msleep(100);
+//	fts_ctpm_fw_upgrade_with_i_file();
+
     	printk("[TSP] Step 8:init stop\n");
-	printk("[wj]the version is 0x%02x.\n", ft5x0x_read_fw_ver());
 #endif	
 
+#ifdef FTS_CTL_IIC
+	if (ft_rw_iic_drv_init(client) < 0)
+		dev_err(&client->dev, "%s:[FTS] create fts control iic driver failed\n",
+				__func__);
+#endif	
+#ifdef SYSFS_DEBUG
+	ft5x0x_create_sysfs(client);
+#endif
 #ifdef ESD_CHECK	
 	ctp_read_id_workqueue = create_workqueue("ctp_read_id");
 	INIT_DELAYED_WORK(&ctp_read_id_work, ESD_read_id_workqueue);
@@ -1254,8 +1434,14 @@ reset_proc:
 		  retval = PTR_ERR(thread);
 		  TPD_DMESG(TPD_DEVICE " failed to create kernel thread: %d\n", retval);
 		}
+#if defined(LENOVO_AREA_TOUCH)//lenovo jixu add
+	 set_bit(ABS_MT_POSITION_X_W, tpd->dev->absbit);
+	 set_bit(ABS_MT_POSITION_Y_W, tpd->dev->absbit);
+#endif
 
 	TPD_DMESG("ft5206 Touch Panel Device Probe %s\n", (retval < TPD_OK) ? "FAIL" : "PASS");
+
+	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
    return 0;
    
  }
@@ -1277,6 +1463,9 @@ reset_proc:
 #ifdef ESD_CHECK	
 	destroy_workqueue(ctp_read_id_workqueue);
 #endif	
+	#ifdef SYSFS_DEBUG
+	ft5x0x_release_sysfs(client);
+	#endif
    return 0;
  }
  
@@ -1286,7 +1475,11 @@ reset_proc:
 
  
   TPD_DMESG("Focaltech FT5206 I2C Touchscreen Driver (Built %s @ %s)\n", __DATE__, __TIME__);
- 
+
+   boot_mode = get_boot_mode();
+   // Software reset mode will be treated as normal boot
+   if(boot_mode==3) boot_mode = NORMAL_BOOT;
+
  
    if(i2c_add_driver(&tpd_i2c_driver)!=0)
    	{
@@ -1322,49 +1515,42 @@ reset_proc:
  static void tpd_resume( struct early_suspend *h )
  {
   //int retval = TPD_OK;
-  char data;
+  //char data;
  
    TPD_DMESG("TPD wake up\n");
 #ifdef TPD_CLOSE_POWER_IN_SLEEP	
-	hwPowerOn(TPD_POWER_SOURCE,VOL_3300,"TP"); 
+	hwPowerOn(TPD_POWER_SOURCE,VOL_3300,"TP");
+
 #else
 	discard_resume_first_eint = KAL_TRUE;
-
-    //power on, need confirm with SA
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    	hwPowerOn(TPD_POWER_SOURCE_CUSTOM, VOL_2800, "TP");
-#else
-    	hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
-#endif
-#ifdef TPD_POWER_SOURCE_1800
-    	hwPowerOn(TPD_POWER_SOURCE_1800, VOL_1800, "TP");
-#endif    
-	//msleep(100);
 
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-    msleep(10);  
+    msleep(1);  
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
 #endif
 	msleep(200);//add this line 
-   mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);  
+	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);  
 #ifdef ESD_CHECK	
     	msleep(1);  
 	queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection					
 #endif
-	
-       msleep(20);
+	tpd_halt = 0;
+	/* for resume debug
 	if((i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 1, &data))< 0)
 	{
 		TPD_DMESG("resume I2C transfer error, line: %d\n", __LINE__);
 
 	}
-	tpd_halt = 0;//add this line 
+	*/
 	tpd_up(0,0,0);
 	input_sync(tpd->dev);
+	/* Lenovo-sw yexm1 add for detect charger plug-in/out begin*/
+	set_tp_protect(usb_cable_flag);
+	/* Lenovo-sw yexm1 add for detect charger plug-in/out end*/
 	TPD_DMESG("TPD wake up done\n");
 	 //return retval;
  }
@@ -1376,23 +1562,17 @@ reset_proc:
 #ifdef ESD_CHECK	
  	cancel_delayed_work_sync(&ctp_read_id_work);
 #endif
+ 	 tpd_halt = 1;
 	 TPD_DMESG("TPD enter sleep\n");
-	tpd_halt = 1; //add this line 
 	 mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+	 mutex_lock(&i2c_access);
 #ifdef TPD_CLOSE_POWER_IN_SLEEP	
 	hwPowerDown(TPD_POWER_SOURCE,"TP");
 #else
 i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mode
-    //power down, need confirm with SA
-#ifdef TPD_POWER_SOURCE_CUSTOM
-    	hwPowerDown(TPD_POWER_SOURCE_CUSTOM,  "TP");
-#else
-    	hwPowerDown(MT65XX_POWER_LDO_VGP2,  "TP");
+
 #endif
-#ifdef TPD_POWER_SOURCE_1800
-    	hwPowerDown(TPD_POWER_SOURCE_1800,  "TP");
-#endif    
-#endif
+	mutex_unlock(&i2c_access);
         TPD_DMESG("TPD enter sleep done\n");
 	 //return retval;
  } 
@@ -1424,7 +1604,7 @@ i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mo
 	 //input_unregister_device(tpd->dev);
 	 tpd_driver_remove(&tpd_device_driver);
  }
-
+ 
  module_init(tpd_driver_init);
  module_exit(tpd_driver_exit);
 

@@ -45,7 +45,7 @@ static DEFINE_SPINLOCK(ov12830mipiraw_drv_lock);
 #endif
 
 #define mDELAY(ms)  mdelay(ms)
-kal_uint8 OV12830_WRITE_ID = OV12830MIPI_WRITE_ID;
+
 kal_uint32 OV12830_FeatureControl_PERIOD_PixelNum=OV12830_PV_PERIOD_PIXEL_NUMS;
 kal_uint32 OV12830_FeatureControl_PERIOD_LineNum=OV12830_PV_PERIOD_LINE_NUMS;
 UINT16  ov12830VIDEO_MODE_TARGET_FPS = 30;
@@ -63,418 +63,21 @@ extern int iReadReg(u16 a_u2Addr , u8 * a_puBuff , u16 i2cId);
 extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
 extern int iMultiWriteReg(u8 *pData, u16 lens, u16 i2cId);
 
-#define OV12830_write_cmos_sensor(addr, para) iWriteReg((u16) addr , (u32) para , 1, OV12830_WRITE_ID)
+#define OV12830_write_cmos_sensor(addr, para) iWriteReg((u16) addr , (u32) para , 1, OV12830MIPI_WRITE_ID)
 
-#define OV12830_multi_write_cmos_sensor(pData, lens) iMultiWriteReg((u8*) pData, (u16) lens, OV12830_WRITE_ID)
+#define OV12830_multi_write_cmos_sensor(pData, lens) iMultiWriteReg((u8*) pData, (u16) lens, OV12830MIPI_WRITE_ID)
 
 #define OV12830_ORIENTATION IMAGE_H_MIRROR
 
 kal_uint16 OV12830_read_cmos_sensor(kal_uint32 addr)
 {
 kal_uint16 get_byte=0;
-    iReadReg((u16) addr ,(u8*)&get_byte,OV12830_WRITE_ID);
+    iReadReg((u16) addr ,(u8*)&get_byte,OV12830MIPI_WRITE_ID);
     return get_byte;
 }
 
 #define Sleep(ms) mdelay(ms)
-#define OV12830_OTP
 
-#if defined(OV12830_OTP)
-#define BG_Ratio_Typical 0x153
-#define RG_Ratio_Typical 0x160
-struct otp_struct {                                         
-           int module_integrator_id;                        
-           int lens_id;                                     
-           int production_year;                             
-           int production_month;                            
-           int production_day;                              
-           int rg_ratio;                                    
-           int bg_ratio;                                    
-           int light_rg;                                    
-           int light_bg;                                    
-           int user_data[5];                                
-           int lenc[62];                                    
-};                                                          
-// index: index of otp group. (1, 2, 3)                     
-// return:              0, group index is empty             
-//                      1, group index has invalid data     
-//                      2, group index has valid data       
-int check_otp_wb(int index)                                 
-{                                                           
-	int flag, i;                                     
-	int bank, address;                               
-	// select bank index                             
-	bank = 0xc0 | index;                             
-	OV12830_write_cmos_sensor(0x3d84, bank);                 
-	// read otp into buffer                          
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                 
-	Sleep(5);                                        
-	// read flag                                     
-	address = 0x3d00;                                
-	flag = OV12830_read_cmos_sensor(address);                
-	flag = flag & 0xc0;                              
-	// clear otp buffer                              
-	for (i=0;i<16;i++) {                             
-		OV12830_write_cmos_sensor(0x3d00 + i, 0x00);
-	}                                                
-	if (flag == 0x00) {                              
-		return 0;                           
-	}                                                
-	else if (flag & 0x80) {                          
-		return 1;                           
-	}
-	else {                                                
-		return 2;                                                                  
-	}                                                               
-}                  
-                                                        
-// index: index of otp group. (1, 2, 3)                                    
-// return:              0, group index is empty                            
-//                      1, group index has invalid data                    
-//                      2, group index has valid data                      
-int check_otp_lenc(int index)                                              
-{                                                                          
-	int flag, i, bank;                                              
-	int address;                                                    
-	// select bank: 4, 8, 12                                        
-	bank = 0xc0 | (index * 4);                                      
-	OV12830_write_cmos_sensor(0x3d84, bank);                                
-	// read otp into buffer                                         
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                                
-	Sleep(5);                                                       
-	// read flag                                                    
-	address = 0x3d00;                                               
-	flag = OV12830_read_cmos_sensor(address);                               
-	flag = flag & 0xc0;                                             
-	// clear otp buffer                                             
-	for (i=0;i<16;i++) {                                            
-		OV12830_write_cmos_sensor(0x3d00 + i, 0x00);               
-	}                                                               
-	if (flag == 0x00) {                                             
-		return 0;                                          
-	}                                                               
-	else if (flag & 0x80) {                                         
-		return 1;                                          
-	}                                                               
-	else {                                                          
-		return 2;                                          
-	}                                                               
-}                                                                          
-// index: index of otp group. (1, 2, 3)                                    
-// otp_ptr: pointer of otp_struct                                          
-// return:              0,                                                 
-int read_otp_wb(int index, struct otp_struct *otp_ptr)                     
-{                                                                          
-	int i, bank;                                                    
-	int address;                                                    
-	int temp;                                                       
-	// select bank index                                            
-	bank = 0xc0 | index;                                                                 
-	OV12830_write_cmos_sensor(0x3d84, bank);                                               
-	// read otp into buffer                                                        
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                                               
-	Sleep(5);                                                                      
-	address = 0x3d00;                                                              
-	(*otp_ptr).module_integrator_id = OV12830_read_cmos_sensor(address + 1);               
-	(*otp_ptr).lens_id = OV12830_read_cmos_sensor(address + 2);                            
-	(*otp_ptr).production_year = OV12830_read_cmos_sensor(address + 3);                    
-	(*otp_ptr).production_month = OV12830_read_cmos_sensor(address + 4);                   
-	(*otp_ptr).production_day = OV12830_read_cmos_sensor(address + 5);                     
-	temp = OV12830_read_cmos_sensor(address + 10);                                         
-	(*otp_ptr).rg_ratio = (OV12830_read_cmos_sensor(address + 6)<<2) + ((temp>>6) & 0x03); 
-	(*otp_ptr).bg_ratio = (OV12830_read_cmos_sensor(address + 7)<<2) + ((temp>>4) & 0x03); 
-	(*otp_ptr).light_rg = (OV12830_read_cmos_sensor(address + 8) <<2) + ((temp>>2) & 0x03);
-	(*otp_ptr).light_bg = (OV12830_read_cmos_sensor(address + 9)<<2) + (temp & 0x03);      
-	(*otp_ptr).user_data[0] = OV12830_read_cmos_sensor(address + 11);                      
-	(*otp_ptr).user_data[1] = OV12830_read_cmos_sensor(address + 12);                      
-	(*otp_ptr).user_data[2] = OV12830_read_cmos_sensor(address + 13);                      
-	(*otp_ptr).user_data[3] = OV12830_read_cmos_sensor(address + 14);                      
-	(*otp_ptr).user_data[4] = OV12830_read_cmos_sensor(address + 15);                      
-	// clear otp buffer                                                            
-	for (i=0;i<16;i++) {                                                           
-		OV12830_write_cmos_sensor(0x3d00 + i, 0x00);                                
-	}                                                                              
-	return 0;                                                                      
-}                                                                                         
-// index: index of otp group. (1, 2, 3)                                                   
-// otp_ptr: pointer of otp_struct                                                         
-// return:            0,                                                                  
-int read_otp_lenc(int index, struct otp_struct *otp_ptr)                                  
-{                                                                                         
-	int bank, i;                                                                   
-	int address;                                                                   
-	// clear otp buffer                                                            
-	for (i=0;i<16;i++) {                                                           
-	      OV12830_write_cmos_sensor(0x3d00 + i, 0x00);                                
-	}                                                                              
-	// select bank: 4, 8, 12                                                       
-	bank = 0xc0 | (index * 4);                                                     
-	OV12830_write_cmos_sensor(0x3d84, bank);                                               
-	// read otp into buffer                                                        
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                                               
-	Sleep(5); 
-	address = 0x3d01;                                        
-	for(i=0;i<15;i++) {  
-	      (* otp_ptr).lenc[i]=OV12830_read_cmos_sensor(address);
-		  OV12830DB("OV12830OTP ADRESS:=0x%x, PARA:=0x%x\n ",address,(* otp_ptr).lenc[i]);
-	      address++;                                    
-	}                                                        
-	// clear otp buffer                                      
-	for (i=0;i<16;i++) {                                     
-	      OV12830_write_cmos_sensor(0x3d00 + i, 0x00);          
-	}                                                        
-	// select 2nd bank                                       
-	bank++;                                                  
-	OV12830_write_cmos_sensor(0x3d84, bank);                         
-	// read otp                                              
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                         
-	Sleep(5);                                                
-	address = 0x3d00;                                        
-	for(i=15;i<31;i++) {                                     
-	      (* otp_ptr).lenc[i]=OV12830_read_cmos_sensor(address);
-		  OV12830DB("OV12830OTP ADRESS:=0x%x, PARA:=0x%x\n ",address,(* otp_ptr).lenc[i]);
-	      address++;                                    
-	}                                                        
-	// clear otp buffer                                      
-	for (i=0;i<16;i++) {                                     
-	      OV12830_write_cmos_sensor(0x3d00 + i, 0x00);          
-	}                                                        
-	// select 3rd bank                                       
-	bank++;                                                  
-	OV12830_write_cmos_sensor(0x3d84, bank);                         
-	// read otp                                              
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                         
-	Sleep(5);                                                
-	address = 0x3d00;                                        
-	for(i=31;i<47;i++) {                                     
-	      (* otp_ptr).lenc[i]=OV12830_read_cmos_sensor(address);
-		  OV12830DB("OV12830OTP ADRESS:=0x%x, PARA:=0x%x\n ",address,(* otp_ptr).lenc[i]);
-	      address++;                                    
-	}                                                        
-	// clear otp buffer                                      
-	for (i=0;i<16;i++) {                                     
-	      OV12830_write_cmos_sensor(0x3d00 + i, 0x00);          
-	}                                                        
-	// select 4th bank                                       
-	bank++;                                                  
-	OV12830_write_cmos_sensor(0x3d84, bank); 
-
-	// read otp                                                                         
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                                         
-	Sleep(5);                                                                
-	address = 0x3d00;                                                        
-	for(i=47;i<62;i++) {                                                     
-	     (* otp_ptr).lenc[i]=OV12830_read_cmos_sensor(address);  
-		 OV12830DB("OV12830OTP ADRESS:=0x%x, PARA:=0x%x\n ",address,(* otp_ptr).lenc[i]);
-	     address++;                                                    
-	}                                                                        
-	// clear otp buffer                                                      
-	for (i=0;i<16;i++) {                                                     
-	     OV12830_write_cmos_sensor(0x3d00 + i, 0x00);                          
-	}                                                                        
-	return 0;                                                                
-}                                                                                  
-// R_gain, sensor red gain of AWB, 0x400 =1                                        
-// G_gain, sensor green gain of AWB, 0x400 =1                                      
-// B_gain, sensor blue gain of AWB, 0x400 =1                                       
-// return 0;                                                                       
-int update_awb_gain(int R_gain, int G_gain, int B_gain)                            
-{   
-	OV12830DB("OV12830DB_update_awb_gain ENTER :\n ");
-
-	OV12830DB("OV12830DB_update_awb_gain R_gain =0x%x, G_gain=0x%x, B_gain=0x%x\n",R_gain, G_gain, B_gain);
-	if (R_gain>0x400) {                                                      
-		OV12830_write_cmos_sensor(0x3400, R_gain>>8);                         
-		OV12830_write_cmos_sensor(0x3401, R_gain & 0x00ff);                   
-	}                                                                        
-	if (G_gain>0x400) {                                                      
-		OV12830_write_cmos_sensor(0x3402, G_gain>>8);                         
-		OV12830_write_cmos_sensor(0x3403, G_gain & 0x00ff);                   
-	}                                                                        
-	if (B_gain>0x400) {                                                      
-		OV12830_write_cmos_sensor(0x3404, B_gain>>8);                         
-		OV12830_write_cmos_sensor(0x3405, B_gain & 0x00ff);                   
-	}                                                                        
-	return 0;                                                                
-}                                                                                  
-// otp_ptr: pointer of otp_struct                                                  
-int update_lenc(struct otp_struct *otp_ptr)                                        
-{                                                                                  
-	int i, temp;                                                             
-	temp = OV12830_read_cmos_sensor(0x5000);                                         
-	temp = 0x80 | temp;                                                      
-	OV12830_write_cmos_sensor(0x5000, temp);                                         
-	for(i=0;i<62;i++) {                                                      
-		OV12830_write_cmos_sensor(0x5800 + i, (*otp_ptr).lenc[i]); 
-		OV12830DB("OV12830OTP ADRESS:=0x%x, PARA:=0x%x\n ",0x5800 + i,(*otp_ptr).lenc[i]);
-	}  
-	return 0;                                                                           
-}                                                                                                                                                                       
-// call this function after OV12830 initialization                                      
-// return value:       0 update success                                                 
-//                     1, no OTP                                                        
-int update_otp_wb()                                                                     
-{                                                                                       
-	struct otp_struct current_otp;                                              
-	int i;                                                                      
-	int otp_index;                                                              
-	int temp;                                                                   
-	int R_gain, G_gain, B_gain, G_gain_R, G_gain_B;                             
-	int rg,bg;                                                                  
-	// R/G and B/G of current camera module is read out from sensor OTP         
-	// check first OTP with valid data                                          
-	for(i=1;i<=3;i++) {                                                         
-		temp = check_otp_wb(i);                                          
-		if (temp == 2) {                                                 
-		          otp_index = i;                                        
-		          break;                                                
-		}                                                                
-	}                                                                           
-	if (i>3) {                                                                  
-		// no valid wb OTP data  
-		OV12830DB("[OV12830OTP]No WB OTP Data\n");
-		return 1;                                                        
-	}                                                                           
-	read_otp_wb(otp_index, &current_otp);                                       
-	if(current_otp.light_rg==0) {                                               
-		// no light source information in OTP, light factor = 1          
-		rg = current_otp.rg_ratio;                                       
-	}                                                                           
-	else {                                                                      
-		rg = current_otp.rg_ratio * ((current_otp.light_rg +512) / 1024);
-	}                                                                           
-	if(current_otp.light_bg==0) {                                               
-		// not light source information in OTP, light factor = 1         
-		bg = current_otp.bg_ratio;                                       
-	}                                                                           
-	else {                                                                      
-		bg = current_otp.bg_ratio * ((current_otp.light_bg +512) / 1024);
-	}                                                                           
-	//calculate G gain                                                          
-	//0x400 = 1x gain                                                           
-	if(bg < BG_Ratio_Typical) {                                                 
-		if (rg< RG_Ratio_Typical) {
-			// current_otp.bg_ratio < BG_Ratio_typical &&                                          
-			// current_otp.rg_ratio < RG_Ratio_typical       
-			G_gain = 0x400;                                  
-			B_gain = 0x400 * BG_Ratio_Typical / bg;          
-			R_gain = 0x400 * RG_Ratio_Typical / rg;                     
-		}else{                                                      
-			         // current_otp.bg_ratio < BG_Ratio_typical &&    
-			         // current_otp.rg_ratio >= RG_Ratio_typical      
-			R_gain = 0x400;                                             
-			         G_gain = 0x400 * rg / RG_Ratio_Typical;          
-			B_gain = G_gain * BG_Ratio_Typical /bg;                     
-	   }                                                           
-	}                                                                     
-	else 
-	{                                                                
-		if (rg < RG_Ratio_Typical) {                                
-		         // current_otp.bg_ratio >= BG_Ratio_typical &&   
-		         // current_otp.rg_ratio < RG_Ratio_typical       
-		B_gain = 0x400;                                             
-		G_gain = 0x400 * bg / BG_Ratio_Typical;                     
-		R_gain = G_gain * RG_Ratio_Typical / rg;                    
-		}                                                           
-		else {                                                      
-		         // current_otp.bg_ratio >= BG_Ratio_typical &&   
-		         // current_otp.rg_ratio >= RG_Ratio_typical      
-		G_gain_B = 0x400 * bg / BG_Ratio_Typical;                   
-		         G_gain_R = 0x400 * rg / RG_Ratio_Typical;        
-		if(G_gain_B > G_gain_R ) {                                  
-		                   B_gain = 0x400;                        
-		                   G_gain = G_gain_B;                     
-		                   R_gain = G_gain * RG_Ratio_Typical /rg;
-		         }                                                
-		else {                                                      
-		         R_gain = 0x400;                                  
-		                   G_gain = G_gain_R;                     
-		         B_gain = G_gain * BG_Ratio_Typical / bg;         
-		         }                                                
-		}                                                                     
-	}                                                                     
-	update_awb_gain(R_gain, G_gain, B_gain);                              
-	return 0;                                                             
-}                                                                                 
-// call this function after OV12830 initialization                                
-// return value:      0 update success                                            
-//                    1, no OTP                                                   
-int update_otp_lenc()                                                             
-{                                                                                 
-	struct otp_struct current_otp; 
-	int i;                                                                                        
-	int otp_index;                                         
-	int temp;                                              
-	// check first lens correction OTP with valid data     
-	for(i=1;i<=3;i++) {                                    
-		temp = check_otp_lenc(i);                  
-		if (temp == 2) {                           
-		           otp_index = i;                  
-		           break;                          
-		}                                          
-	}                                                      
-	if (i>3) {                                             
-		// no valid WB OTP data   
-		OV12830DB("[OV12830DB]No Shading OTP Data\n");
-		return 1;                                  
-	}                                                      
-	read_otp_lenc(otp_index, &current_otp);                
-	update_lenc(&current_otp);                             
-	// success                                             
-	return 0;                                              
-}                                                                  
-// call this function after OV12830 initialization                 
-// return value:        1 use CP data from REG3D0A                 
-//                      2 use Module data from REG3D0A             
-//                      0 data ErRoR                               
-int update_blc_ratio()                                             
-{                                                                  
-	int K;                                                 
-	int temp;                                              
-	OV12830_write_cmos_sensor(0x3d84, 0xdf);                       
-	OV12830_write_cmos_sensor(0x3d81, 0x01);                       
-	Sleep(5);                                              
-	K = OV12830_read_cmos_sensor(0x3d0b);                          
-	if (K != 0) 
-	{                                          
-		if (K >= 0x15 && K <= 0x40) 
-		{              
-		           // auto load mode               
-			temp = OV12830_read_cmos_sensor(0x4008);
-			temp &= 0xfb;                   
-			OV12830_write_cmos_sensor(0x4008, temp);
-			temp = OV12830_read_cmos_sensor(0x4000);
-			temp &= 0xf7;                   
-			OV12830_write_cmos_sensor(0x4000, temp);
-			return 2;            
-		}                               
-	}                                          
-	K = OV12830_read_cmos_sensor(0x3d0a);              
-	if (K >= 0x10 && K <= 0x40) 
-	{              
-		// manual load mode             
-		OV12830_write_cmos_sensor(0x4006, K);   
-		temp = OV12830_read_cmos_sensor(0x4008);
-		temp &= 0xfb;                   
-		OV12830_write_cmos_sensor(0x4008, temp);
-		temp = OV12830_read_cmos_sensor(0x4000);
-		temp |= 0x08;                   
-		OV12830_write_cmos_sensor(0x4000, temp);
-		return 1;                       
-	}                                          
-	else {                                     
-		 // set to default               
-		 OV12830_write_cmos_sensor(0x4006, 0x20);
-		 temp = OV12830_read_cmos_sensor(0x4008);
-		 temp &= 0xfb;                   
-		 OV12830_write_cmos_sensor(0x4008, temp);
-		 temp = OV12830_read_cmos_sensor(0x4000);
-		 temp |= 0x08;                   
-		 OV12830_write_cmos_sensor(0x4000, temp);
-		 return 0;                       
-	}                                          
-}                                            
-#endif
 void OV12830_write_shutter(kal_uint32 shutter)
 {
 #if 1
@@ -503,7 +106,6 @@ void OV12830_write_shutter(kal_uint32 shutter)
 			line_length = OV12830_FULL_PERIOD_PIXEL_NUMS + ov12830.DummyPixels;
 			max_shutter = OV12830_FULL_PERIOD_LINE_NUMS + ov12830.DummyLines ;
 		}
-		OV12830DBSOFIA("linelength %d, max_shutter %d!!\n",line_length,max_shutter);
 
 		switch(OV12830CurrentScenarioId)
 		{
@@ -513,7 +115,6 @@ void OV12830_write_shutter(kal_uint32 shutter)
 				min_framelength = max_shutter;
 				break;
 			case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-				OV12830DBSOFIA("AutoFlickerMode!!! MSDK_SCENARIO_ID_VIDEO_PREVIEW  0!!\n");
 				if( ov12830VIDEO_MODE_TARGET_FPS==30)
 				{
 					min_framelength = (OV12830MIPI_VIDEO_CLK) /(OV12830_VIDEO_PERIOD_PIXEL_NUMS + ov12830.DummyPixels)/306*10 ;
@@ -538,8 +139,8 @@ void OV12830_write_shutter(kal_uint32 shutter)
 		if (shutter < 3)
 			shutter = 3;
 
-		if (shutter > (max_shutter-4))
-			extra_lines = shutter -( max_shutter - 4);
+		if (shutter > max_shutter-4)
+			extra_lines = shutter - max_shutter + 4;
 		else
 			extra_lines = 0;
 
@@ -612,8 +213,8 @@ void OV12830_write_shutter(kal_uint32 shutter)
 		if (shutter < 3)
 			shutter = 3;
 
-		if (shutter > (max_shutter-4))
-			extra_lines = shutter - (max_shutter -4);
+		if (shutter > max_shutter-4)
+			extra_lines = shutter - max_shutter + 4;
 		else
 			extra_lines = 0;
 
@@ -719,7 +320,6 @@ void write_OV12830_gain(kal_uint16 gain)
 }
 void OV12830_SetGain(UINT16 iGain)
 {
-	OV12830DB("OV12830_SetGain ENTER :\n ");	
 	unsigned long flags;
 	spin_lock_irqsave(&ov12830mipiraw_drv_lock,flags);
 	ov12830.realGain = iGain;
@@ -732,7 +332,6 @@ void OV12830_SetGain(UINT16 iGain)
 
 kal_uint16 read_OV12830_gain(void)
 {
-	OV12830DB("read_OV12830_gain ENTER :\n ");
 	kal_uint16 read_gain=0;
 	read_gain=(((OV12830_read_cmos_sensor(0x350a)&0x01) << 8) | OV12830_read_cmos_sensor(0x350b));
 	spin_lock(&ov12830mipiraw_drv_lock);
@@ -766,7 +365,7 @@ static void OV12830_SetDummy( const kal_uint32 iPixels, const kal_uint32 iLines 
 {
  	kal_uint32 line_length = 0;
 	kal_uint32 frame_length = 0;
-	OV12830DB("OV12830_SetDummy ENTER :\n ");
+
 	if ( SENSOR_MODE_PREVIEW == ov12830.sensorMode )	//SXGA size output
 	{
 		line_length = OV12830_PV_PERIOD_PIXEL_NUMS + iPixels;
@@ -802,8 +401,6 @@ static void OV12830_SetDummy( const kal_uint32 iPixels, const kal_uint32 iLines 
 	//Set total line length
 	OV12830_write_cmos_sensor(0x380c, (line_length >> 8) & 0xFF);
 	OV12830_write_cmos_sensor(0x380d, line_length & 0xFF);
-
-	OV12830DB("OV12830_SetDummy linelength %d,  frame_length= %d \n",line_length,frame_length);
 
 }   /*  OV12830_SetDummy */
 
@@ -852,8 +449,6 @@ void OV12830PreviewSetting(void)
 	OV12830_write_cmos_sensor(0x5002,0x00);
 	mDELAY(2);
 	OV12830_write_cmos_sensor(0x0100,0x01);
-	//zhanglianhong
-//	mDELAY(20);
 
 
 }
@@ -896,8 +491,6 @@ void OV12830VideoSetting(void)
 	OV12830_write_cmos_sensor(0x5002,0x00);
 	mDELAY(2);
 	OV12830_write_cmos_sensor(0x0100,0x01);
-	//zhanglianhong
-//	mDELAY(20);
 
 
 	
@@ -905,7 +498,7 @@ void OV12830VideoSetting(void)
 
 void OV12830CaptureSetting(void)
 {
-	OV12830DB("OV12830CaptureSetting ENTER :\n ");
+	
 	// fps=18.8
 	// vblanking = 1.22ms
 	// hblanking = 5.1us
@@ -990,9 +583,8 @@ static kal_uint8 ov12830_init[] = {
 0x35,0x0b,0x80,
 0x36,0x02,0x18,
 0x36,0x12,0x80,
-0x36,0x20,0x64,//add to reduce temperature
 0x36,0x21,0xb5,
-0x36,0x22,0x09,//modify from 0b->09 for reduce temperature 
+0x36,0x22,0x0b,
 0x36,0x23,0x28,
 0x36,0x31,0xb3,
 0x36,0x34,0x04,
@@ -1051,7 +643,6 @@ static kal_uint8 ov12830_init[] = {
 0x40,0x08,0x24,
 0x40,0x4e,0x37,
 0x40,0x4f,0x8f,
-0x40,0x58,0x40,//add for reduce temperature
 0x41,0x00,0x2d,
 0x41,0x01,0x22,
 0x41,0x02,0x04,
@@ -1076,7 +667,7 @@ static kal_uint8 ov12830_init[] = {
 0x4d,0x03,0xd1,
 0x4d,0x04,0xff,
 0x4d,0x05,0xff,
-0x4d,0x07,0x04,  //Temperature monitor
+//0x4d,0x07,0x04,  //Temperature monitor
 0x50,0x00,0x06,
 0x50,0x01,0x01,
 0x50,0x03,0x21,
@@ -1092,6 +683,7 @@ static kal_uint8 ov12830_init[] = {
 0x5a,0x06,0x0c,
 0x5a,0x07,0x78,
 0x5a,0x08,0x00,
+0x5e,0x00,0x00,
 0x5e,0x01,0x41,
 0x5e,0x11,0x30,
 0x50,0x00,0x06,
@@ -1144,7 +736,7 @@ static kal_uint8 ov12830_init[] = {
 
 static void OV12830_Sensor_Init(void)
 {
-OV12830DB("OV12830_Sensor_Init ENTER :\n ");
+
 #if 0
 
 	OV12830_write_cmos_sensor(0x0103,0x01);
@@ -1338,14 +930,8 @@ OV12830DB("OV12830_Sensor_Init ENTER :\n ");
 	OV12830_multi_write_cmos_sensor(dmaHandle, len); 
 
 	dma_unmap_single(NULL, dmaHandle, 1024, DMA_TO_DEVICE);
-	kfree(pBuf);
 
 	
-#if defined(OV12830_OTP)
-	update_otp_wb();
-	update_otp_lenc();
-#endif
-
 #endif	
 
 	
@@ -1354,45 +940,18 @@ OV12830DB("OV12830_Sensor_Init ENTER :\n ");
 UINT32 OV12830Open(void)
 {
 	volatile signed int i;
-	int  retry = 1;
 	kal_uint16 sensor_id = 0;
 	OV12830DB("OV12830Open enter :\n ");
-	OV12830_WRITE_ID = OV12830MIPI_WRITE_ID_1;
 	OV12830_write_cmos_sensor(0x0103,0x01);// Reset sensor
-    mDELAY(10);
+    mDELAY(2);
 
-    // check if sensor ID correct
-    do {
-        sensor_id = (OV12830_read_cmos_sensor(0x300A)<<8)|OV12830_read_cmos_sensor(0x300B);
-        if (sensor_id == OV12830_SENSOR_ID)
+	for(i=0;i<3;i++)
 	{
-        		OV12830DB("write id=%x, Sensor ID = 0x%04x\n", OV12830_WRITE_ID,sensor_id);
-            	break;
-        	}
-        OV12830DB("Read Sensor ID Fail = 0x%04x\n", sensor_id);
-        retry--;
-    } while (retry > 0);
-
-    if (sensor_id != OV12830_SENSOR_ID) {
-		OV12830_WRITE_ID=OV12830MIPI_WRITE_ID;
-		OV12830_write_cmos_sensor(0x0103,0x01);// Reset sensor
-	    mDELAY(10);
-        retry = 1;
-	    // check if sensor ID correct
-	    do {
 		sensor_id = (OV12830_read_cmos_sensor(0x300A)<<8)|OV12830_read_cmos_sensor(0x300B);
-	        if (sensor_id == OV12830_SENSOR_ID)
-	        	{
-	        		OV12830DB("write id=%x,Sensor ID = 0x%04x\n",OV12830_WRITE_ID, sensor_id);
-	            	break;
-	        	}
-	        OV12830DB("Read Sensor ID Fail = 0x%04x\n", sensor_id);
-	        retry--;
-	    } while (retry > 0);
+		OV12830DB("OOV12830 READ ID :%x",sensor_id);
 		if(sensor_id != OV12830_SENSOR_ID)
-		 {
 			return ERROR_SENSOR_CONNECT_FAIL;
-		 	}
+		else break;
 	}
 	spin_lock(&ov12830mipiraw_drv_lock);
 	ov12830.sensorMode = SENSOR_MODE_INIT;
@@ -1421,9 +980,8 @@ UINT32 OV12830Open(void)
 UINT32 OV12830GetSensorID(UINT32 *sensorID)
 {
     int  retry = 1;
-       printk("\r\n zhaoshaopeng OV12830GetSensorID \r\n");
+
 	OV12830DB("OV12830GetSensorID enter :\n ");
-	OV12830_WRITE_ID = OV12830MIPI_WRITE_ID;
 	OV12830_write_cmos_sensor(0x0103,0x01);// Reset sensor
     mDELAY(10);
 
@@ -1432,7 +990,7 @@ UINT32 OV12830GetSensorID(UINT32 *sensorID)
         *sensorID = (OV12830_read_cmos_sensor(0x300A)<<8)|OV12830_read_cmos_sensor(0x300B);
         if (*sensorID == OV12830_SENSOR_ID)
         	{
-        		OV12830DB("write id=%x, Sensor ID = 0x%04x\n", OV12830_WRITE_ID,*sensorID);
+        		OV12830DB("Sensor ID = 0x%04x\n", *sensorID);
             	break;
         	}
         OV12830DB("Read Sensor ID Fail = 0x%04x\n", *sensorID);
@@ -1440,27 +998,8 @@ UINT32 OV12830GetSensorID(UINT32 *sensorID)
     } while (retry > 0);
 
     if (*sensorID != OV12830_SENSOR_ID) {
-		OV12830_WRITE_ID=OV12830MIPI_WRITE_ID_1;
-		OV12830_write_cmos_sensor(0x0103,0x01);// Reset sensor
-	    mDELAY(10);
-        retry = 1;
-	    // check if sensor ID correct
-	    do {
-	        *sensorID = (OV12830_read_cmos_sensor(0x300A)<<8)|OV12830_read_cmos_sensor(0x300B);
-	        if (*sensorID == OV12830_SENSOR_ID)
-	        	{
-	        		OV12830DB("write id=%x,Sensor ID = 0x%04x\n",OV12830_WRITE_ID, *sensorID);
-	            	break;
-	        	}
-	        OV12830DB("Read Sensor ID Fail = 0x%04x\n", *sensorID);
-	        retry--;
-	    } while (retry > 0);
-		 if (*sensorID != OV12830_SENSOR_ID) 
-		 {
-		 
         *sensorID = 0xFFFFFFFF;
         return ERROR_SENSOR_CONNECT_FAIL;
-    }
     }
     return ERROR_NONE;
 }
@@ -1479,8 +1018,8 @@ void OV12830_SetShutter(kal_uint32 iShutter)
 			//return;
 		}
 	}
-	//if(ov12830.shutter == iShutter)
-		//return;
+	if(ov12830.shutter == iShutter)
+		return;
    spin_lock(&ov12830mipiraw_drv_lock);
    ov12830.shutter= iShutter;
    spin_unlock(&ov12830mipiraw_drv_lock);
@@ -1506,34 +1045,32 @@ void OV12830_NightMode(kal_bool bEnable)
 
 
 UINT32 OV12830Close(void)
-{   
-	 return ERROR_NONE;
-}
+{    return ERROR_NONE;}
 
 void OV12830SetFlipMirror(kal_int32 imgMirror)
 {
 	kal_int16 mirror=0,flip=0;
 	mirror= OV12830_read_cmos_sensor(0x3820);
-	flip = OV12830_read_cmos_sensor(0x3821);
-	switch (imgMirror)
-	{
-		case IMAGE_NORMAL://IMAGE_NORMAL:
-		OV12830_write_cmos_sensor(0x3820, (mirror & (0xBD)));//Set normal
-		OV12830_write_cmos_sensor(0x3821, (flip & (0xF9))); //Set normal
-		break;
-		case IMAGE_H_MIRROR://IMAGE_H_MIRROR:
-		OV12830_write_cmos_sensor(0x3820, (mirror & (0xBD)));//Set normal
-		OV12830_write_cmos_sensor(0x3821, (flip | (0x06))); //Set mirror
-		break;
-		case IMAGE_V_MIRROR://IMAGE_V_MIRROR:
-		OV12830_write_cmos_sensor(0x3820, (mirror |(0x42))); //Set flip
-		OV12830_write_cmos_sensor(0x3821, (flip & (0xF9))); //Set normal
-		break;
-		case IMAGE_HV_MIRROR://IMAGE_HV_MIRROR:
-		OV12830_write_cmos_sensor(0x3820, (mirror |(0x42))); //Set flip
-		OV12830_write_cmos_sensor(0x3821, (flip |(0x06))); //Set mirror
-		break;
-	}
+	flip  = OV12830_read_cmos_sensor(0x3821);
+    switch (imgMirror)
+    {
+        case IMAGE_NORMAL://IMAGE_NORMAL:
+            OV12830_write_cmos_sensor(0x3820, (mirror & (0xBD)));//Set normal
+            OV12830_write_cmos_sensor(0x3821, (flip & (0xF9)));	//Set normal
+            break;
+        case IMAGE_H_MIRROR://IMAGE_H_MIRROR:
+            OV12830_write_cmos_sensor(0x3820, (mirror & (0xBD)));//Set normal
+            OV12830_write_cmos_sensor(0x3821, (flip | (0x06)));	//Set mirror
+            break;
+        case IMAGE_V_MIRROR://IMAGE_V_MIRROR:
+            OV12830_write_cmos_sensor(0x3820, (mirror |(0x42)));	//Set flip
+            OV12830_write_cmos_sensor(0x3821, (flip & (0xF9)));	//Set normal
+            break;
+        case IMAGE_HV_MIRROR://IMAGE_HV_MIRROR:
+            OV12830_write_cmos_sensor(0x3820, (mirror |(0x42)));	//Set flip
+            OV12830_write_cmos_sensor(0x3821, (flip |(0x06)));	//Set mirror
+            break;
+    }
 }
 
 UINT32 OV12830Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
@@ -1551,7 +1088,7 @@ UINT32 OV12830Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	else
 	{
 		//OV12830DB("OV12830Preview setting!!\n");
-		//OV12830_Sensor_Init();
+		OV12830_Sensor_Init();
 		OV12830PreviewSetting();
 	}
 	spin_lock(&ov12830mipiraw_drv_lock);
@@ -1565,14 +1102,12 @@ UINT32 OV12830Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//OV12830_write_shutter(ov12830.shutter);
 	//write_OV12830_gain(ov12830.pvGain);
 	//set mirror & flip
-	//OV12830DB("[OV12830Preview] mirror&flip: %d \n",IMAGE_HV_MIRROR);
+	//OV12830DB("[OV12830Preview] mirror&flip: %d \n",sensor_config_data->SensorImageMirror);
 	spin_lock(&ov12830mipiraw_drv_lock);
-	ov12830.imgMirror = IMAGE_V_MIRROR;
+	ov12830.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov12830mipiraw_drv_lock);
-
-	OV12830SetFlipMirror(IMAGE_V_MIRROR);
-	OV12830DB("OV12830Preview exit:\n");
-
+	OV12830SetFlipMirror(OV12830_ORIENTATION);
+	OV12830DB("OV12830Preview exit: \n");
     return ERROR_NONE;
 }	/* OV12830Preview() */
 
@@ -1598,11 +1133,9 @@ UINT32 OV12830Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	//write_OV12830_gain(ov12830.pvGain);
 
 	spin_lock(&ov12830mipiraw_drv_lock);
-	ov12830.imgMirror = IMAGE_V_MIRROR;
+	ov12830.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov12830mipiraw_drv_lock);
-
-	OV12830SetFlipMirror(IMAGE_V_MIRROR);
-
+	OV12830SetFlipMirror(OV12830_ORIENTATION);
 
 	OV12830DBSOFIA("[OV12830Video]frame_len=%x\n", ((OV12830_read_cmos_sensor(0x380e)<<8)+OV12830_read_cmos_sensor(0x380f)));
 
@@ -1637,16 +1170,15 @@ UINT32 OV12830Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 
 		spin_lock(&ov12830mipiraw_drv_lock);
 		ov12830.sensorMode = SENSOR_MODE_CAPTURE;
-		ov12830.imgMirror = IMAGE_V_MIRROR;
+		ov12830.imgMirror = sensor_config_data->SensorImageMirror;
 		ov12830.DummyPixels = 0;//define dummy pixels and lines                                                                                                         
 		ov12830.DummyLines = 0 ;    
 		OV12830_FeatureControl_PERIOD_PixelNum = OV12830_FULL_PERIOD_PIXEL_NUMS + ov12830.DummyPixels;
 		OV12830_FeatureControl_PERIOD_LineNum = OV12830_FULL_PERIOD_LINE_NUMS + ov12830.DummyLines;
 		spin_unlock(&ov12830mipiraw_drv_lock);
 
-		//OV12830DB("[OV12830Capture] mirror&flip: %d\n",IMAGE_HV_MIRROR);
-		OV12830SetFlipMirror(IMAGE_V_MIRROR);
-
+		//OV12830DB("[OV12830Capture] mirror&flip: %d\n",sensor_config_data->SensorImageMirror);
+		OV12830SetFlipMirror(OV12830_ORIENTATION);
 
 	    if(OV12830CurrentScenarioId==MSDK_SCENARIO_ID_CAMERA_ZSD)
 	    {
@@ -1676,14 +1208,14 @@ UINT32 OV12830GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
                                                 MSDK_SENSOR_INFO_STRUCT *pSensorInfo,
                                                 MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
 {
-OV12830DB("OV12830GetInfo ENTER :\n ");
+
 	pSensorInfo->SensorPreviewResolutionX= OV12830_IMAGE_SENSOR_PV_WIDTH;
 	pSensorInfo->SensorPreviewResolutionY= OV12830_IMAGE_SENSOR_PV_HEIGHT;
 	pSensorInfo->SensorFullResolutionX= OV12830_IMAGE_SENSOR_FULL_WIDTH;
     pSensorInfo->SensorFullResolutionY= OV12830_IMAGE_SENSOR_FULL_HEIGHT;
 
 	spin_lock(&ov12830mipiraw_drv_lock);
-	ov12830.imgMirror = IMAGE_V_MIRROR ;
+	ov12830.imgMirror = pSensorConfigData->SensorImageMirror ;
 	spin_unlock(&ov12830mipiraw_drv_lock);
 
    	pSensorInfo->SensorOutputDataFormat= SENSOR_OUTPUT_FORMAT_RAW_B;
@@ -1695,8 +1227,7 @@ OV12830DB("OV12830GetInfo ENTER :\n ");
     pSensorInfo->SensroInterfaceType=SENSOR_INTERFACE_TYPE_MIPI;
 
     pSensorInfo->CaptureDelayFrame = 2;
-	pSensorInfo->PreviewDelayFrame = 2;
-    //pSensorInfo->PreviewDelayFrame = 1;
+    pSensorInfo->PreviewDelayFrame = 1;
     pSensorInfo->VideoDelayFrame = 2;
 
     pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;
@@ -1833,8 +1364,6 @@ UINT32 OV12830SetVideoMode(UINT16 u2FrameRate)
 			OV12830DB("[OV12830SetVideoMode]current fps = %d\n", (OV12830MIPI_PREVIEW_CLK)  /(OV12830_PV_PERIOD_PIXEL_NUMS)/OV12830_PV_PERIOD_LINE_NUMS);
 		}
 		//OV12830DB("[OV12830SetVideoMode]current fps (10 base)= %d\n", (OV12830MIPI_PREVIEW_CLK)*10/(OV12830_PV_PERIOD_PIXEL_NUMS + ov12830.DummyPixels)/MIN_Frame_length);
-		if(ov12830.shutter+4 > MIN_Frame_length) 
-			MIN_Frame_length = ov12830.shutter + 4;
 		extralines = MIN_Frame_length - OV12830_VIDEO_PERIOD_LINE_NUMS;
 
 		spin_lock(&ov12830mipiraw_drv_lock);
@@ -1866,8 +1395,6 @@ UINT32 OV12830SetVideoMode(UINT16 u2FrameRate)
 
 		}
 		//OV12830DB("[OV12830SetVideoMode]current fps (10 base)= %d\n", (OV12830MIPI_CAPTURE_CLK)*10/(OV12830_FULL_PERIOD_PIXEL_NUMS + ov12830.DummyPixels)/MIN_Frame_length);
-		if(ov12830.shutter+4 > MIN_Frame_length) 
-			MIN_Frame_length = ov12830.shutter + 4;
 		extralines = MIN_Frame_length - OV12830_FULL_PERIOD_LINE_NUMS;
 
 		spin_lock(&ov12830mipiraw_drv_lock);
@@ -1884,7 +1411,7 @@ UINT32 OV12830SetVideoMode(UINT16 u2FrameRate)
 
 UINT32 OV12830SetAutoFlickerMode(kal_bool bEnable, UINT16 u2FrameRate)
 {
-	OV12830DB("OV12830SetAutoFlickerMode ENTER :\n ");
+	//return ERROR_NONE;
     //OV12830DB("[OV12830SetAutoFlickerMode] frame rate(10base) = %d %d\n", bEnable, u2FrameRate);
 	if(bEnable) {   // enable auto flicker
 		spin_lock(&ov12830mipiraw_drv_lock);
@@ -1903,15 +1430,6 @@ UINT32 OV12830SetAutoFlickerMode(kal_bool bEnable, UINT16 u2FrameRate)
 UINT32 OV12830SetTestPatternMode(kal_bool bEnable)
 {
     OV12830DB("[OV12830SetTestPatternMode] Test pattern enable:%d\n", bEnable);
-	if(bEnable)
-		{
-		   OV12830_write_cmos_sensor(0x5E00, 0x80);
-		}
-		else
-		{
-		
-			OV12830_write_cmos_sensor(0x5E00, 0x00);
-		}
 
     return ERROR_NONE;
 }
@@ -1965,7 +1483,7 @@ UINT32 OV12830MIPISetMaxFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MU
 
 UINT32 OV12830MIPIGetDefaultFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MUINT32 *pframeRate) 
 {
-OV12830DB("OV12830MIPIGetDefaultFramerateByScenario ENTER :\n ");
+
 	switch (scenarioId) {
 		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
 		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
@@ -2003,7 +1521,7 @@ UINT32 OV12830FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
     MSDK_SENSOR_GROUP_INFO_STRUCT *pSensorGroupInfo=(MSDK_SENSOR_GROUP_INFO_STRUCT *) pFeaturePara;
     MSDK_SENSOR_ITEM_INFO_STRUCT *pSensorItemInfo=(MSDK_SENSOR_ITEM_INFO_STRUCT *) pFeaturePara;
     MSDK_SENSOR_ENG_INFO_STRUCT	*pSensorEngInfo=(MSDK_SENSOR_ENG_INFO_STRUCT *) pFeaturePara;
-OV12830DB("OV12830FeatureControl ENTER :\n ");
+
     switch (FeatureId)
     {
         case SENSOR_FEATURE_GET_RESOLUTION:

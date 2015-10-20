@@ -27,6 +27,7 @@
 	#define PROXIMITY_VENDER 	"AVAGO"
 	#define LIGHT 			"APDS9930 Light Sensor"
 	#define LIGHT_VENDER 		"AVAGO"
+/* correct vendor name for apds9930  -- liaoxl.lenovo 1.5.2013  end  */
 #endif
 
 #ifdef CUSTOM_KERNEL_MAGNETOMETER
@@ -36,19 +37,19 @@
 	#define ORIENTATION_VENDER 	"Bosch"
 #endif
 
-#ifdef CUSTOM_KERNEL_GYROSCOPE
-	#define GYROSCOPE 		"BMM056 software gyroscope Sensor"
+#if defined(BOSH_BMC056_SENSOR)
+	#define GYROSCOPE 		"BMM056 software  gyroscope Sensor"
 	#define GYROSCOPE_VENDER 	"Bosch"
 #endif
 
 #ifdef CUSTOM_KERNEL_BAROMETER
-	#define PRESSURE 		"BMA056"
-	#define PRESSURE_VENDER		"BMA056"
+	#define PRESSURE 		"BMA050"
+	#define PRESSURE_VENDER		"BMA050"
 #endif
 
 #ifdef CUSTOM_KERNEL_TEMPURATURE
-	#define TEMPURATURE 		"BMA056"
-	#define TEMPURATURE_VENDER	"BMA056"
+	#define TEMPURATURE 		"BMA050"
+	#define TEMPURATURE_VENDER	"BMA050"
 #endif
 
 #endif

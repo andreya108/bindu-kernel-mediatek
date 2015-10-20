@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
 /*
 ** Copyright 2009, The Android Open Source Project
@@ -22,6 +22,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
          autodetected from the Configuration. -->
+    <!-- modify by jiayh2 sw2 20140213 for close NavigationBar start-->
     <bool name="config_showNavigationBar">false</bool>
+    <!-- modify by jiayh2 sw2 20140213 for close NavigationBar end-->
 
 </resources>

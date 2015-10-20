@@ -13,8 +13,8 @@
 *
  */
 
-#ifndef _CFG_CUSTOMSN_FILE_H
-#define _CFG_CUSTOMSN_FILE_H
+#ifndef _CFG_CUSTOMIMEI_FILE_H
+#define _CFG_CUSTOMIMEI_FILE_H
 
 typedef struct
 {

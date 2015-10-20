@@ -50,7 +50,7 @@
 
 #include "hi253yuv_Sensor.h"
 #include "hi253yuv_Camera_Sensor_para.h"
-#include "hi253yuv_CameraCustomized.h"
+#include "hi253yuv_CameraCustomized.h" 
 
 #define HI253YUV_DEBUG
 #ifdef HI253YUV_DEBUG
@@ -71,10 +71,10 @@ struct
   kal_uint32  CapDummyLines;
   kal_uint32  PvOpClk;
   kal_uint32  CapOpClk;
-
+  
   /* Video frame rate 300 means 30.0fps. Unit Multiple 10. */
-  kal_uint32  MaxFrameRate;
-  kal_uint32  MiniFrameRate;
+  kal_uint32  MaxFrameRate; 
+  kal_uint32  MiniFrameRate; 
   /* Sensor Register backup. */
   kal_uint8   VDOCTL2; /* P0.0x11. */
   kal_uint8   ISPCTL3; /* P10.0x12. */
@@ -101,9 +101,9 @@ kal_uint16 HI253ReadCmosSensor(kal_uint32 Addr)
 {
   char pGetByte=0;
   char pSendCmd = (char)(Addr & 0xFF);
-
+  
   iReadRegI2C(&pSendCmd , 1, &pGetByte,1,HI253_WRITE_ID);
-
+  
   return pGetByte;
 }
 
@@ -121,10 +121,10 @@ void HI253InitSetting(void)
     DISP_FORMAT = YUV422
     DISP_DATAORDER = YUYV
     MCLK = 26.00
-    PLL = 2.00
+    PLL = 2.00  
     BEGIN */
 
-   HI253WriteCmosSensor(0x01, 0xf9); // Sleep ON
+  HI253WriteCmosSensor(0x01, 0xf9); // Sleep ON
   HI253WriteCmosSensor(0x08, 0x0f); // Hi-Z ON
   HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF
 
@@ -164,8 +164,8 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x10, 0x69); // AWB OFF
 
   HI253SetPage(0x00); 
-  HI253WriteCmosSensor(0x10, 0x10); // Sub1/2_Preview2
-  HI253WriteCmosSensor(0x11, 0x93); // Windowing ON, 1Frame Skip
+  HI253WriteCmosSensor(0x10, 0x13); // Sub1/2_Preview2
+  HI253WriteCmosSensor(0x11, 0x90); // Windowing ON, 1Frame Skip
   HI253WriteCmosSensor(0x12, 0x04); // 00:Rinsing edge 04:fall edge
   HI253WriteCmosSensor(0x0b, 0xaa); // ESD Check Register
   HI253WriteCmosSensor(0x0c, 0xaa); // ESD Check Register
@@ -180,9 +180,9 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x27, 0x40); // WINWIDL
 
   HI253WriteCmosSensor(0x40, 0x01); // HBLANKH 424
-  HI253WriteCmosSensor(0x41, 0x68); // HBLANKL
+  HI253WriteCmosSensor(0x41, 0xa8); // HBLANKL
   HI253WriteCmosSensor(0x42, 0x00); // VSYNCH 62
-  HI253WriteCmosSensor(0x43, 0x14); // VSYNCL
+  HI253WriteCmosSensor(0x43, 0x3e); // VSYNCL
 
   HI253WriteCmosSensor(0x45, 0x04); // VSCTL1
   HI253WriteCmosSensor(0x46, 0x18); // VSCTL2
@@ -354,7 +354,6 @@ void HI253InitSetting(void)
   HI253SetPage(0x10); 
   HI253WriteCmosSensor(0x10, 0x03); // YUYV
   HI253WriteCmosSensor(0x12, 0x30); // ISPCTL3
-  HI253WriteCmosSensor(0x13, 0x0a);
   HI253WriteCmosSensor(0x20, 0x00); // ITUCTL
   HI253WriteCmosSensor(0x30, 0x00);
   HI253WriteCmosSensor(0x31, 0x00);
@@ -370,15 +369,15 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x41, 0x00); // DYOFS
 
   //Saturation;
-  HI253WriteCmosSensor(0x60, 0x67); // SATCTL
-  HI253WriteCmosSensor(0x61, 0x7b); // SATB
-  HI253WriteCmosSensor(0x62, 0x7b); // SATR
-  HI253WriteCmosSensor(0x63, 0x50); // AGSAT
+  HI253WriteCmosSensor(0x60, 0x6f); // SATCTL
+  HI253WriteCmosSensor(0x61, 0x76); // SATB
+  HI253WriteCmosSensor(0x62, 0x76); // SATR
+  HI253WriteCmosSensor(0x63, 0x30); // AGSAT
   HI253WriteCmosSensor(0x64, 0x41);
-  HI253WriteCmosSensor(0x66, 0x42); // SATTIMETH
-  HI253WriteCmosSensor(0x67, 0x20); // SATOUTDEL
-  HI253WriteCmosSensor(0x6a, 0x80); // UPOSSAT
-  HI253WriteCmosSensor(0x6b, 0x84); // UNEGSAT
+  HI253WriteCmosSensor(0x66, 0x33); // SATTIMETH
+  HI253WriteCmosSensor(0x67, 0x00); // SATOUTDEL
+  HI253WriteCmosSensor(0x6a, 0x90); // UPOSSAT
+  HI253WriteCmosSensor(0x6b, 0x80); // UNEGSAT
   HI253WriteCmosSensor(0x6c, 0x80); // VPOSSAT
   HI253WriteCmosSensor(0x6d, 0xa0); // VNEGSAT
   HI253WriteCmosSensor(0x76, 0x01); // white protection ON
@@ -888,7 +887,7 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x6d, 0xa9); // AEWGT14
   HI253WriteCmosSensor(0x6e, 0x55); // AEWGT15
   HI253WriteCmosSensor(0x6f, 0x55); // AEWGT16
-  HI253WriteCmosSensor(0x70, 0x48); // YLVL 60
+  HI253WriteCmosSensor(0x70, 0x46); // YLVL
   HI253WriteCmosSensor(0x71, 0xBb);
 
   // haunting control  
@@ -903,16 +902,16 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x7d, 0x23);
   HI253WriteCmosSensor(0x83, 0x01); //EXP Normal 33.33 fps 
   HI253WriteCmosSensor(0x84, 0x7c); 
-  HI253WriteCmosSensor(0x85, 0xdc); 
+  HI253WriteCmosSensor(0x85, 0x40); 
   HI253WriteCmosSensor(0x86, 0x01); //EXPMin 10416.67 fps
-  HI253WriteCmosSensor(0x87, 0xf4); 
+  HI253WriteCmosSensor(0x87, 0x38); 
   HI253WriteCmosSensor(0x88, 0x04); //EXP Max 10.00 fps 
-  HI253WriteCmosSensor(0x89, 0xf5); 
-  HI253WriteCmosSensor(0x8a, 0x88); 
+  HI253WriteCmosSensor(0x89, 0xf3); 
+  HI253WriteCmosSensor(0x8a, 0x80); 
   HI253WriteCmosSensor(0x8B, 0x7e); //EXP100 
-  HI253WriteCmosSensor(0x8C, 0xf4); 
+  HI253WriteCmosSensor(0x8C, 0xc0); 
   HI253WriteCmosSensor(0x8D, 0x69); //EXP120 
-  HI253WriteCmosSensor(0x8E, 0x78); 
+  HI253WriteCmosSensor(0x8E, 0x6c); 
   HI253WriteCmosSensor(0x91, 0x05); 
   HI253WriteCmosSensor(0x92, 0xe9); 
   HI253WriteCmosSensor(0x93, 0xac); 
@@ -924,10 +923,10 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0x9a, 0x0d);
   HI253WriteCmosSensor(0x9b, 0xde);
 
-  HI253WriteCmosSensor(0x9c, 0x0b); //EXP Limit 1736.11 fps 
-  HI253WriteCmosSensor(0x9d, 0xb8); 
+  HI253WriteCmosSensor(0x9c, 0x07); //EXP Limit 1736.11 fps 
+  HI253WriteCmosSensor(0x9d, 0x50); 
   HI253WriteCmosSensor(0x9e, 0x01); //EXP Unit 
-  HI253WriteCmosSensor(0x9f, 0xf4); 
+  HI253WriteCmosSensor(0x9f, 0x38); 
   HI253WriteCmosSensor(0xa0, 0x03);
   HI253WriteCmosSensor(0xa1, 0xa9);
   HI253WriteCmosSensor(0xa2, 0x80);
@@ -954,74 +953,89 @@ void HI253InitSetting(void)
   HI253WriteCmosSensor(0xc9, 0x40); // DGMIN   
 
   HI253SetPage(0x22); 
-HI253WriteCmosSensor(0x10, 0xfd);
-HI253WriteCmosSensor(0x11, 0x2e);
-HI253WriteCmosSensor(0x19, 0x01);
-HI253WriteCmosSensor(0x20, 0x30);
-HI253WriteCmosSensor(0x21, 0x80);
-HI253WriteCmosSensor(0x24, 0x01);
-HI253WriteCmosSensor(0x30, 0x80);
-HI253WriteCmosSensor(0x31, 0x80);
-HI253WriteCmosSensor(0x38, 0x11);
-HI253WriteCmosSensor(0x39, 0x34);
-HI253WriteCmosSensor(0x40, 0xf7);
-HI253WriteCmosSensor(0x41, 0x55);
-HI253WriteCmosSensor(0x42, 0x33); //43
+  HI253WriteCmosSensor(0x10, 0xfd); // AWBCTL1
+  HI253WriteCmosSensor(0x11, 0x2e); // AWBCTL2
+  HI253WriteCmosSensor(0x19, 0x01); 
+  HI253WriteCmosSensor(0x20, 0x30);
+  HI253WriteCmosSensor(0x21, 0x80);
+  HI253WriteCmosSensor(0x23, 0x08);
+  HI253WriteCmosSensor(0x24, 0x01);
 
-HI253WriteCmosSensor(0x43, 0xf6);
-HI253WriteCmosSensor(0x44, 0x55); //44
-HI253WriteCmosSensor(0x45, 0x44); //33
+  HI253WriteCmosSensor(0x30, 0x80); // ULVL
+  HI253WriteCmosSensor(0x31, 0x80); // VLVL
+  HI253WriteCmosSensor(0x38, 0x11); // UVTH1
+  HI253WriteCmosSensor(0x39, 0x34); // UVTH2
+  HI253WriteCmosSensor(0x40, 0xf7); // YRANGE
 
-HI253WriteCmosSensor(0x46, 0x00);
-HI253WriteCmosSensor(0x50, 0xb2);
-HI253WriteCmosSensor(0x51, 0x81);
-HI253WriteCmosSensor(0x52, 0x98);
-HI253WriteCmosSensor(0x80, 0x30);//40
-HI253WriteCmosSensor(0x81, 0x20);
-HI253WriteCmosSensor(0x82, 0x3e);
-HI253WriteCmosSensor(0x83, 0x5E);
-HI253WriteCmosSensor(0x84, 0x1E);//1E
-HI253WriteCmosSensor(0x85, 0x5E);//52
-HI253WriteCmosSensor(0x86, 0x25);
-HI253WriteCmosSensor(0x87, 0x49);
-HI253WriteCmosSensor(0x88, 0x35);
-HI253WriteCmosSensor(0x89, 0x47);
-HI253WriteCmosSensor(0x8a, 0x28);
-HI253WriteCmosSensor(0x8b, 0x41);
-HI253WriteCmosSensor(0x8c, 0x39);
-HI253WriteCmosSensor(0x8d, 0x3f);
-HI253WriteCmosSensor(0x8e, 0x28);
-HI253WriteCmosSensor(0x8f, 0x53);
-HI253WriteCmosSensor(0x90, 0x52);
-HI253WriteCmosSensor(0x91, 0x50);
-HI253WriteCmosSensor(0x92, 0x4c);
-HI253WriteCmosSensor(0x93, 0x43);
-HI253WriteCmosSensor(0x94, 0x37);
-HI253WriteCmosSensor(0x95, 0x2f);//2a
-HI253WriteCmosSensor(0x96, 0x26);//24
-HI253WriteCmosSensor(0x97, 0x21);//20
-HI253WriteCmosSensor(0x98, 0x1e);
-HI253WriteCmosSensor(0x99, 0x1f);
-HI253WriteCmosSensor(0x9a, 0x20);
-HI253WriteCmosSensor(0x9b, 0x88);
-HI253WriteCmosSensor(0x9c, 0x88);
-HI253WriteCmosSensor(0x9d, 0x48);
-HI253WriteCmosSensor(0x9e, 0x38);
-HI253WriteCmosSensor(0x9f, 0x30);
-HI253WriteCmosSensor(0xa0, 0x60);
-HI253WriteCmosSensor(0xa1, 0x34);
-HI253WriteCmosSensor(0xa2, 0x6f);
-HI253WriteCmosSensor(0xa3, 0xff);
-HI253WriteCmosSensor(0xa4, 0x14);
-HI253WriteCmosSensor(0xa5, 0x2c);
-HI253WriteCmosSensor(0xa6, 0xcf);
-HI253WriteCmosSensor(0xad, 0x40);
-HI253WriteCmosSensor(0xae, 0x4a);
-HI253WriteCmosSensor(0xaf, 0x28);
-HI253WriteCmosSensor(0xb0, 0x26);
-HI253WriteCmosSensor(0xb1, 0x00);
-HI253WriteCmosSensor(0xb8, 0xa0);
-HI253WriteCmosSensor(0xb9, 0x00);
+  HI253WriteCmosSensor(0x41, 0x77); // CDIFF
+  HI253WriteCmosSensor(0x42, 0x55); // CSUM2
+  HI253WriteCmosSensor(0x43, 0xf0);
+  HI253WriteCmosSensor(0x44, 0x66);
+  HI253WriteCmosSensor(0x45, 0x33);
+  HI253WriteCmosSensor(0x46, 0x01); // WHTPXLTH1  
+  HI253WriteCmosSensor(0x47, 0x94);
+
+  HI253WriteCmosSensor(0x50, 0xb2);
+  HI253WriteCmosSensor(0x51, 0x81);
+  HI253WriteCmosSensor(0x52, 0x98);
+
+  HI253WriteCmosSensor(0x80, 0x38); // RGAIN
+  HI253WriteCmosSensor(0x81, 0x20); // GGAIN
+  HI253WriteCmosSensor(0x82, 0x38); // BGAIN
+
+  HI253WriteCmosSensor(0x83, 0x5e); // RMAX
+  HI253WriteCmosSensor(0x84, 0x20); // RMIN
+  HI253WriteCmosSensor(0x85, 0x53); // BMAX
+  HI253WriteCmosSensor(0x86, 0x15); // BMIN
+
+  HI253WriteCmosSensor(0x87, 0x54); // RMAXM
+  HI253WriteCmosSensor(0x88, 0x20); // RMINM
+  HI253WriteCmosSensor(0x89, 0x3f); // BMAXM 
+  HI253WriteCmosSensor(0x8a, 0x1c); // BMINM
+
+  HI253WriteCmosSensor(0x8b, 0x54); // RMAXB 
+  HI253WriteCmosSensor(0x8c, 0x3f); // RMINB
+  HI253WriteCmosSensor(0x8d, 0x24); // BMAXB
+  HI253WriteCmosSensor(0x8e, 0x1c); // BMINB
+
+  HI253WriteCmosSensor(0x8f, 0x60); // BGAINPARA1
+  HI253WriteCmosSensor(0x90, 0x5f); // BGAINPARA2
+  HI253WriteCmosSensor(0x91, 0x5c); // BGAINPARA3
+  HI253WriteCmosSensor(0x92, 0x4C); // BGAINPARA4
+  HI253WriteCmosSensor(0x93, 0x41); // BGAINPARA5
+  HI253WriteCmosSensor(0x94, 0x3b); // BGAINPARA6
+  HI253WriteCmosSensor(0x95, 0x36); // BGAINPARA7
+  HI253WriteCmosSensor(0x96, 0x30); // BGAINPARA8
+  HI253WriteCmosSensor(0x97, 0x27); // BGAINPARA9
+  HI253WriteCmosSensor(0x98, 0x20); // BGAINPARA10
+  HI253WriteCmosSensor(0x99, 0x1C); // BGAINPARA11
+  HI253WriteCmosSensor(0x9a, 0x19); // BGAINPARA12
+
+  HI253WriteCmosSensor(0x9b, 0x88); // BGAINBND1
+  HI253WriteCmosSensor(0x9c, 0x88); // BGAINBND2
+  HI253WriteCmosSensor(0x9d, 0x48); // RGAINTH1
+  HI253WriteCmosSensor(0x9e, 0x38); // RGAINTH2
+  HI253WriteCmosSensor(0x9f, 0x30); // RGAINTH3
+
+  HI253WriteCmosSensor(0xa0, 0x74); // RDELTA1
+  HI253WriteCmosSensor(0xa1, 0x35); // BDELTA1
+  HI253WriteCmosSensor(0xa2, 0xaf); // RDELTA2
+  HI253WriteCmosSensor(0xa3, 0xf7); // BDELTA2
+
+  HI253WriteCmosSensor(0xa4, 0x10); // AWBEXPLMT1
+  HI253WriteCmosSensor(0xa5, 0x50); // AWBEXPLMT2
+  HI253WriteCmosSensor(0xa6, 0xc4); // AWBEXPLMT3
+
+  HI253WriteCmosSensor(0xad, 0x40);
+  HI253WriteCmosSensor(0xae, 0x4a);
+
+  HI253WriteCmosSensor(0xaf, 0x2a);
+  HI253WriteCmosSensor(0xb0, 0x29);
+
+  HI253WriteCmosSensor(0xb1, 0x20);
+  HI253WriteCmosSensor(0xb4, 0xff);
+  HI253WriteCmosSensor(0xb8, 0x6b);
+  HI253WriteCmosSensor(0xb9, 0x00);
 
   HI253SetPage(0x24); 
   HI253WriteCmosSensor(0x10, 0x01); // AFCTL1
@@ -1059,7 +1073,6 @@ HI253WriteCmosSensor(0xb9, 0x00);
 
   HI253SetPage(0x00); 
   HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF
-  
   /*[END]*/
 }
 
@@ -1069,15 +1082,15 @@ void HI253InitPara(void)
   HI253Status.NightMode = KAL_FALSE;
   HI253Status.ZoomFactor = 0;
   HI253Status.Banding = AE_FLICKER_MODE_50HZ;
-  HI253Status.PvShutter = 0x17cdc;
+  HI253Status.PvShutter = 0x17c40;
   HI253Status.MaxFrameRate = HI253_MAX_FPS;
   HI253Status.MiniFrameRate = HI253_FPS(10);
-  HI253Status.PvDummyPixels = 360;
-  HI253Status.PvDummyLines = 20;
+  HI253Status.PvDummyPixels = 424;
+  HI253Status.PvDummyLines = 62;
   HI253Status.CapDummyPixels = 360;
-  HI253Status.CapDummyLines = 20; /* 10 FPS, 104 for 9.6 FPS*/
+  HI253Status.CapDummyLines = 52; /* 10 FPS, 104 for 9.6 FPS*/
   HI253Status.PvOpClk = 26;
-  HI253Status.CapOpClk = 26;
+  HI253Status.CapOpClk = 26;  
   HI253Status.VDOCTL2 = 0x90;
   HI253Status.ISPCTL3 = 0x30;
   HI253Status.AECTL1 = 0x9c;
@@ -1105,7 +1118,7 @@ void HI253InitPara(void)
 static void HI253SetMirror(kal_uint16 ImageMirror)
 {
 	spin_lock(&hi253_drv_lock);
-  HI253Status.VDOCTL2 &= 0xfc;
+  HI253Status.VDOCTL2 &= 0xfc;   
   spin_unlock(&hi253_drv_lock);
   switch (ImageMirror)
   {
@@ -1116,22 +1129,22 @@ static void HI253SetMirror(kal_uint16 ImageMirror)
       break;
     case IMAGE_V_MIRROR:
 		spin_lock(&hi253_drv_lock);
-      HI253Status.VDOCTL2 |= 0x02;
+      HI253Status.VDOCTL2 |= 0x02; 
 	  spin_unlock(&hi253_drv_lock);
       break;
     case IMAGE_HV_MIRROR:
 		spin_lock(&hi253_drv_lock);
-      HI253Status.VDOCTL2 |= 0x00;
+      HI253Status.VDOCTL2 |= 0x03;
 	  spin_unlock(&hi253_drv_lock);
       break;
     case IMAGE_NORMAL:
     default:
 		spin_lock(&hi253_drv_lock);
-      HI253Status.VDOCTL2 |= 0x03;
+      HI253Status.VDOCTL2 |= 0x00; 
 	  spin_unlock(&hi253_drv_lock);
   }
   HI253SetPage(0x00);
-  HI253WriteCmosSensor(0x11,HI253Status.VDOCTL2);
+  HI253WriteCmosSensor(0x11,HI253Status.VDOCTL2);  
 }
 
 static void HI253SetAeMode(kal_bool AeEnable)
@@ -1151,7 +1164,7 @@ static void HI253SetAeMode(kal_bool AeEnable)
 	spin_unlock(&hi253_drv_lock);
   }
   HI253SetPage(0x20);
-  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);
+  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);  
 }
 
 
@@ -1171,7 +1184,7 @@ static void HI253SetAwbMode(kal_bool AwbEnable)
 	spin_unlock(&hi253_drv_lock);
   }
   HI253SetPage(0x22);
-  HI253WriteCmosSensor(0x10,HI253Status.AWBCTL1);
+  HI253WriteCmosSensor(0x10,HI253Status.AWBCTL1);  
 }
 
 /*************************************************************************
@@ -1202,7 +1215,7 @@ void HI253NightMode(kal_bool Enable)
   spin_unlock(&hi253_drv_lock);
   LineLength = HI253_PV_PERIOD_PIXEL_NUMS + HI253Status.PvDummyPixels;
   BandingValue = (HI253Status.Banding == AE_FLICKER_MODE_50HZ) ? 100 : 120;
-
+  
   EXPTIME = (HI253Status.PvOpClk * 1000000 / LineLength / BandingValue) * BandingValue * LineLength * HI253_FRAME_RATE_UNIT / 8 / HI253Status.MaxFrameRate;
   EXPMAX = (HI253Status.PvOpClk * 1000000 / LineLength / BandingValue) * BandingValue * LineLength * HI253_FRAME_RATE_UNIT / 8 / HI253Status.MiniFrameRate;
   BLC_TIME_TH_ONOFF =  BandingValue * HI253_FRAME_RATE_UNIT / HI253Status.MiniFrameRate;
@@ -1214,38 +1227,38 @@ void HI253NightMode(kal_bool Enable)
   HI253SetPage(0x00);
   HI253WriteCmosSensor(0x01, 0xf9); // Sleep ON
   spin_lock(&hi253_drv_lock);
-  HI253Status.VDOCTL2 &= 0xfb;
+  HI253Status.VDOCTL2 &= 0xfb;   
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x11,HI253Status.VDOCTL2);  // Fixed frame rate OFF
-  HI253WriteCmosSensor(0x90, 0x0a); // BLC_TIME_TH_ON
-  HI253WriteCmosSensor(0x91, 0x0a); // BLC_TIME_TH_OFF
+  HI253WriteCmosSensor(0x11,HI253Status.VDOCTL2);  // Fixed frame rate OFF  
+  HI253WriteCmosSensor(0x90, BLC_TIME_TH_ONOFF); // BLC_TIME_TH_ON
+  HI253WriteCmosSensor(0x91, BLC_TIME_TH_ONOFF); // BLC_TIME_TH_OFF
   HI253WriteCmosSensor(0x92, 0x78); // BLC_AG_TH_ON
   HI253WriteCmosSensor(0x93, 0x70); // BLC_AG_TH_OFF
-  HI253SetPage(0x02);
-  HI253WriteCmosSensor(0xd4, 0x0a); // DCDC_TIME_TH_ON
-  HI253WriteCmosSensor(0xd5, 0x0a); // DCDC_TIME_TH_OFF
+  HI253SetPage(0x02); 
+  HI253WriteCmosSensor(0xd4, BLC_TIME_TH_ONOFF); // DCDC_TIME_TH_ON
+  HI253WriteCmosSensor(0xd5, BLC_TIME_TH_ONOFF); // DCDC_TIME_TH_OFF
   HI253WriteCmosSensor(0xd6, 0x78); // DCDC_AG_TH_ON
   HI253WriteCmosSensor(0xd7, 0x70); // DCDC_AG_TH_OFF
   HI253SetPage(0x20);
   spin_lock(&hi253_drv_lock);
-  HI253Status.AECTL1 &= (~0x80);
+  HI253Status.AECTL1 &= (~0x80);  
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7
+  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7    
   HI253WriteCmosSensor(0x18, 0x38); // AE Reset ON
   HI253WriteCmosSensor(0x11, 0x1c); // 0x35 for fixed frame rate
   HI253WriteCmosSensor(0x2a, 0xf0); // 0x35 for fixed frame rate
-  HI253WriteCmosSensor(0x2b, 0x34); // 0x35 for fixed frame rate, 0x34 for dynamic frame rate
-  //HI253WriteCmosSensor(0x83, 0x01); //EXP Normal 33.33 fps
-  //HI253WriteCmosSensor(0x84, 0x7c);
-  //HI253WriteCmosSensor(0x85, 0xdc);
-  HI253WriteCmosSensor(0x88, 0x04); //EXP Max 8.33 fps
-  HI253WriteCmosSensor(0x89, 0xf5);
-  HI253WriteCmosSensor(0x8a, 0x88);
-  HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF
+  HI253WriteCmosSensor(0x2b, 0x34); // 0x35 for fixed frame rate, 0x34 for dynamic frame rate  
+  HI253WriteCmosSensor(0x83, (EXPTIME>>16)&(0xff)); // EXPTIMEH max fps
+  HI253WriteCmosSensor(0x84, (EXPTIME>>8)&(0xff)); // EXPTIMEM
+  HI253WriteCmosSensor(0x85, (EXPTIME>>0)&(0xff)); // EXPTIMEL
+  HI253WriteCmosSensor(0x88, (EXPMAX>>16)&(0xff)); // EXPMAXH min fps init 0x04f380
+  HI253WriteCmosSensor(0x89, (EXPMAX>>8)&(0xff)); // EXPMAXM
+  HI253WriteCmosSensor(0x8a, (EXPMAX>>0)&(0xff)); // EXPMAXL
+  HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF  
   spin_lock(&hi253_drv_lock);
-  HI253Status.AECTL1 |= 0x80;
+  HI253Status.AECTL1 |= 0x80;   
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7
+  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7    
   HI253WriteCmosSensor(0x18, 0x30); // AE Reset OFF
 } /* HI253NightMode */
 
@@ -1278,7 +1291,7 @@ UINT32 HI253Open(void)
   SensorId = HI253ReadCmosSensor(0x04);
   Sleep(3);
   SENSORDB("[HI253]HI253Open: Sensor ID %x\n",SensorId);
-
+  
   if(SensorId != HI253_SENSOR_ID)
   {
     return ERROR_SENSOR_CONNECT_FAIL;
@@ -1295,10 +1308,10 @@ UINT32 HI253Open(void)
 *   HI253GetSensorID
 *
 * DESCRIPTION
-*   This function get the sensor ID
+*   This function get the sensor ID 
 *
 * PARAMETERS
-*   *sensorID : return the sensor ID
+*   *sensorID : return the sensor ID 
 *
 * RETURNS
 *   None
@@ -1306,21 +1319,21 @@ UINT32 HI253Open(void)
 * GLOBALS AFFECTED
 *
 *************************************************************************/
-UINT32 HI253GetSensorID(UINT32 *sensorID)
+UINT32 HI253GetSensorID(UINT32 *sensorID) 
 {
 	//1 software reset sensor and wait (to sensor)
 	HI253SetPage(0x00);
 	HI253WriteCmosSensor(0x01,0xf1);
 	HI253WriteCmosSensor(0x01,0xf3);
 	HI253WriteCmosSensor(0x01,0xf1);
-
+	
 	*sensorID = HI253ReadCmosSensor(0x04);
 	Sleep(3);
 	SENSORDB("[HI253]HI253GetSensorID: Sensor ID %x\n",*sensorID);
-
+	
 	if(*sensorID != HI253_SENSOR_ID)
 	{
-        *sensorID = 0xFFFFFFFF;
+        *sensorID = 0xFFFFFFFF; 
 	  return ERROR_SENSOR_CONNECT_FAIL;
 	}
 	return ERROR_NONE;
@@ -1367,7 +1380,7 @@ UINT32 HI253Close(void)
 UINT32 HI253Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                       MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
-  kal_uint32 LineLength, EXP100, EXP120, EXPMIN, EXPUNIT;
+  kal_uint32 LineLength, EXP100, EXP120, EXPMIN, EXPUNIT; 
 
   SENSORDB("\n\n\n\n\n\n");
   SENSORDB("[HI253]HI253Preview\n");
@@ -1375,72 +1388,71 @@ UINT32 HI253Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
   spin_lock(&hi253_drv_lock);
   HI253Status.MaxFrameRate = HI253_MAX_FPS;
   spin_unlock(&hi253_drv_lock);
-	HI253SetMirror(IMAGE_NORMAL);
+  HI253SetMirror(IMAGE_NORMAL);
 
 	spin_lock(&hi253_drv_lock);
-  HI253Status.PvDummyPixels = 360;
+  HI253Status.PvDummyPixels = 424;
   spin_unlock(&hi253_drv_lock);
   LineLength = HI253_PV_PERIOD_PIXEL_NUMS + HI253Status.PvDummyPixels;
   spin_lock(&hi253_drv_lock);
-  HI253Status.MiniFrameRate = HI253_FPS(10);
-  HI253Status.PvDummyLines = HI253Status.PvOpClk * 1000000 * HI253_FRAME_RATE_UNIT / LineLength / HI253Status.MaxFrameRate -  HI253_PV_PERIOD_LINE_NUMS;
+  HI253Status.MiniFrameRate = HI253_FPS(10);  
+  HI253Status.PvDummyLines = HI253Status.PvOpClk * 1000000 * HI253_FRAME_RATE_UNIT / LineLength / HI253Status.MaxFrameRate -  HI253_PV_PERIOD_LINE_NUMS; 
   spin_unlock(&hi253_drv_lock);
-
-  HI253SetPage(0x00);
-	HI253WriteCmosSensor(0x10, 0x10);
-	HI253WriteCmosSensor(0x11, 0x93);
-	HI253WriteCmosSensor(0x12, 0x04);
-	HI253WriteCmosSensor(0x20, 0x00); // WINROWH
-	HI253WriteCmosSensor(0x21, 0x04); // WINROWL
-	HI253WriteCmosSensor(0x22, 0x00); // WINCOLH
-	HI253WriteCmosSensor(0x23, 0x07); // WINCOLL
-
-	HI253WriteCmosSensor(0x3f, 0x00);
-	HI253WriteCmosSensor(0x40, 0x01); //Hblank 360
-	HI253WriteCmosSensor(0x41, 0x68);
-	HI253WriteCmosSensor(0x42, 0x00); //Vblank 18
-	HI253WriteCmosSensor(0x43, 0x14);
-       HI253WriteCmosSensor(0x3f, 0x02);
+  
+  HI253SetPage(0x00); 
+  HI253WriteCmosSensor(0x10, 0x13); 
+  HI253WriteCmosSensor(0x12, 0x04); 
+  HI253WriteCmosSensor(0x20, 0x00); // WINROWH
+  HI253WriteCmosSensor(0x21, 0x04); // WINROWL
+  HI253WriteCmosSensor(0x22, 0x00); // WINCOLH
+  HI253WriteCmosSensor(0x23, 0x07); // WINCOLL
+  
+  HI253WriteCmosSensor(0x3f, 0x00);
+  HI253WriteCmosSensor(0x40, (HI253Status.PvDummyPixels>>8)&0xff);
+  HI253WriteCmosSensor(0x41, (HI253Status.PvDummyPixels>>0)&0xff);
+  HI253WriteCmosSensor(0x42, (HI253Status.PvDummyLines>>8)&0xff);
+  HI253WriteCmosSensor(0x43, (HI253Status.PvDummyLines>>0)&0xff); 
+  HI253WriteCmosSensor(0x3f, 0x02);
 
   HI253SetPage(0x12);
-  HI253WriteCmosSensor(0x20, 0x0f);
-  HI253WriteCmosSensor(0x21, 0x0f);
-  HI253WriteCmosSensor(0x90, 0x5d);
+  HI253WriteCmosSensor(0x20, 0x00);
+  HI253WriteCmosSensor(0x21, 0x00);
+  HI253WriteCmosSensor(0x90, 0x00);  
   HI253SetPage(0x13);
-  HI253WriteCmosSensor(0x80, 0xfd);
+  HI253WriteCmosSensor(0x80, 0x00);
 
-  EXP100 = (HI253Status.PvOpClk * 1000000 / LineLength) * LineLength / 100 / 8;
-  EXP120 = (HI253Status.PvOpClk * 1000000 / LineLength) * LineLength / 120 / 8;
-  EXPMIN = EXPUNIT = LineLength / 4;
+  EXP100 = (HI253Status.PvOpClk * 1000000 / LineLength) * LineLength / 100 / 8; 
+  EXP120 = (HI253Status.PvOpClk * 1000000 / LineLength) * LineLength / 120 / 8; 
+  EXPMIN = EXPUNIT = LineLength / 4; 
 
   SENSORDB("[HI253]DummyPixel:%d DummyLine:%d; LineLenght:%d,Plck:%d\n",HI253Status.PvDummyPixels,HI253Status.PvDummyLines,LineLength,HI253Status.PvOpClk);
   SENSORDB("[HI253]EXP100:%d EXP120:%d;\n",EXP100,EXP120);
 
-	HI253SetPage(0x20);
-	// HI253WriteCmosSensor(0x83, 0x01); //EXP Normal 33.33 fps
-	// HI253WriteCmosSensor(0x84, 0x7c);
-	// HI253WriteCmosSensor(0x85, 0xdc);
-	HI253WriteCmosSensor(0x86, 0x01); //EXPMin 6500.00 fps
-	HI253WriteCmosSensor(0x87, 0xf4);
-	HI253WriteCmosSensor(0x8B, 0x7e); //EXP100
-	HI253WriteCmosSensor(0x8C, 0xf4);
-	HI253WriteCmosSensor(0x8D, 0x69); //EXP120
-	HI253WriteCmosSensor(0x8E, 0x78);
-	HI253WriteCmosSensor(0x9c, 0x0b); //EXP Limit 541.67 fps
-	HI253WriteCmosSensor(0x9d, 0xb8);
-	HI253WriteCmosSensor(0x9e, 0x01); //EXP Unit
-	HI253WriteCmosSensor(0x9f, 0xf4);
-
-	HI253SetAeMode(KAL_TRUE);
-	HI253SetAwbMode(KAL_TRUE);
-
-	return ERROR_NONE;
+  HI253SetPage(0x20);
+  HI253WriteCmosSensor(0x83, (HI253Status.PvShutter >> 16) & 0xFF);
+  HI253WriteCmosSensor(0x84, (HI253Status.PvShutter >> 8) & 0xFF);
+  HI253WriteCmosSensor(0x85, HI253Status.PvShutter & 0xFF);  
+  HI253WriteCmosSensor(0x86, (EXPMIN>>8)&0xff);//EXPMIN
+  HI253WriteCmosSensor(0x87, (EXPMIN>>0)&0xff);
+  HI253WriteCmosSensor(0x8b, (EXP100>>8)&0xff);//EXP100
+  HI253WriteCmosSensor(0x8c, (EXP100>>0)&0xff);
+  HI253WriteCmosSensor(0x8d, (EXP120>>8)&0xff);//EXP120
+  HI253WriteCmosSensor(0x8e, (EXP120>>0)&0xff);
+  HI253WriteCmosSensor(0x9c, (HI253_PV_EXPOSURE_LIMITATION>>8)&0xff);
+  HI253WriteCmosSensor(0x9d, (HI253_PV_EXPOSURE_LIMITATION>>0)&0xff);  
+  HI253WriteCmosSensor(0x9e, (EXPUNIT>>8)&0xff);//EXP Unit
+  HI253WriteCmosSensor(0x9f, (EXPUNIT>>0)&0xff);
+  
+  HI253SetAeMode(KAL_TRUE);
+  HI253SetAwbMode(KAL_TRUE);
+  
+  return ERROR_NONE;
 }/* HI253Preview() */
 
 UINT32 HI253Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                       MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
-  kal_uint32 LineLength, EXP100, EXP120, EXPMIN, EXPUNIT, CapShutter;
+  kal_uint32 LineLength, EXP100, EXP120, EXPMIN, EXPUNIT, CapShutter; 
   kal_uint8 ClockDivider;
   kal_uint32 temp;
   SENSORDB("\n\n\n\n\n\n");
@@ -1457,20 +1469,19 @@ UINT32 HI253Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
   HI253SetPage(0x20);
   temp=(HI253ReadCmosSensor(0x80) << 16)|(HI253ReadCmosSensor(0x81) << 8)|HI253ReadCmosSensor(0x82);
   spin_lock(&hi253_drv_lock);
-  HI253Status.PvShutter = temp;
+  HI253Status.PvShutter = temp;  
   spin_unlock(&hi253_drv_lock);
 
-  // 1600*1200
-  HI253SetPage(0x00);
+  // 1600*1200   
+  HI253SetPage(0x00);  
   HI253WriteCmosSensor(0x10,0x00);
- HI253WriteCmosSensor(0x11, 0x93);
-  HI253WriteCmosSensor(0x3f,0x00);
-  HI253SetPage(0x12);
+  HI253WriteCmosSensor(0x3f,0x00);  
+  HI253SetPage(0x12); 
   HI253WriteCmosSensor(0x20, 0x0f);
   HI253WriteCmosSensor(0x21, 0x0f);
-  HI253WriteCmosSensor(0x90, 0x5d);
+  HI253WriteCmosSensor(0x90, 0x5d);    
   HI253SetPage(0x13);
-  HI253WriteCmosSensor(0x80, 0xfd);
+  HI253WriteCmosSensor(0x80, 0xfd);   
   /*capture 1600*1200 start x, y*/
   HI253SetPage(0x00);
   HI253WriteCmosSensor(0x20, 0x00); // WINROWH
@@ -1479,35 +1490,35 @@ UINT32 HI253Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
   HI253WriteCmosSensor(0x23, 0x19); // WINCOLL
   spin_lock(&hi253_drv_lock);
   HI253Status.CapDummyPixels = 360;
-  HI253Status.CapDummyLines = 20; /* 10 FPS, 104 for 9.6 FPS*/
+  HI253Status.CapDummyLines = 52; /* 10 FPS, 104 for 9.6 FPS*/
   spin_unlock(&hi253_drv_lock);
   LineLength = HI253_FULL_PERIOD_PIXEL_NUMS + HI253Status.CapDummyPixels;
   spin_lock(&hi253_drv_lock);
-  HI253Status.CapOpClk = 26;
+  HI253Status.CapOpClk = 26;  
   spin_unlock(&hi253_drv_lock);
-  EXP100 = (HI253Status.CapOpClk * 1000000 / LineLength) * LineLength / 100 / 8;
-  EXP120 = (HI253Status.CapOpClk * 1000000 / LineLength) * LineLength / 120 / 8;
-  EXPMIN = EXPUNIT = LineLength / 4;
-
+  EXP100 = (HI253Status.CapOpClk * 1000000 / LineLength) * LineLength / 100 / 8; 
+  EXP120 = (HI253Status.CapOpClk * 1000000 / LineLength) * LineLength / 120 / 8; 
+  EXPMIN = EXPUNIT = LineLength / 4; 
+  
   HI253SetPage(0x20);
-	HI253WriteCmosSensor(0x86, 0x01); //EXPMin 6500.00 fps
-	HI253WriteCmosSensor(0x87, 0xf4);
-	HI253WriteCmosSensor(0x8B, 0x7e); //EXP100
-	HI253WriteCmosSensor(0x8C, 0xf4);
-	HI253WriteCmosSensor(0x8D, 0x69); //EXP120
-	HI253WriteCmosSensor(0x8E, 0x78);
-	HI253WriteCmosSensor(0x9c, 0x0b); //EXP Limit 541.67 fps
-	HI253WriteCmosSensor(0x9d, 0xb8);
-	HI253WriteCmosSensor(0x9e, 0x01); //EXP Unit
-	HI253WriteCmosSensor(0x9f, 0xf4);
+  HI253WriteCmosSensor(0x86, (EXPMIN>>8)&0xff);//EXPMIN
+  HI253WriteCmosSensor(0x87, (EXPMIN>>0)&0xff);
+  HI253WriteCmosSensor(0x8b, (EXP100>>8)&0xff);//EXP100
+  HI253WriteCmosSensor(0x8c, (EXP100>>0)&0xff);
+  HI253WriteCmosSensor(0x8d, (EXP120>>8)&0xff);//EXP120
+  HI253WriteCmosSensor(0x8e, (EXP120>>0)&0xff);  
+  HI253WriteCmosSensor(0x9c, (HI253_FULL_EXPOSURE_LIMITATION>>8)&0xff);
+  HI253WriteCmosSensor(0x9d, (HI253_FULL_EXPOSURE_LIMITATION>>0)&0xff);  
+  HI253WriteCmosSensor(0x9e, (EXPUNIT>>8)&0xff);//EXP Unit
+  HI253WriteCmosSensor(0x9f, (EXPUNIT>>0)&0xff);
 
-	HI253SetPage(0x00);
-	HI253WriteCmosSensor(0x40, 0x01); //Hblank 360
-	HI253WriteCmosSensor(0x41, 0x68);
-	HI253WriteCmosSensor(0x42, 0x00); //Vblank 18
-	HI253WriteCmosSensor(0x43, 0x14);
+  HI253SetPage(0x00); 
+  HI253WriteCmosSensor(0x40, (HI253Status.CapDummyPixels>>8)&0xff);
+  HI253WriteCmosSensor(0x41, (HI253Status.CapDummyPixels>>0)&0xff);
+  HI253WriteCmosSensor(0x42, (HI253Status.CapDummyLines>>8)&0xff);
+  HI253WriteCmosSensor(0x43, (HI253Status.CapDummyLines>>0)&0xff);     
 
-  if(HI253Status.ZoomFactor > 8)
+  if(HI253Status.ZoomFactor > 8)   
   {
     ClockDivider = 1; //Op CLock 13M
   }
@@ -1520,12 +1531,12 @@ UINT32 HI253Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
   CapShutter = HI253Status.PvShutter >> ClockDivider;
   if(CapShutter<1)      CapShutter = 1;
 
-	HI253SetPage(0x20);
-	//HI253WriteCmosSensor(0x83, (CapShutter >> 16) & 0xFF);
-	//HI253WriteCmosSensor(0x84, (CapShutter >> 8) & 0xFF);
-	//HI253WriteCmosSensor(0x85, CapShutter & 0xFF);
-	HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF
-	return ERROR_NONE;
+  HI253SetPage(0x20);
+  HI253WriteCmosSensor(0x83, (CapShutter >> 16) & 0xFF);
+  HI253WriteCmosSensor(0x84, (CapShutter >> 8) & 0xFF);
+  HI253WriteCmosSensor(0x85, CapShutter & 0xFF);  
+  HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF  
+  return ERROR_NONE;
 } /* HI253Capture() */
 
 UINT32 HI253GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution)
@@ -1534,9 +1545,6 @@ UINT32 HI253GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution)
   pSensorResolution->SensorFullHeight = HI253_FULL_HEIGHT;
   pSensorResolution->SensorPreviewWidth = HI253_PV_WIDTH;
   pSensorResolution->SensorPreviewHeight = HI253_PV_HEIGHT;
-
-  pSensorResolution->SensorVideoWidth=HI253_PV_WIDTH;
-  pSensorResolution->SensorVideoHeight=HI253_PV_HEIGHT;
   return ERROR_NONE;
 } /* HI253GetResolution() */
 
@@ -1555,7 +1563,7 @@ UINT32 HI253GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
   pSensorInfo->SensorWebCamCaptureFrameRate=15;
   pSensorInfo->SensorResetActiveHigh=FALSE;
   pSensorInfo->SensorResetDelayCount=1;
-  pSensorInfo->SensorOutputDataFormat=SENSOR_OUTPUT_FORMAT_UYVY;//SENSOR_OUTPUT_FORMAT_YUYV; // back for 16 SENSOR_OUTPUT_FORMAT_UYVY;
+  pSensorInfo->SensorOutputDataFormat=SENSOR_OUTPUT_FORMAT_YUYV; // back for 16 SENSOR_OUTPUT_FORMAT_UYVY;
   pSensorInfo->SensorClockPolarity=SENSOR_CLOCK_POLARITY_LOW;
   pSensorInfo->SensorClockFallingPolarity=SENSOR_CLOCK_POLARITY_LOW;
   pSensorInfo->SensorHsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
@@ -1563,18 +1571,43 @@ UINT32 HI253GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
   pSensorInfo->SensorInterruptDelayLines = 1;
   pSensorInfo->SensroInterfaceType=SENSOR_INTERFACE_TYPE_PARALLEL;
 
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].ISOSupported=TRUE;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_100_MODE].BinningEnable=FALSE;
 
-  pSensorInfo->CaptureDelayFrame = 2;
-  pSensorInfo->PreviewDelayFrame = 1;
-  pSensorInfo->VideoDelayFrame = 2;
-  pSensorInfo->SensorMasterClockSwitch = 0;
-  pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].ISOSupported=TRUE;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_200_MODE].BinningEnable=FALSE;
+
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].MaxWidth=CAM_SIZE_5M_WIDTH;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].MaxHeight=CAM_SIZE_5M_HEIGHT;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].ISOSupported=TRUE;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_400_MODE].BinningEnable=FALSE;
+
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].MaxWidth=CAM_SIZE_1M_WIDTH;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].MaxHeight=CAM_SIZE_1M_HEIGHT;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].ISOSupported=TRUE;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_800_MODE].BinningEnable=TRUE;
+
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].MaxWidth=CAM_SIZE_1M_WIDTH;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].MaxHeight=CAM_SIZE_1M_HEIGHT;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].ISOSupported=TRUE;
+  pSensorInfo->SensorISOBinningInfo.ISOBinningInfo[ISO_1600_MODE].BinningEnable=TRUE;
+  pSensorInfo->CaptureDelayFrame = 3; 
+  pSensorInfo->PreviewDelayFrame = 3; 
+  pSensorInfo->VideoDelayFrame = 4; 
+  pSensorInfo->SensorMasterClockSwitch = 0; 
+  pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA; 
 
   switch (ScenarioId)
   {
     case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
     case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
+    case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
     case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
+    case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
     default:
       pSensorInfo->SensorClockFreq=26;
       pSensorInfo->SensorClockDividCount=3;
@@ -1582,7 +1615,7 @@ UINT32 HI253GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
       pSensorInfo->SensorClockFallingCount=2;
       pSensorInfo->SensorPixelClockCount=3;
       pSensorInfo->SensorDataLatchCount=2;
-      pSensorInfo->SensorGrabStartX = HI253_GRAB_START_X;
+      pSensorInfo->SensorGrabStartX = HI253_GRAB_START_X; 
       pSensorInfo->SensorGrabStartY = HI253_GRAB_START_Y;
       break;
   }
@@ -1597,13 +1630,15 @@ UINT32 HI253Control(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WINDO
   {
   case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
   case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
+  case MSDK_SCENARIO_ID_VIDEO_CAPTURE_MPEG4:
     HI253Preview(pImageWindow, pSensorConfigData);
     break;
   case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
+  case MSDK_SCENARIO_ID_CAMERA_CAPTURE_MEM:
     HI253Capture(pImageWindow, pSensorConfigData);
     break;
   default:
-    break;
+    break; 
   }
   return TRUE;
 } /* HI253Control() */
@@ -1616,20 +1651,12 @@ BOOL HI253SetWb(UINT16 Para)
   {
     case AWB_MODE_OFF:
       HI253SetAwbMode(KAL_FALSE);
-      break;
+      break;                     
     case AWB_MODE_AUTO:
       HI253SetAwbMode(KAL_TRUE);
-      HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x2e);
-      HI253WriteCmosSensor(0x83, 0x5e);
-      HI253WriteCmosSensor(0x84, 0x1e);
-      HI253WriteCmosSensor(0x85, 0x5e);
-      HI253WriteCmosSensor(0x86, 0x25);
       break;
     case AWB_MODE_CLOUDY_DAYLIGHT: //cloudy
       HI253SetAwbMode(KAL_FALSE);
-      HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x28);
       HI253WriteCmosSensor(0x80, 0x49);
       HI253WriteCmosSensor(0x81, 0x20);
       HI253WriteCmosSensor(0x82, 0x24);
@@ -1640,8 +1667,6 @@ BOOL HI253SetWb(UINT16 Para)
       break;
     case AWB_MODE_DAYLIGHT: //sunny
       HI253SetAwbMode(KAL_FALSE);
-      HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x28);
       HI253WriteCmosSensor(0x80, 0x45);
       HI253WriteCmosSensor(0x81, 0x20);
       HI253WriteCmosSensor(0x82, 0x27);
@@ -1652,8 +1677,6 @@ BOOL HI253SetWb(UINT16 Para)
       break;
     case AWB_MODE_INCANDESCENT: //office
       HI253SetAwbMode(KAL_FALSE);
-	HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x28);
       HI253WriteCmosSensor(0x80, 0x33);
       HI253WriteCmosSensor(0x81, 0x20);
       HI253WriteCmosSensor(0x82, 0x3d);
@@ -1664,8 +1687,6 @@ BOOL HI253SetWb(UINT16 Para)
       break;
     case AWB_MODE_TUNGSTEN: //home
       HI253SetAwbMode(KAL_FALSE);
-	HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x28);
       HI253WriteCmosSensor(0x80, 0x25);
       HI253WriteCmosSensor(0x81, 0x20);
       HI253WriteCmosSensor(0x82, 0x44);
@@ -1676,8 +1697,6 @@ BOOL HI253SetWb(UINT16 Para)
       break;
     case AWB_MODE_FLUORESCENT:
       HI253SetAwbMode(KAL_FALSE);
-	HI253WriteCmosSensor(0x03, 0x22);
-      HI253WriteCmosSensor(0x11, 0x28);
       HI253WriteCmosSensor(0x80, 0x45);
       HI253WriteCmosSensor(0x81, 0x20);
       HI253WriteCmosSensor(0x82, 0x2f);
@@ -1688,7 +1707,7 @@ BOOL HI253SetWb(UINT16 Para)
     default:
       return KAL_FALSE;
   }
-  return KAL_TRUE;
+  return KAL_TRUE;      
 } /* HI253SetWb */
 
 BOOL HI253SetEffect(UINT16 Para)
@@ -1697,16 +1716,18 @@ BOOL HI253SetEffect(UINT16 Para)
   switch (Para)
   {
     case MEFFECT_OFF:
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x30);
-      HI253WriteCmosSensor(0x13, 0x0a);
+      HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       break;
     case MEFFECT_SEPIA:
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x23);
       HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       HI253WriteCmosSensor(0x44, 0x70);
       HI253WriteCmosSensor(0x45, 0x98);
       HI253WriteCmosSensor(0x47, 0x7f);
@@ -1715,10 +1736,11 @@ BOOL HI253SetEffect(UINT16 Para)
       HI253WriteCmosSensor(0x21, 0x07);
       break;
     case MEFFECT_NEGATIVE://----datasheet
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x28);
       HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       HI253WriteCmosSensor(0x44, 0x80);
       HI253WriteCmosSensor(0x45, 0x80);
       HI253WriteCmosSensor(0x47, 0x7f);
@@ -1727,10 +1749,11 @@ BOOL HI253SetEffect(UINT16 Para)
       HI253WriteCmosSensor(0x21, 0x07);
       break;
     case MEFFECT_SEPIAGREEN://----datasheet aqua
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x23);
       HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       HI253WriteCmosSensor(0x44, 0x80);
       HI253WriteCmosSensor(0x45, 0x04);
       HI253WriteCmosSensor(0x47, 0x7f);
@@ -1739,10 +1762,11 @@ BOOL HI253SetEffect(UINT16 Para)
       HI253WriteCmosSensor(0x21, 0x07);
       break;
     case MEFFECT_SEPIABLUE:
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x23);
       HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       HI253WriteCmosSensor(0x44, 0xb0);
       HI253WriteCmosSensor(0x45, 0x40);
       HI253WriteCmosSensor(0x47, 0x7f);
@@ -1751,10 +1775,11 @@ BOOL HI253SetEffect(UINT16 Para)
       HI253WriteCmosSensor(0x21, 0x07);
       break;
     case MEFFECT_MONO: //----datasheet black & white
-      HI253SetPage(0x10);
+      HI253SetPage(0x10);  
       HI253WriteCmosSensor(0x11, 0x03);
       HI253WriteCmosSensor(0x12, 0x23);
       HI253WriteCmosSensor(0x13, 0x00);
+      HI253WriteCmosSensor(0x40, 0x00);
       HI253WriteCmosSensor(0x44, 0x80);
       HI253WriteCmosSensor(0x45, 0x80);
       HI253WriteCmosSensor(0x47, 0x7f);
@@ -1775,7 +1800,7 @@ BOOL HI253SetBanding(UINT16 Para)
   spin_lock(&hi253_drv_lock);
   HI253Status.Banding = Para;
   spin_unlock(&hi253_drv_lock);
-  if (HI253Status.Banding == AE_FLICKER_MODE_50HZ)
+  if (HI253Status.Banding == AE_FLICKER_MODE_50HZ) 
   	{
   	spin_lock(&hi253_drv_lock);
     HI253Status.AECTL1 |= 0x10;
@@ -1784,11 +1809,11 @@ BOOL HI253SetBanding(UINT16 Para)
   else
   	{
   	spin_lock(&hi253_drv_lock);
-    HI253Status.AECTL1 &= (~0x10);
+    HI253Status.AECTL1 &= (~0x10); 
 	spin_unlock(&hi253_drv_lock);
   	}
-
-  HI253SetPage(0x20);
+  
+  HI253SetPage(0x20);  
   HI253WriteCmosSensor(0x10,HI253Status.AECTL1);
   return TRUE;
 } /* HI253SetBanding */
@@ -1796,12 +1821,12 @@ BOOL HI253SetBanding(UINT16 Para)
 BOOL HI253SetExposure(UINT16 Para)
 {
   SENSORDB("[HI253]HI253SetExposure Para:%d;\n",Para);
-  HI253SetPage(0x10);
+  HI253SetPage(0x10);  
   spin_lock(&hi253_drv_lock);
   HI253Status.ISPCTL3 |= 0x10;
   spin_unlock(&hi253_drv_lock);
   HI253WriteCmosSensor(0x12,HI253Status.ISPCTL3);//make sure the Yoffset control is opened.
-
+  
   switch (Para)
   {
     case AE_EV_COMP_n13:              /* EV -2 */
@@ -1816,8 +1841,8 @@ BOOL HI253SetExposure(UINT16 Para)
     case AE_EV_COMP_n03:              /* EV -0.5 */
       HI253WriteCmosSensor(0x40,0x98);
       break;
-    case AE_EV_COMP_00:                /* EV 0 */\
-      HI253WriteCmosSensor(0x40,0x80);
+    case AE_EV_COMP_00:                /* EV 0 */
+      HI253WriteCmosSensor(0x40,0x85);
       break;
     case AE_EV_COMP_03:              /* EV +0.5 */
       HI253WriteCmosSensor(0x40,0x18);
@@ -1843,13 +1868,13 @@ UINT32 HI253YUVSensorSetting(FEATURE_ID Cmd, UINT32 Para)
     case FID_SCENE_MODE:
       if (Para == SCENE_MODE_OFF)
       {
-        HI253NightMode(KAL_FALSE);
+        HI253NightMode(KAL_FALSE); 
       }
       else if (Para == SCENE_MODE_NIGHTSCENE)
       {
-        HI253NightMode(KAL_TRUE);
-      }
-      break;
+        HI253NightMode(KAL_TRUE); 
+      }  
+      break; 
     case FID_AWB_MODE:
       HI253SetWb(Para);
       break;
@@ -1862,16 +1887,16 @@ UINT32 HI253YUVSensorSetting(FEATURE_ID Cmd, UINT32 Para)
     case FID_AE_FLICKER:
       HI253SetBanding(Para);
       break;
-    case FID_AE_SCENE_MODE:
-      if (Para == AE_MODE_OFF)
+    case FID_AE_SCENE_MODE: 
+      if (Para == AE_MODE_OFF) 
       {
         HI253SetAeMode(KAL_FALSE);
       }
-      else
+      else 
       {
         HI253SetAeMode(KAL_TRUE);
       }
-      break;
+      break; 
     case FID_ZOOM_FACTOR:
       SENSORDB("[HI253]ZoomFactor :%d;\n",Para);
 	  spin_lock(&hi253_drv_lock);
@@ -1886,10 +1911,9 @@ UINT32 HI253YUVSensorSetting(FEATURE_ID Cmd, UINT32 Para)
 
 UINT32 HI253YUVSetVideoMode(UINT16 FrameRate)
 {
-  return;
   kal_uint32 EXPFIX, BLC_TIME_TH_ONOFF;
   kal_uint32 LineLength,BandingValue;
-
+  
   SENSORDB("[HI253]HI253YUVSetVideoMode FrameRate:%d;\n",FrameRate);
   if (FrameRate * HI253_FRAME_RATE_UNIT > HI253_MAX_FPS)
     return -1;
@@ -1898,9 +1922,9 @@ UINT32 HI253YUVSetVideoMode(UINT16 FrameRate)
   spin_unlock(&hi253_drv_lock);
   LineLength = HI253_PV_PERIOD_PIXEL_NUMS + HI253Status.PvDummyPixels;
   BandingValue = (HI253Status.Banding == AE_FLICKER_MODE_50HZ) ? 100 : 120;
-
+  
   EXPFIX = (HI253Status.PvOpClk * 1000000 / LineLength / BandingValue) * BandingValue * LineLength * HI253_FRAME_RATE_UNIT / 8 / HI253Status.MiniFrameRate;
-
+  
   BLC_TIME_TH_ONOFF =  BandingValue * HI253_FRAME_RATE_UNIT / HI253Status.MiniFrameRate;
 
   SENSORDB("[HI253]LineLenght:%d,BandingValue:%d\n",LineLength,BandingValue);
@@ -1909,48 +1933,43 @@ UINT32 HI253YUVSetVideoMode(UINT16 FrameRate)
   HI253SetPage(0x00);
   HI253WriteCmosSensor(0x01, 0xf9); // Sleep ON
   spin_lock(&hi253_drv_lock);
-  HI253Status.VDOCTL2 |= 0x04;
+  HI253Status.VDOCTL2 |= 0x04;   
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x11, 0x93); //HI253Status.VDOCTL2);  // Fixed frame rate OFF
-  HI253WriteCmosSensor(0x90, 0x0a); // BLC_TIME_TH_ON
-  HI253WriteCmosSensor(0x91, 0x0a); // BLC_TIME_TH_OFF
+  HI253WriteCmosSensor(0x11,HI253Status.VDOCTL2);  // Fixed frame rate OFF    
+  HI253WriteCmosSensor(0x90, BLC_TIME_TH_ONOFF); // BLC_TIME_TH_ON
+  HI253WriteCmosSensor(0x91, BLC_TIME_TH_ONOFF); // BLC_TIME_TH_OFF
   HI253WriteCmosSensor(0x92, 0x78); // BLC_AG_TH_ON
   HI253WriteCmosSensor(0x93, 0x70); // BLC_AG_TH_OFF
   HI253WriteCmosSensor(0x03, 0x02); // Page 2
-  HI253WriteCmosSensor(0xd4, 0x0a); // DCDC_TIME_TH_ON
-  HI253WriteCmosSensor(0xd5, 0x0a); // DCDC_TIME_TH_OFF
+  HI253WriteCmosSensor(0xd4, BLC_TIME_TH_ONOFF); // DCDC_TIME_TH_ON
+  HI253WriteCmosSensor(0xd5, BLC_TIME_TH_ONOFF); // DCDC_TIME_TH_OFF
   HI253WriteCmosSensor(0xd6, 0x78); // DCDC_AG_TH_ON
   HI253WriteCmosSensor(0xd7, 0x70); // DCDC_AG_TH_OFF
-
+  
   HI253SetPage(0x20);
   spin_lock(&hi253_drv_lock);
   HI253Status.AECTL1 &= (~0x80);
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7
+  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7    
   HI253WriteCmosSensor(0x18, 0x38); // AE Reset ON
   HI253WriteCmosSensor(0x11, 0x00); // 0x35 for fixed frame rate
   HI253WriteCmosSensor(0x2a, 0x03); // 0x35 for fixed frame rate
-  HI253WriteCmosSensor(0x2b, 0x35); // 0x35 for fixed frame rate, 0x34 for dynamic frame rate
- // HI253WriteCmosSensor(0x83, 0x01); //EXP Normal 33.33 fps
- // HI253WriteCmosSensor(0x84, 0x7c);
- // HI253WriteCmosSensor(0x85, 0xdc);
-  HI253WriteCmosSensor(0x88, 0x04); //EXP Max 8.33 fps
-  HI253WriteCmosSensor(0x89, 0xf5);
-  HI253WriteCmosSensor(0x8a, 0x88);
-HI253WriteCmosSensor(0x9c, 0x0b); //EXP Limit 541.67 fps
-HI253WriteCmosSensor(0x9d, 0xb8);
-HI253WriteCmosSensor(0x9e, 0x01); //EXP Unit
-HI253WriteCmosSensor(0x9f, 0xf4);
-
-  /*HI253WriteCmosSensor(0x91, 0x06); //EXP Fix 8.00 fps
-  HI253WriteCmosSensor(0x92, 0x32);
-  HI253WriteCmosSensor(0x93, 0xea);*/
+  HI253WriteCmosSensor(0x2b, 0x35); // 0x35 for fixed frame rate, 0x34 for dynamic frame rate  
+  HI253WriteCmosSensor(0x83, (EXPFIX>>16)&(0xff)); // EXPTIMEH max fps
+  HI253WriteCmosSensor(0x84, (EXPFIX>>8)&(0xff)); // EXPTIMEM
+  HI253WriteCmosSensor(0x85, (EXPFIX>>0)&(0xff)); // EXPTIMEL
+  HI253WriteCmosSensor(0x88, (EXPFIX>>16)&(0xff)); // EXPMAXH min fps
+  HI253WriteCmosSensor(0x89, (EXPFIX>>8)&(0xff)); // EXPMAXM
+  HI253WriteCmosSensor(0x8a, (EXPFIX>>0)&(0xff)); // EXPMAXL
+  HI253WriteCmosSensor(0x91, (EXPFIX>>16)&(0xff)); // EXPMAXH min fps
+  HI253WriteCmosSensor(0x92, (EXPFIX>>8)&(0xff)); // EXPMAXM
+  HI253WriteCmosSensor(0x93, (EXPFIX>>0)&(0xff)); // EXPMAXL  
   HI253WriteCmosSensor(0x01, 0xf8); // Sleep OFF
   spin_lock(&hi253_drv_lock);
   HI253Status.AECTL1 |= 0x80;
   spin_unlock(&hi253_drv_lock);
-  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7
-  HI253WriteCmosSensor(0x18, 0x30); // AE Reset OFF
+  HI253WriteCmosSensor(0x10,HI253Status.AECTL1);// AE ON BIT 7    
+  HI253WriteCmosSensor(0x18, 0x30); // AE Reset OFF  
   return TRUE;
 }
 
@@ -2014,7 +2033,7 @@ UINT32 HI253FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
     case SENSOR_FEATURE_GET_GROUP_COUNT:
       *pFeatureReturnPara32++=0;
       *pFeatureParaLen=4;
-      break;
+      break; 
     case SENSOR_FEATURE_GET_LENS_DRIVER_ID:
       // get the lens driver ID from EEPROM or just return LENS_DRIVER_ID_DO_NOT_CARE
       // if EEPROM does not exist in camera module.
@@ -2026,10 +2045,10 @@ UINT32 HI253FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
       break;
     case SENSOR_FEATURE_SET_VIDEO_MODE:
       HI253YUVSetVideoMode(*pFeatureData16);
-      break;
+      break; 
   case SENSOR_FEATURE_CHECK_SENSOR_ID:
-	  HI253GetSensorID(pFeatureReturnPara32);
-	  break;
+	  HI253GetSensorID(pFeatureReturnPara32); 
+	  break; 
     default:
       break;
   }

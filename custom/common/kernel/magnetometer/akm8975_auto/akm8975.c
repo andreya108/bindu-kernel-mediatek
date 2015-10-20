@@ -1,38 +1,3 @@
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- *
- * The following software/firmware and/or related documentation ("MediaTek Software")
- * have been modified by MediaTek Inc. All revisions are subject to any receiver's
- * applicable license agreements with MediaTek Inc.
- */
-
 /* akm8975.c - akm8975 compass driver
  * 
  *
@@ -65,52 +30,13 @@
 #include <linux/hwmsen_dev.h>
 #include <linux/sensors_io.h>
 
-
-//#ifdef MT6516
-//#include <mach/mt6516_devs.h>
-//#include <mach/mt6516_typedefs.h>
-//#include <mach/mt6516_gpio.h>
-//#include <mach/mt6516_pll.h>
-//#endif
-
-//#ifdef MT6573
-//#include <mach/mt6573_devs.h>
-//#include <mach/mt6573_typedefs.h>
-//#include <mach/mt6573_gpio.h>
-//#include <mach/mt6573_pll.h>
-//#endif
-
-//#ifdef MT6575
-
-//#include <mach/mt6575_devs.h>
-//#include <mach/mt6575_typedefs.h>
-//#include <mach/mt6575_gpio.h>
-//#include <mach/mt6575_pm_ldo.h>
-//#endif
-
-//#ifdef MT6577
-//#include <mach/mt_devs.h>
 #include <mach/mt_typedefs.h>
 #include <mach/mt_gpio.h>
 #include <mach/mt_pm_ldo.h>
-//#endif
-
 
 /*-------------------------MT6516&MT6573 define-------------------------------*/
-//#ifdef MT6516
-//#define POWER_NONE_MACRO MT6516_POWER_NONE
-//#endif
 
-//#ifdef MT6573
-//#define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
-
-//#ifdef MT6575
-//#define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
-//#ifdef MT6577
 #define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
 
 
 #include <cust_mag.h>
@@ -130,13 +56,13 @@
 #define AKM8975_DEFAULT_DELAY	100
 
 #if AKM8975_DEBUG_MSG
-#define AKMDBG(format, ...)	printk(KERN_ERR "AKM8975 " format "\n", ## __VA_ARGS__)
+#define AKMDBG(format, ...)	printk(KERN_INFO "AKM8975 " format "\n", ## __VA_ARGS__)
 #else
 #define AKMDBG(format, ...)
 #endif
 
 #if AKM8975_DEBUG_FUNC
-#define AKMFUNC(func) printk(KERN_ERR "AKM8975 " func " is called\n")
+#define AKMFUNC(func) printk(KERN_INFO "AKM8975 " func " is called\n")
 #else
 #define AKMFUNC(func)
 #endif
@@ -166,12 +92,10 @@ static int factory_mode=0;
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 static const struct i2c_device_id akm8975_i2c_id[] = {{AKM8975_DEV_NAME,0},{}};
-static struct i2c_board_info __initdata i2c_akm8975={ I2C_BOARD_INFO("akm8975", (0x18>>1))};
-
 /*the adapter id will be available in customization*/
-//static unsigned short akm8975_force[] = {0x00, AKM8975_I2C_ADDRESS, I2C_CLIENT_END, I2C_CLIENT_END};
-//static const unsigned short *const akm8975_forces[] = { akm8975_force, NULL };
-//static struct i2c_client_address_data akm8975_addr_data = { .forces = akm8975_forces,};
+static unsigned short akm8975_force[] = {0x00, AKM8975_I2C_ADDRESS, I2C_CLIENT_END, I2C_CLIENT_END};
+static const unsigned short *const akm8975_forces[] = { akm8975_force, NULL };
+static struct i2c_client_address_data akm8975_addr_data = { .forces = akm8975_forces,};
 /*----------------------------------------------------------------------------*/
 static int akm8975_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
 static int akm8975_i2c_remove(struct i2c_client *client);
@@ -223,7 +147,7 @@ static struct i2c_driver akm8975_i2c_driver = {
 	.resume     = akm8975_resume,
 #endif 
 	.id_table = akm8975_i2c_id,
-	//.address_data = &akm8975_addr_data,
+	.address_data = &akm8975_addr_data,
 };
 
 /*----------------------------------------------------------------------------*/
@@ -557,7 +481,6 @@ static int AKECS_GetRawData(char *rbuf, int size)
 	data[0] = (s16)(strbuf[1] | (strbuf[2] << 8));
 	data[1] = (s16)(strbuf[3] | (strbuf[4] << 8));
 	data[2] = (s16)(strbuf[5] | (strbuf[6] << 8));
-	
 	
 	sprintf(rbuf, "%x %x %x", data[0], data[1], data[2]);
 
@@ -1170,7 +1093,7 @@ static int akm8975_open(struct inode *inode, struct file *file)
 {    
 	struct akm8975_i2c_data *obj = i2c_get_clientdata(this_client);    
 	int ret = -1;	
-
+	
 	if(atomic_read(&obj->trace) & AMK_CTR_DEBUG)
 	{
 		AKMDBG("Open device node:akm8975\n");
@@ -1191,7 +1114,7 @@ static int akm8975_release(struct inode *inode, struct file *file)
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
-static int akm8975_ioctl(struct file *file, unsigned int cmd,unsigned long arg)
+static int akm8975_ioctl(struct inode *inode, struct file *file, unsigned int cmd,unsigned long arg)
 {
 	void __user *argp = (void __user *)arg;
 		
@@ -1475,8 +1398,7 @@ static struct file_operations akm8975_fops = {
 	.owner = THIS_MODULE,
 	.open = akm8975_open,
 	.release = akm8975_release,
-	//.ioctl = akm8975_ioctl,
-       .unlocked_ioctl=akm8975_ioctl,
+	.ioctl = akm8975_ioctl,
 };
 /*----------------------------------------------------------------------------*/
 static struct miscdevice akm8975_device = {
@@ -1562,9 +1484,6 @@ int akm8975_operate(void* self, uint32_t command, void* buff_in, int size_in,
 			{
 				msensor_data = (hwm_sensor_data *)buff_out;
 				mutex_lock(&sensor_data_mutex);
-
-
-                        
 				
 				msensor_data->values[0] = sensor_data[9] * CONVERT_M;
 				msensor_data->values[1] = sensor_data[10] * CONVERT_M;
@@ -1764,7 +1683,6 @@ static int akm8975_i2c_detect(struct i2c_client *client, int kind, struct i2c_bo
 }
 
 /*----------------------------------------------------------------------------*/
-
 static int akm8975_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
 	struct i2c_client *new_client;
@@ -1837,7 +1755,7 @@ static int akm8975_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	}
 	
 #if CONFIG_HAS_EARLYSUSPEND
-	data->early_drv.level    = EARLY_SUSPEND_LEVEL_DISABLE_FB - 1,
+	data->early_drv.level    = EARLY_SUSPEND_LEVEL_STOP_DRAWING - 2,
 	data->early_drv.suspend  = akm8975_early_suspend,
 	data->early_drv.resume   = akm8975_late_resume,    
 	register_early_suspend(&data->early_drv);
@@ -1881,7 +1799,7 @@ static int akm8975_local_init(void)
 	akm8975_power(hw, 1);
 	
 	atomic_set(&dev_open_count, 0);
-//	akm8975_force[0] = hw->i2c_num;
+	akm8975_force[0] = hw->i2c_num;
 
 	if(i2c_add_driver(&akm8975_i2c_driver))
 	{
@@ -1909,7 +1827,6 @@ static int akm8975_remove(void)
 static int __init akm8975_init(void)
 {
 	printk("akm8975_init \n");
-	i2c_register_board_info(3, &i2c_akm8975, 1);
 	hwmsen_msensor_add(&akm8975_init_info);
 	return 0;    
 }

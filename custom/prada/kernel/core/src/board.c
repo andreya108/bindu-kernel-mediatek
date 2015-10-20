@@ -437,7 +437,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 /*=======================================================================*/
 /* Board Devices Capability                                              */
 /*=======================================================================*/
-#define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_CD_PIN_EN | MSDC_REMOVABLE | MSDC_HIGHSPEED| MSDC_UHS1 |MSDC_DDR)
+#define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_CD_PIN_EN | MSDC_REMOVABLE | MSDC_HIGHSPEED )
 //Please enable/disable SD card MSDC_CD_PIN_EN for customer request
 #define MSDC_SDIO_FLAG    (MSDC_EXT_SDIO_IRQ | MSDC_HIGHSPEED)
 #define MSDC_EMMC_FLAG	  (MSDC_SYS_SUSPEND | MSDC_HIGHSPEED | MSDC_UHS1 |MSDC_DDR)
@@ -549,8 +549,8 @@ struct msdc_hw msdc1_hw = {
     .dat_drv_sd_18	= 3,
     .data_pins      = 4,
     .data_offset    = 0,
-    .flags          = MSDC_SDCARD_FLAG & (~MSDC_CD_PIN_EN),
-   	  .dat0rddly		= 0,
+    .flags          = MSDC_SDCARD_FLAG,
+    	.dat0rddly		= 0,
 			.dat1rddly		= 0,
 			.dat2rddly		= 0,
 			.dat3rddly		= 0,

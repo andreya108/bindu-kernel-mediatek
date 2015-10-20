@@ -1,39 +1,4 @@
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- *
- * The following software/firmware and/or related documentation ("MediaTek Software")
- * have been modified by MediaTek Inc. All revisions are subject to any receiver's
- * applicable license agreements with MediaTek Inc.
- */
-
-/* drivers/i2c/chips/MMA8452q.c - MMA8452Q motion sensor driver
+/* drivers/i2c/chips/mma8452q.c - MMA8452Q motion sensor driver
  *
  *
  *
@@ -48,55 +13,6 @@
  *
  */
 
-//#include <linux/interrupt.h>
-//#include <linux/i2c.h>
-//#include <linux/slab.h>
-//#include <linux/irq.h>
-//#include <linux/miscdevice.h>
-//#include <asm/uaccess.h>
-//#include <linux/delay.h>
-//#include <linux/input.h>
-//#include <linux/workqueue.h>
-//#include <linux/kobject.h>
-//#include <linux/earlysuspend.h>
-//#include <linux/platform_device.h>
-//#include <asm/atomic.h>
-
-
-//#include <cust_acc.h>
-//#include <linux/hwmsensor.h>
-//#include <linux/hwmsen_dev.h>
-//#include <linux/sensors_io.h>
-#include "mma8452q.h"
-//#include <linux/hwmsen_helper.h>
-//#ifdef MT6516
-//#include <mach/mt6516_devs.h>
-//#include <mach/mt6516_typedefs.h>
-//#include <mach/mt6516_gpio.h>
-//#include <mach/mt6516_pll.h>
-//#endif
-
-//#ifdef MT6573
-//#include <mach/mt6573_devs.h>
-//#include <mach/mt6573_typedefs.h>
-//#include <mach/mt6573_gpio.h>
-//#include <mach/mt6573_pll.h>
-//#endif
-
-//#ifdef MT6575
-//#include <mach/mt6575_devs.h>
-//#include <mach/mt6575_typedefs.h>
-//#include <mach/mt6575_gpio.h>
-//#include <mach/mt6575_pm_ldo.h>
-//#endif
-
-//#if 0 //def MT6577
-//#include <mach/mt6577_devs.h>
-//#include <mach/mt6577_typedefs.h>
-//#include <mach/mt6577_gpio.h>
-//#include <mach/mt6577_pm_ldo.h>
-//#endif
-
 #include <linux/interrupt.h>
 #include <linux/i2c.h>
 #include <linux/slab.h>
@@ -110,39 +26,23 @@
 #include <linux/earlysuspend.h>
 #include <linux/platform_device.h>
 #include <asm/atomic.h>
-//#include <mach/mt_gpio.h>
 
-//#include <mach/mt_devs.h>
+
+#include <cust_acc.h>
+#include <linux/hwmsensor.h>
+#include <linux/hwmsen_dev.h>
+#include <linux/sensors_io.h>
+#include "mma8452q.h"
+#include <linux/hwmsen_helper.h>
+
 #include <mach/mt_typedefs.h>
 #include <mach/mt_gpio.h>
 #include <mach/mt_pm_ldo.h>
 
 #define POWER_NONE_MACRO MT65XX_POWER_NONE
 
-#include <cust_acc.h>
-#include <linux/hwmsensor.h>
-#include <linux/hwmsen_dev.h>
-#include <linux/sensors_io.h>
-#include <linux/hwmsen_helper.h>
-
-//#ifdef MT6516
-//#define POWER_NONE_MACRO MT6516_POWER_NONE
-//#endif
-
-//#ifdef MT6573
-//#define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
-
-//#ifdef MT6575
-//#define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
-
-//#ifdef MT6577
-//#define POWER_NONE_MACRO MT65XX_POWER_NONE
-//#endif
-
 /*----------------------------------------------------------------------------*/
-#define I2C_DRIVERID_MMA8452Q 345
+#define I2C_DRIVERID_MMA8452Q 0x2a
 /*----------------------------------------------------------------------------*/
 #define DEBUG 1
 /*----------------------------------------------------------------------------*/
@@ -155,26 +55,26 @@
 #define MMA8452Q_DATA_LEN        6
 #define MMA8452Q_DEV_NAME        "MMA8452Q"
 /*----------------------------------------------------------------------------*/
-static const struct i2c_device_id MMA8452q_i2c_id[] = {{MMA8452Q_DEV_NAME,0},{}};
+static const struct i2c_device_id mma8452q_i2c_id[] = {{MMA8452Q_DEV_NAME,0},{}};
 /*the adapter id will be available in customization*/
-static struct i2c_board_info __initdata i2c_MMA8452q={ I2C_BOARD_INFO("MMA8452Q", (0x38>>1))};
-//static unsigned short MMA8452q_force[] = {0x00, MMA8452Q_I2C_SLAVE_ADDR, I2C_CLIENT_END, I2C_CLIENT_END};
-//static const unsigned short *const MMA8452q_forces[] = { MMA8452q_force, NULL };
-//static struct i2c_client_address_data MMA8452q_addr_data = { .forces = MMA8452q_forces,};
+//static unsigned short mma8452q_force[] = {0x00, MMA8452Q_I2C_SLAVE_ADDR, I2C_CLIENT_END, I2C_CLIENT_END};
+//static const unsigned short *const mma8452q_forces[] = { mma8452q_force, NULL };
+//static struct i2c_client_address_data mma8452q_addr_data = { .forces = mma8452q_forces,};
+static struct i2c_board_info __initdata i2c_MMA8452Q={ I2C_BOARD_INFO("MMA8452Q", 0x1C)};
 
+extern struct acc_hw* mma8452q_get_cust_acc_hw(void);
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
-static int MMA8452q_i2c_remove(struct i2c_client *client);
-static int MMA8452q_i2c_detect(struct i2c_client *client, int kind, struct i2c_board_info *info);
+static int mma8452q_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
+static int mma8452q_i2c_remove(struct i2c_client *client);
+static int mma8452q_i2c_detect(struct i2c_client *client, struct i2c_board_info *info);
+#ifndef USE_EARLY_SUSPEND
+static int mma8452q_suspend(struct i2c_client *client, pm_message_t msg);
+static int mma8452q_resume(struct i2c_client *client);
+#endif
 
-
-/*add for auto detect g-sensor by zhuoshineng begin*/
-static int MMA8452q_local_init(void);
-static int MMA8452q_remove(void);
-static int MMA8452q_init_flag =0; // 0<==>OK -1 <==> fail
-extern struct acc_hw* mma8452q_get_cust_acc_hw(void) ;
-/*add for auto detect g-sensor by zhuoshineng end*/
-
+static int mma8452q_local_init(void);
+static int mma8452q_remove(void);
+static int mma8452q_init_flag =-1; // 0<==>OK -1 <==> fail
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_SetPowerMode(struct i2c_client *client, bool enable);
 
@@ -208,18 +108,13 @@ struct data_filter {
     int idx;
 };
 /*----------------------------------------------------------------------------*/
-
-/*add for auto detect g-sensor by zhuoshineng begin*/
-static struct sensor_init_info MMA8452q_init_info = {
-		.name = "MMA8452q",
-		.init = MMA8452q_local_init,
-		.uninit = MMA8452q_remove,
-	
+static struct sensor_init_info mma8452q_init_info = {
+		.name = "mma8452q",
+		.init = mma8452q_local_init,
+		.uninit = mma8452q_remove,
 };
-/*add for auto detect g-sensor by zhuoshineng end*/
-
-
-struct MMA8452q_i2c_data {
+/*----------------------------------------------------------------------------*/
+struct mma8452q_i2c_data {
     struct i2c_client *client;
     struct acc_hw *hw;
     struct hwmsen_convert   cvt;
@@ -242,75 +137,140 @@ struct MMA8452q_i2c_data {
     struct data_filter      fir;
 #endif 
     /*early suspend*/
-#if defined(CONFIG_HAS_EARLYSUSPEND)
+#ifdef USE_EARLY_SUSPEND
     struct early_suspend    early_drv;
 #endif     
 };
 /*----------------------------------------------------------------------------*/
-static struct i2c_driver MMA8452q_i2c_driver = {
+static struct i2c_driver mma8452q_i2c_driver = {
     .driver = {
-        //.owner          = THIS_MODULE,
+//        .owner          = THIS_MODULE,
         .name           = MMA8452Q_DEV_NAME,
     },
-	.probe      		= MMA8452q_i2c_probe,
-	.remove    			= MMA8452q_i2c_remove,
-	.detect				= MMA8452q_i2c_detect,
+	.probe      		= mma8452q_i2c_probe,
+	.remove    			= mma8452q_i2c_remove,
+	.detect				= mma8452q_i2c_detect,
 #if !defined(CONFIG_HAS_EARLYSUSPEND)    
-    .suspend            = MMA8452q_suspend,
-    .resume             = MMA8452q_resume,
+    .suspend            = mma8452q_suspend,
+    .resume             = mma8452q_resume,
 #endif
-	.id_table = MMA8452q_i2c_id,
-	//.address_data = &MMA8452q_addr_data,
+	.id_table = mma8452q_i2c_id,
+//	.address_data = &mma8452q_addr_data,
 };
 
 /*----------------------------------------------------------------------------*/
-static struct i2c_client *MMA8452q_i2c_client = NULL;
-//static struct platform_driver MMA8452q_gsensor_driver;//modified for auto detect g-sensor by zhuoshineng
-static struct MMA8452q_i2c_data *obj_i2c_data = NULL;
+static struct i2c_client *mma8452q_i2c_client = NULL;
+//static struct platform_driver mma8452q_gsensor_driver;
+static struct mma8452q_i2c_data *obj_i2c_data = NULL;
 static bool sensor_power = false;
+static int sensor_suspend = 0;
 static GSENSOR_VECTOR3D gsensor_gain, gsensor_offset;
 static char selftestRes[10] = {0};
+static DEFINE_MUTEX(mma8452q_i2c_mutex);
+static DEFINE_MUTEX(mma8452q_op_mutex);
 
+static bool enable_status = false;
 
 
 /*----------------------------------------------------------------------------*/
 #define GSE_TAG                  "[Gsensor] "
-#define GSE_FUN(f)               printk(KERN_INFO GSE_TAG"%s\n", __FUNCTION__)
+#define GSE_FUN(f)               printk(KERN_ERR GSE_TAG"%s\n", __FUNCTION__)
 #define GSE_ERR(fmt, args...)    printk(KERN_ERR GSE_TAG"%s %d : "fmt, __FUNCTION__, __LINE__, ##args)
-#define GSE_LOG(fmt, args...)    printk(KERN_INFO GSE_TAG fmt, ##args)
+#define GSE_LOG(fmt, args...)    printk(KERN_ERR GSE_TAG fmt, ##args)
 /*----------------------------------------------------------------------------*/
-static struct data_resolution MMA8452q_data_resolution[] = {
+static struct data_resolution mma8452q_data_resolution[] = {
  /*8 combination by {FULL_RES,RANGE}*/
-    {{ 3, 9}, 256},   /*+/-2g  in 10-bit resolution:  3.9 mg/LSB*/
-    {{ 7, 8}, 128},   /*+/-4g  in 10-bit resolution:  7.8 mg/LSB*/
-    {{15, 6},  64},   /*+/-8g  in 10-bit resolution: 15.6 mg/LSB*/
+    {{ 1, 0}, 1024},   /*+/-2g  in 12-bit resolution:  3.9 mg/LSB*/
+    {{ 2, 0}, 512},   /*+/-4g  in 12-bit resolution:  7.8 mg/LSB*/
+    {{3, 9},  256},   /*+/-8g  in 12-bit resolution: 15.6 mg/LSB*/
     {{ 15, 6}, 64},   /*+/-2g  in 8-bit resolution:  3.9 mg/LSB (full-resolution)*/
     {{ 31, 3}, 32},   /*+/-4g  in 8-bit resolution:  3.9 mg/LSB (full-resolution)*/
     {{ 62, 5}, 16},   /*+/-8g  in 8-bit resolution:  3.9 mg/LSB (full-resolution)*/            
 };
 /*----------------------------------------------------------------------------*/
-static struct data_resolution MMA8452q_offset_resolution = {{2, 0}, 512};
+static struct data_resolution mma8452q_offset_resolution = {{2, 0}, 512};
 
-/*--------------------ADXL power control function----------------------------------*/
-
-int hwmsen_read_byte_sr(struct i2c_client *client, u8 addr, u8 *data)
+/*----------------------------------------------------------------------------*/
+static int mma8452q_i2c_read_block(struct i2c_client *client, u8 addr, u8 *data, u8 len)
 {
-   u8 buf;
-    int ret = 0;
+    u8 beg = addr;
+	int err;
+	struct i2c_msg msgs[2]={{0},{0}};
 	
-    client->addr = client->addr& I2C_MASK_FLAG | I2C_WR_FLAG |I2C_RS_FLAG;
-    buf = addr;
-	ret = i2c_master_send(client, (const char*)&buf, 1<<8 | 1);
-    //ret = i2c_master_send(client, (const char*)&buf, 1);
-    if (ret < 0) {
-        HWM_ERR("send command error!!\n");
-        return -EFAULT;
+	mutex_lock(&mma8452q_i2c_mutex);
+	
+	msgs[0].addr = client->addr;
+	msgs[0].flags = 0;
+	msgs[0].len =1;
+	msgs[0].buf = &beg;
+
+	msgs[1].addr = client->addr;
+	msgs[1].flags = I2C_M_RD;
+	msgs[1].len =len;
+	msgs[1].buf = data;
+	
+	if (!client)
+	{
+	    mutex_unlock(&mma8452q_i2c_mutex);
+		return -EINVAL;
+	}
+	else if (len > C_I2C_FIFO_SIZE) 
+	{
+		GSE_ERR(" length %d exceeds %d\n", len, C_I2C_FIFO_SIZE);
+		mutex_unlock(&mma8452q_i2c_mutex);
+		return -EINVAL;
+	}
+	err = i2c_transfer(client->adapter, msgs, sizeof(msgs)/sizeof(msgs[0]));
+	if (err != 2) 
+	{
+		GSE_ERR("i2c_transfer error: (%d %p %d) %d\n",addr, data, len, err);
+		err = -EIO;
+	} 
+	else 
+	{
+		err = 0;
+	}
+	mutex_unlock(&mma8452q_i2c_mutex);
+	return err;
+
+}
+
+static int mma8452q_i2c_write_block(struct i2c_client *client, u8 addr, u8 *data, u8 len)
+{   /*because address also occupies one byte, the maximum length for write is 7 bytes*/
+    int err, idx, num;
+    char buf[C_I2C_FIFO_SIZE];
+    err =0;
+	mutex_lock(&mma8452q_i2c_mutex);
+    if (!client)
+    {
+        mutex_unlock(&mma8452q_i2c_mutex);
+        return -EINVAL;
+    }
+    else if (len >= C_I2C_FIFO_SIZE) 
+	{        
+        GSE_ERR(" length %d exceeds %d\n", len, C_I2C_FIFO_SIZE);
+		mutex_unlock(&mma8452q_i2c_mutex);
+        return -EINVAL;
+    }    
+
+    num = 0;
+    buf[num++] = addr;
+    for (idx = 0; idx < len; idx++)
+    {
+        buf[num++] = data[idx];
     }
 
-    *data = buf;
-	client->addr = client->addr& I2C_MASK_FLAG;
-    return 0;
+    err = i2c_master_send(client, buf, num);
+    if (err < 0)
+	{
+        GSE_ERR("send command error!!\n");
+		mutex_unlock(&mma8452q_i2c_mutex);
+        return -EFAULT;
+    } 
+	mutex_unlock(&mma8452q_i2c_mutex);
+    return err;
 }
+/*----------------------------------------------------------------------------*/
 
 void dumpReg(struct i2c_client *client)
 {
@@ -320,8 +280,8 @@ void dumpReg(struct i2c_client *client)
   for(i=0; i<49 ; i++)
   {
     //dump all
-    hwmsen_read_byte_sr(client,addr,&regdata);
-	HWM_LOG("Reg addr=%x regdata=%x\n",addr,regdata);
+    mma8452q_i2c_read_block(client, addr, &regdata, 0x1);
+	GSE_LOG("yucong Reg addr=%x regdata=%x\n",addr,regdata);
 	addr++;
 	if(addr ==01)
 		addr=addr+0x06;
@@ -330,46 +290,8 @@ void dumpReg(struct i2c_client *client)
 	if(addr==0x0A)
 		addr++;
   }
-  
-  /*
-  for(i=0; i<5 ; i++)
-  {
-    //dump ctrol_reg1~control_reg5
-    hwmsen_read_byte_sr(client,addr,regdata);
-	HWM_LOG("Reg addr=%x regdata=%x\n",addr,regdata);
-	addr++;
-  }
-  
-  addr = MMA8452Q_REG_OFSX;
-  for(i=0; i<5 ; i++)
-  {
-    //dump offset
-    hwmsen_read_byte_sr(client,addr,regdata);
-	HWM_LOG("Reg addr=%x regdata=%x\n",addr,regdata);
-	addr++
-  }
-  */
 }
 
-int hwmsen_read_block_sr(struct i2c_client *client, u8 addr, u8 *data)
-{
-   u8 buf[10];
-    int ret = 0;
-	memset(buf, 0, sizeof(u8)*10); 
-	
-    client->addr = client->addr& I2C_MASK_FLAG | I2C_WR_FLAG |I2C_RS_FLAG;
-    buf[0] = addr;
-	ret = i2c_master_send(client, (const char*)&buf, 6<<8 | 1);
-    //ret = i2c_master_send(client, (const char*)&buf, 1);
-    if (ret < 0) {
-        HWM_ERR("send command error!!\n");
-        return -EFAULT;
-    }
-
-    *data = buf;
-	client->addr = client->addr& I2C_MASK_FLAG;
-    return 0;
-}
 
 static void MMA8452Q_power(struct acc_hw *hw, unsigned int on) 
 {
@@ -408,28 +330,25 @@ static int MMA8452Q_SetDataResolution(struct i2c_client *client ,u8 dataresoluti
 	u8  dat, reso;
     u8 databuf[10];    
     int res = 0;
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 
-	if(hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG2, databuf))
+	if((mma8452q_i2c_read_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1))<0)
 	{
 		GSE_ERR("read power ctl register err!\n");
 		return -1;
 	}
 	GSE_LOG("fwq read MMA8452Q_REG_CTL_REG2 =%x in %s \n",databuf[0],__FUNCTION__);
-	if(dataresolution == MMA8452Q_10BIT_RES)
+	if(dataresolution == MMA8452Q_12BIT_RES)
 	{
-		databuf[0] |= MMA8452Q_10BIT_RES;
+		databuf[0] |= MMA8452Q_12BIT_RES;
 	}
 	else
 	{
-		databuf[0] &= (~MMA8452Q_10BIT_RES);//8 bit resolution
+		databuf[0] &= (~MMA8452Q_12BIT_RES);//8 bit resolution
 	}
-	databuf[1] = databuf[0];
-	databuf[0] = MMA8452Q_REG_CTL_REG2;
-	
 
-	res = i2c_master_send(client, databuf, 0x2);
-	if(res <= 0)
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1);
+	if(res < 0)
 	{
 		GSE_LOG("set resolution  failed!\n");
 		return -1;
@@ -441,12 +360,12 @@ static int MMA8452Q_SetDataResolution(struct i2c_client *client ,u8 dataresoluti
 	
     //choose sensitivity depend on resolution and detect range
 	//read detect range
-	if(err = hwmsen_read_byte_sr(client, MMA8452Q_REG_XYZ_DATA_CFG, &dat))
+	if((err = mma8452q_i2c_read_block(client, MMA8452Q_REG_XYZ_DATA_CFG, &dat, 0x1))<0)
 	{
 		GSE_ERR("read detect range  fail!!\n");
 		return err;
 	}
-	reso  = (dataresolution & MMA8452Q_10BIT_RES) ? (0x00) : (0x03);
+	reso  = (dataresolution & MMA8452Q_12BIT_RES) ? (0x00) : (0x03);
 	
 	
     if(dat & MMA8452Q_RANGE_2G)
@@ -462,9 +381,9 @@ static int MMA8452Q_SetDataResolution(struct i2c_client *client ,u8 dataresoluti
       reso = reso + MMA8452Q_RANGE_8G;
     }
 
-	if(reso < sizeof(MMA8452q_data_resolution)/sizeof(MMA8452q_data_resolution[0]))
+	if(reso < sizeof(mma8452q_data_resolution)/sizeof(mma8452q_data_resolution[0]))
 	{        
-		obj->reso = &MMA8452q_data_resolution[reso];
+		obj->reso = &mma8452q_data_resolution[reso];
 		GSE_LOG("reso=%x!! OK \n",reso);
 		return 0;
 	}
@@ -477,7 +396,7 @@ static int MMA8452Q_SetDataResolution(struct i2c_client *client ,u8 dataresoluti
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_ReadData(struct i2c_client *client, s16 data[MMA8452Q_AXES_NUM])
 {
-	struct MMA8452q_i2c_data *priv = i2c_get_clientdata(client);        
+	struct mma8452q_i2c_data *priv = i2c_get_clientdata(client);        
 	u8 addr = MMA8452Q_REG_DATAX0;
 	u8 buf[MMA8452Q_DATA_LEN] = {0};
 	int err = 0;
@@ -491,12 +410,8 @@ static int MMA8452Q_ReadData(struct i2c_client *client, s16 data[MMA8452Q_AXES_N
 	{
 	  // hwmsen_read_block(client, addr, buf, 0x06);
        // dumpReg(client);
-	
-		buf[0] = MMA8452Q_REG_DATAX0;
-	    client->addr = client->addr& I2C_MASK_FLAG | I2C_WR_FLAG |I2C_RS_FLAG;
-        i2c_master_send(client, (const char*)&buf, 6<<8 | 1);
-	    client->addr = client->addr& I2C_MASK_FLAG;
 
+        mma8452q_i2c_read_block(client, MMA8452Q_REG_DATAX0, buf, 0x06);
 
 		data[MMA8452Q_AXIS_X] = (s16)((buf[MMA8452Q_AXIS_X*2] << 8) |
 		         (buf[MMA8452Q_AXIS_X*2+1]));
@@ -511,12 +426,13 @@ static int MMA8452Q_ReadData(struct i2c_client *client, s16 data[MMA8452Q_AXES_N
 			GSE_LOG("raw from reg(SR) [%08X %08X %08X] => [%5d %5d %5d]\n", data[MMA8452Q_AXIS_X], data[MMA8452Q_AXIS_Y], data[MMA8452Q_AXIS_Z],
 		                               data[MMA8452Q_AXIS_X], data[MMA8452Q_AXIS_Y], data[MMA8452Q_AXIS_Z]);
 		}
-		
+		//GSE_LOG("raw from reg(SR) [%08X %08X %08X] => [%5d %5d %5d]\n", data[MMA8452Q_AXIS_X], data[MMA8452Q_AXIS_Y], data[MMA8452Q_AXIS_Z],
+		  //                             data[MMA8452Q_AXIS_X], data[MMA8452Q_AXIS_Y], data[MMA8452Q_AXIS_Z]);
 		//add to fix data, refer to datasheet
 		
-		data[MMA8452Q_AXIS_X] = data[MMA8452Q_AXIS_X]>>6;
-		data[MMA8452Q_AXIS_Y] = data[MMA8452Q_AXIS_Y]>>6;
-		data[MMA8452Q_AXIS_Z] = data[MMA8452Q_AXIS_Z]>>6;
+		data[MMA8452Q_AXIS_X] = data[MMA8452Q_AXIS_X]>>4;
+		data[MMA8452Q_AXIS_Y] = data[MMA8452Q_AXIS_Y]>>4;
+		data[MMA8452Q_AXIS_Z] = data[MMA8452Q_AXIS_Z]>>4;
 		
 		data[MMA8452Q_AXIS_X] += priv->cali_sw[MMA8452Q_AXIS_X];
 		data[MMA8452Q_AXIS_Y] += priv->cali_sw[MMA8452Q_AXIS_Y];
@@ -586,15 +502,15 @@ static int MMA8452Q_ReadOffset(struct i2c_client *client, s8 ofs[MMA8452Q_AXES_N
 {    
 	int err;
     GSE_ERR("fwq read offset+: \n");
-	if(err = hwmsen_read_byte_sr(client, MMA8452Q_REG_OFSX, &ofs[MMA8452Q_AXIS_X]))
+	if((err = mma8452q_i2c_read_block(client, MMA8452Q_REG_OFSX, &ofs[MMA8452Q_AXIS_X], 0x1))<0)
 	{
 		GSE_ERR("error: %d\n", err);
 	}
-	if(err = hwmsen_read_byte_sr(client, MMA8452Q_REG_OFSY, &ofs[MMA8452Q_AXIS_Y]))
+	if((err = mma8452q_i2c_read_block(client, MMA8452Q_REG_OFSY, &ofs[MMA8452Q_AXIS_Y], 0x1))<0)
 	{
 		GSE_ERR("error: %d\n", err);
 	}
-	if(err = hwmsen_read_byte_sr(client, MMA8452Q_REG_OFSZ, &ofs[MMA8452Q_AXIS_Z]))
+	if((err = mma8452q_i2c_read_block(client, MMA8452Q_REG_OFSZ, &ofs[MMA8452Q_AXIS_Z], 0x1))<0)
 	{
 		GSE_ERR("error: %d\n", err);
 	}
@@ -605,13 +521,13 @@ static int MMA8452Q_ReadOffset(struct i2c_client *client, s8 ofs[MMA8452Q_AXES_N
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_ResetCalibration(struct i2c_client *client)
 {
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	s8 ofs[MMA8452Q_AXES_NUM] = {0x00, 0x00, 0x00};
 	int err;
 
 	//goto standby mode to clear cali
 	MMA8452Q_SetPowerMode(obj->client,false);
-	if(err = hwmsen_write_block(client, MMA8452Q_REG_OFSX, ofs, MMA8452Q_AXES_NUM))
+	if((err = mma8452q_i2c_write_block(client, MMA8452Q_REG_OFSX, ofs, 0x3))<0)
 	{
 		GSE_ERR("error: %d\n", err);
 	}
@@ -622,7 +538,7 @@ static int MMA8452Q_ResetCalibration(struct i2c_client *client)
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_ReadCalibration(struct i2c_client *client, int dat[MMA8452Q_AXES_NUM])
 {
-    struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+    struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
     int err;
     int mul;
     
@@ -631,8 +547,8 @@ static int MMA8452Q_ReadCalibration(struct i2c_client *client, int dat[MMA8452Q_
         return err;
     }    
     
-    //mul = obj->reso->sensitivity/MMA8452q_offset_resolution.sensitivity;
-    mul = MMA8452q_offset_resolution.sensitivity/obj->reso->sensitivity;
+    //mul = obj->reso->sensitivity/mma8452q_offset_resolution.sensitivity;
+    mul = mma8452q_offset_resolution.sensitivity/obj->reso->sensitivity;
     dat[obj->cvt.map[MMA8452Q_AXIS_X]] = obj->cvt.sign[MMA8452Q_AXIS_X]*(obj->offset[MMA8452Q_AXIS_X]/mul);
     dat[obj->cvt.map[MMA8452Q_AXIS_Y]] = obj->cvt.sign[MMA8452Q_AXIS_Y]*(obj->offset[MMA8452Q_AXIS_Y]/mul);
     dat[obj->cvt.map[MMA8452Q_AXIS_Z]] = obj->cvt.sign[MMA8452Q_AXIS_Z]*(obj->offset[MMA8452Q_AXIS_Z]/mul);                        
@@ -644,18 +560,18 @@ static int MMA8452Q_ReadCalibration(struct i2c_client *client, int dat[MMA8452Q_
 static int MMA8452Q_ReadCalibrationEx(struct i2c_client *client, int act[MMA8452Q_AXES_NUM], int raw[MMA8452Q_AXES_NUM])
 {  
 	/*raw: the raw calibration data; act: the actual calibration data*/
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	int err;
 	int mul;
 
-	if(err = MMA8452Q_ReadOffset(client, obj->offset))
+	if((err = MMA8452Q_ReadOffset(client, obj->offset)))
 	{
 		GSE_ERR("read offset fail, %d\n", err);
 		return err;
 	}    
 
-	//mul = obj->reso->sensitivity/MMA8452q_offset_resolution.sensitivity;
-	mul = MMA8452q_offset_resolution.sensitivity/obj->reso->sensitivity;
+	//mul = obj->reso->sensitivity/mma8452q_offset_resolution.sensitivity;
+	mul = mma8452q_offset_resolution.sensitivity/obj->reso->sensitivity;
 	raw[MMA8452Q_AXIS_X] = obj->offset[MMA8452Q_AXIS_X]/mul + obj->cali_sw[MMA8452Q_AXIS_X];
 	raw[MMA8452Q_AXIS_Y] = obj->offset[MMA8452Q_AXIS_Y]/mul + obj->cali_sw[MMA8452Q_AXIS_Y];
 	raw[MMA8452Q_AXIS_Z] = obj->offset[MMA8452Q_AXIS_Z]/mul + obj->cali_sw[MMA8452Q_AXIS_Z];
@@ -669,20 +585,20 @@ static int MMA8452Q_ReadCalibrationEx(struct i2c_client *client, int act[MMA8452
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_WriteCalibration(struct i2c_client *client, int dat[MMA8452Q_AXES_NUM])
 {
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
-	u8 testdata=0;
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
+//	u8 testdata=0;
 	int err;
 	int cali[MMA8452Q_AXES_NUM], raw[MMA8452Q_AXES_NUM];
-	int lsb = MMA8452q_offset_resolution.sensitivity;
-	u8 databuf[2]; 
-	int res = 0;
+	int lsb = mma8452q_offset_resolution.sensitivity;
+//	u8 databuf[2]; 
+//	int res = 0;
 	//int divisor = obj->reso->sensitivity/lsb;
 	int divisor = lsb/obj->reso->sensitivity;
 	GSE_LOG("fwq obj->reso->sensitivity=%d\n", obj->reso->sensitivity);
 	GSE_LOG("fwq lsb=%d\n", lsb);
 	
 
-	if(err = MMA8452Q_ReadCalibrationEx(client, cali, raw))	/*offset will be updated in obj->offset*/
+	if((err = MMA8452Q_ReadCalibrationEx(client, cali, raw)))	/*offset will be updated in obj->offset*/
 	{ 
 		GSE_ERR("read offset fail, %d\n", err);
 		return err;
@@ -719,45 +635,13 @@ static int MMA8452Q_WriteCalibration(struct i2c_client *client, int dat[MMA8452Q
 	//
 	//go to standby mode to set cali
     MMA8452Q_SetPowerMode(obj->client,false);
-	if(err = hwmsen_write_block(obj->client, MMA8452Q_REG_OFSX, obj->offset, MMA8452Q_AXES_NUM))
+	if((err = hwmsen_write_block(obj->client, MMA8452Q_REG_OFSX, obj->offset, MMA8452Q_AXES_NUM)))
 	{
 		GSE_ERR("write offset fail: %d\n", err);
 		return err;
 	}
 	MMA8452Q_SetPowerMode(obj->client,true);
 	
-	//
-	/*
-	MMA8452Q_SetPowerMode(obj->client,false);
-	msleep(20);
-	if(err = hwmsen_write_byte(obj->client, MMA8452Q_REG_OFSX, obj->offset[MMA8452Q_AXIS_X]))
-	{
-		GSE_ERR("write offset fail: %d\n", err);
-		return err;
-	}
-    msleep(20);
-	hwmsen_read_byte_sr(obj->client,MMA8452Q_REG_OFSX,&testdata);
-	GSE_LOG("write offsetX: %x\n", testdata);
-	
-	if(err = hwmsen_write_byte(obj->client, MMA8452Q_REG_OFSY, obj->offset[MMA8452Q_AXIS_Y]))
-	{
-		GSE_ERR("write offset fail: %d\n", err);
-		return err;
-	}
-	msleep(20);
-	hwmsen_read_byte_sr(obj->client,MMA8452Q_REG_OFSY,&testdata);
-	GSE_LOG("write offsetY: %x\n", testdata);
-	
-	if(err = hwmsen_write_byte(obj->client, MMA8452Q_REG_OFSZ, obj->offset[MMA8452Q_AXIS_Z]))
-	{
-		GSE_ERR("write offset fail: %d\n", err);
-		return err;
-	}
-	msleep(20);
-	hwmsen_read_byte_sr(obj->client,MMA8452Q_REG_OFSZ,&testdata);
-	GSE_LOG("write offsetZ: %x\n", testdata);
-	MMA8452Q_SetPowerMode(obj->client,true);
-*/
 	return err;
 }
 /*----------------------------------------------------------------------------*/
@@ -767,16 +651,15 @@ static int MMA8452Q_CheckDeviceID(struct i2c_client *client)
 	int res = 0;
 
 	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_DEVID;    
+  
+	res = mma8452q_i2c_read_block(client, MMA8452Q_REG_DEVID, databuf, 0x1);
+	
+	//if(databuf[0]!= MMA8452Q_FIXED_DEVID)
+	//{
+		GSE_LOG("mma8452q id %x!\n",databuf[0]);
+	//	return MMA8452Q_ERR_IDENTIFICATION;
+	//}
 
-	res = hwmsen_read_byte_sr(client,MMA8452Q_REG_DEVID,databuf);
-    GSE_LOG("fwq MMA8452q id %x!\n",databuf[0]);
-	if(databuf[0]!=MMA8452Q_FIXED_DEVID)
-	{
-		return MMA8452Q_ERR_IDENTIFICATION;
-	}
-
-	exit_MMA8452Q_CheckDeviceID:
 	if (res < 0)
 	{
 		return MMA8452Q_ERR_I2C;
@@ -796,16 +679,16 @@ static int MMA8452Q_SetPowerMode(struct i2c_client *client, bool enable)
 	u8 databuf[2];    
 	int res = 0;
 	u8 addr = MMA8452Q_REG_CTL_REG1;
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	
-	
+	GSE_FUN();
 	if(enable == sensor_power)
 	{
 		GSE_LOG("Sensor power status need not to be set again!!!\n");
 		return MMA8452Q_SUCCESS;
 	}
 
-	if(hwmsen_read_byte_sr(client, addr, databuf))
+	if((mma8452q_i2c_read_block(client, addr, databuf, 0x1)) < 0)
 	{
 		GSE_ERR("read power ctl register err!\n");
 		return MMA8452Q_ERR_I2C;
@@ -821,13 +704,10 @@ static int MMA8452Q_SetPowerMode(struct i2c_client *client, bool enable)
 	{
 		// do nothing
 	}
-	databuf[1] = databuf[0];
-	databuf[0] = MMA8452Q_REG_CTL_REG1;
-	
 
-	res = i2c_master_send(client, databuf, 0x2);
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG1, databuf, 0x1);
 
-	if(res <= 0)
+	if(res < 0)
 	{
 		GSE_LOG("fwq set power mode failed!\n");
 		return MMA8452Q_ERR_I2C;
@@ -847,17 +727,15 @@ static int MMA8452Q_SetPowerMode(struct i2c_client *client, bool enable)
 static int MMA8452Q_SetDataFormat(struct i2c_client *client, u8 dataformat)
 {
     
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+//	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	u8 databuf[10];    
 	int res = 0;
 
 	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_XYZ_DATA_CFG;    
-	databuf[1] = dataformat;
+	databuf[0] = dataformat;
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_XYZ_DATA_CFG, databuf, 0x1);
 
-	res = i2c_master_send(client, databuf, 0x2);
-
-	if(res <= 0)
+	if(res < 0)
 	{
 		return MMA8452Q_ERR_I2C;
 	}
@@ -873,10 +751,7 @@ static int MMA8452Q_SetBWRate(struct i2c_client *client, u8 bwrate)
 	int res = 0;
 
 	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_CTL_REG1;    
-	//databuf[1] = bwrate;
-	
-	if(hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG1, databuf))
+	if((mma8452q_i2c_read_block(client, MMA8452Q_REG_CTL_REG1, databuf, 0x1))<0)
 	{
 		GSE_ERR("read power ctl register err!\n");
 		return MMA8452Q_ERR_I2C;
@@ -886,12 +761,10 @@ static int MMA8452Q_SetBWRate(struct i2c_client *client, u8 bwrate)
 	databuf[0] &=0xC7;//clear original  data rate 
 		
 	databuf[0] |= bwrate; //set data rate
-	databuf[1]= databuf[0];
-	databuf[0]= MMA8452Q_REG_CTL_REG1;
 
-	res = i2c_master_send(client, databuf, 0x2);
 
-	if(res <= 0)
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG1, databuf, 0x1);
+	if(res < 0)
 	{
 		return MMA8452Q_ERR_I2C;
 	}
@@ -905,12 +778,10 @@ static int MMA8452Q_SetIntEnable(struct i2c_client *client, u8 intenable)
 	int res = 0;
 
 	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_CTL_REG4;    
-	databuf[1] = intenable;
+	databuf[0]  = intenable;
 
-	res = i2c_master_send(client, databuf, 0x2);
-
-	if(res <= 0)
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG4, databuf, 0x1);
+	if(res < 0)
 	{
 		return MMA8452Q_ERR_I2C;
 	}
@@ -920,46 +791,43 @@ static int MMA8452Q_SetIntEnable(struct i2c_client *client, u8 intenable)
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_Init(struct i2c_client *client, int reset_cali)
 {
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	int res = 0;
-    GSE_LOG("2010-11-03-11:43 fwq MMA8452q addr %x!\n",client->addr);
-	printk("\r\n zhaoshaopeng MMA8452Q_Init start\r\n");
-	res = MMA8452Q_CheckDeviceID(client); 
+    GSE_LOG("2010-11-03-11:43 fwq mma8452q addr %x!\n",client->addr);
 	
-	printk("\r\n zhaoshaopeng MMA8452Q_Init res= %x \r\n", res);
-
-	if(res != MMA8452Q_SUCCESS)
+	res = MMA8452Q_CheckDeviceID(client); 
+	if(res < 0)
 	{
-	    GSE_LOG("fwq MMA8452q check id error\n");
+	    GSE_ERR("fwq mma8452q check id error\n");
 		return res;
 	}	
 
 	res = MMA8452Q_SetPowerMode(client, false);
-	if(res != MMA8452Q_SUCCESS)
+	if(res < 0)
 	{
-	    GSE_LOG("fwq MMA8452q set power error\n");
+	    GSE_ERR("fwq mma8452q set power error\n");
 		return res;
 	}
 	
 
 	res = MMA8452Q_SetBWRate(client, MMA8452Q_BW_100HZ);
-	if(res != MMA8452Q_SUCCESS ) 
+	if(res < 0) 
 	{
-	    GSE_LOG("fwq MMA8452q set BWRate error\n");
+	    GSE_ERR("fwq mma8452q set BWRate error\n");
 		return res;
 	}
 
 	res = MMA8452Q_SetDataFormat(client, MMA8452Q_RANGE_2G);
-	if(res != MMA8452Q_SUCCESS)
+	if(res < 0)
 	{
-	    GSE_LOG("fwq MMA8452q set data format error\n");
+	    GSE_ERR("fwq mma8452q set data format error\n");
 		return res;
 	}
 	//add by fwq
-	res = MMA8452Q_SetDataResolution(client, MMA8452Q_10BIT_RES);
-	if(res != MMA8452Q_SUCCESS) 
+	res = MMA8452Q_SetDataResolution(client, MMA8452Q_12BIT_RES);
+	if(res < 0) 
 	{
-	    GSE_LOG("fwq MMA8452q set data reslution error\n");
+	    GSE_ERR("fwq mma8452q set data reslution error\n");
 		return res;
 	}
 	gsensor_gain.x = gsensor_gain.y = gsensor_gain.z = obj->reso->sensitivity;
@@ -974,11 +842,11 @@ static int MMA8452Q_Init(struct i2c_client *client, int reset_cali)
 	if(NULL != reset_cali)
 	{ 
 		/*reset calibration only in power on*/
-		GSE_LOG("fwq MMA8452q  set cali\n");
+		GSE_ERR("fwq mma8452q  set cali\n");
 		res = MMA8452Q_ResetCalibration(client);
-		if(res != MMA8452Q_SUCCESS)
+		if(res < 0)
 		{
-		    GSE_LOG("fwq MMA8452q set cali error\n");
+		    GSE_ERR("fwq mma8452q set cali error\n");
 			return res;
 		}
 	}
@@ -986,8 +854,7 @@ static int MMA8452Q_Init(struct i2c_client *client, int reset_cali)
 #ifdef CONFIG_MMA8452Q_LOWPASS
 	memset(&obj->fir, 0x00, sizeof(obj->fir));  
 #endif
-    GSE_LOG("fwq MMA8452q Init OK\n");
-printk("\r\n zhaoshaopeng MMA8452Q_SUCCESS success \r\n");
+    GSE_LOG("mma8452q Init OK\n");
 	return MMA8452Q_SUCCESS;
 }
 /*----------------------------------------------------------------------------*/
@@ -1014,7 +881,7 @@ static int MMA8452Q_ReadChipInfo(struct i2c_client *client, char *buf, int bufsi
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_ReadSensorData(struct i2c_client *client, char *buf, int bufsize)
 {
-	struct MMA8452q_i2c_data *obj = (struct MMA8452q_i2c_data*)i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = (struct mma8452q_i2c_data*)i2c_get_clientdata(client);
 	u8 databuf[20];
 	int acc[MMA8452Q_AXES_NUM];
 	int res = 0;
@@ -1029,14 +896,10 @@ static int MMA8452Q_ReadSensorData(struct i2c_client *client, char *buf, int buf
 		*buf = 0;
 		return -2;
 	}
-
-	if(sensor_power == FALSE)
+	if(sensor_suspend == 1)
 	{
-		res = MMA8452Q_SetPowerMode(client, true);
-		if(res)
-		{
-			GSE_ERR("Power on MMA8452q error %d!\n", res);
-		}
+		//GSE_LOG("sensor in suspend read not data!\n");
+		return 0;
 	}
 
 	if(res = MMA8452Q_ReadData(client, obj->data))
@@ -1077,24 +940,15 @@ static int MMA8452Q_ReadSensorData(struct i2c_client *client, char *buf, int buf
 /*----------------------------------------------------------------------------*/
 static int MMA8452Q_ReadRawData(struct i2c_client *client, char *buf)
 {
-	struct MMA8452q_i2c_data *obj = (struct MMA8452q_i2c_data*)i2c_get_clientdata(client);
+	struct mma8452q_i2c_data *obj = (struct mma8452q_i2c_data*)i2c_get_clientdata(client);
 	int res = 0;
 
 	if (!buf || !client)
 	{
 		return EINVAL;
 	}
-
-	if(sensor_power == FALSE)
-	{
-		res = MMA8452Q_SetPowerMode(client, true);
-		if(res)
-		{
-			GSE_ERR("Power on MMA8452q error %d!\n", res);
-		}
-	}
 	
-	if(res = MMA8452Q_ReadData(client, obj->data))
+	if((res = MMA8452Q_ReadData(client, obj->data)))
 	{        
 		GSE_ERR("I2C error: ret value=%d", res);
 		return EIO;
@@ -1112,16 +966,9 @@ static int MMA8452Q_ReadRawData(struct i2c_client *client, char *buf)
 static int MMA8452Q_InitSelfTest(struct i2c_client *client)
 {
 	int res = 0;
-	u8  data;
+//	u8  data;
 	u8 databuf[10]; 
     GSE_LOG("fwq init self test\n");
-/*
-	res = MMA8452Q_SetPowerMode(client,true);
-	if(res != MMA8452Q_SUCCESS ) //
-	{
-		return res;
-	}
-	*/
 	res = MMA8452Q_SetBWRate(client, MMA8452Q_BW_100HZ);
 	if(res != MMA8452Q_SUCCESS ) //
 	{
@@ -1133,17 +980,16 @@ static int MMA8452Q_InitSelfTest(struct i2c_client *client)
 	{
 		return res;
 	}
-	res = MMA8452Q_SetDataResolution(client, MMA8452Q_10BIT_RES);
+	res = MMA8452Q_SetDataResolution(client, MMA8452Q_12BIT_RES);
 	if(res != MMA8452Q_SUCCESS) 
 	{
-	    GSE_LOG("fwq MMA8452q set data reslution error\n");
+	    GSE_LOG("fwq mma8452q set data reslution error\n");
 		return res;
 	}
 
 	//set self test reg
-	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_CTL_REG2;//set self test    
-	if(hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG2, databuf))
+	memset(databuf, 0, sizeof(u8)*10);       
+	if((mma8452q_i2c_read_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1))<0)
 	{
 		GSE_ERR("read power ctl register err!\n");
 		return MMA8452Q_ERR_I2C;
@@ -1151,12 +997,9 @@ static int MMA8452Q_InitSelfTest(struct i2c_client *client)
 
 	databuf[0] &=~0x80;//clear original    	
 	databuf[0] |= 0x80; //set self test
-	
-	databuf[1]= databuf[0];
-	databuf[0]= MMA8452Q_REG_CTL_REG2;
 
-	res = i2c_master_send(client, databuf, 0x2);
-	if(res <= 0)
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1);
+	if(res < 0)
 	{
 	    GSE_LOG("fwq set selftest error\n");
 		return MMA8452Q_ERR_I2C;
@@ -1186,20 +1029,20 @@ static int MMA8452Q_JudgeTestResult(struct i2c_client *client, s32 prv[MMA8452Q_
 	u8 tmp_resolution;
     int res;
 	GSE_LOG("fwq judge test result\n");
-    if(res = hwmsen_read_byte_sr(client, MMA8452Q_REG_XYZ_DATA_CFG, &detectRage))
+    	if((res = mma8452q_i2c_read_block(client, MMA8452Q_REG_XYZ_DATA_CFG, &detectRage, 0x1))<0)
         return res;
-	if(res = hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG2, &tmp_resolution))
+	if((res = mma8452q_i2c_read_block(client, MMA8452Q_REG_CTL_REG2, &tmp_resolution, 0x1))<0)
         return res;
 
 	GSE_LOG("fwq tmp_resolution=%x , detectRage=%x\n",tmp_resolution,detectRage);
-	if((tmp_resolution&MMA8452Q_10BIT_RES) && (detectRage==0x00))
+	if((tmp_resolution&MMA8452Q_12BIT_RES) && (detectRage==0x00))
 		ptr = &self[0];
-	else if((tmp_resolution&MMA8452Q_10BIT_RES) && (detectRage&MMA8452Q_RANGE_4G))
+	else if((tmp_resolution&MMA8452Q_12BIT_RES) && (detectRage&MMA8452Q_RANGE_4G))
 	{
 		ptr = &self[1];
 		GSE_LOG("fwq self test choose ptr1\n");
 	}
-	else if((tmp_resolution&MMA8452Q_10BIT_RES) && (detectRage&MMA8452Q_RANGE_8G))
+	else if((tmp_resolution&MMA8452Q_12BIT_RES) && (detectRage&MMA8452Q_RANGE_8G))
 		ptr = &self[2];
 	else if(detectRage&MMA8452Q_RANGE_2G)//8 bit resolution
 		ptr = &self[3];
@@ -1235,9 +1078,10 @@ static int MMA8452Q_JudgeTestResult(struct i2c_client *client, s32 prv[MMA8452Q_
 /*----------------------------------------------------------------------------*/
 static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 {
-    GSE_LOG("fwq show_chipinfo_value \n");
-	struct i2c_client *client = MMA8452q_i2c_client;
-	char strbuf[MMA8452Q_BUFSIZE];
+	struct i2c_client *client = mma8452q_i2c_client;
+    	char strbuf[MMA8452Q_BUFSIZE];
+	GSE_LOG("fwq show_chipinfo_value \n");
+	
 	if(NULL == client)
 	{
 		GSE_ERR("i2c client is null!!\n");
@@ -1250,7 +1094,7 @@ static ssize_t show_chipinfo_value(struct device_driver *ddri, char *buf)
 /*----------------------------------------------------------------------------*/
 static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
 {
-	struct i2c_client *client = MMA8452q_i2c_client;
+	struct i2c_client *client = mma8452q_i2c_client;
 	char strbuf[MMA8452Q_BUFSIZE];
 	
 	if(NULL == client)
@@ -1264,9 +1108,12 @@ static ssize_t show_sensordata_value(struct device_driver *ddri, char *buf)
 /*----------------------------------------------------------------------------*/
 static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 {
-    GSE_LOG("fwq show_cali_value \n");
-	struct i2c_client *client = MMA8452q_i2c_client;
-	struct MMA8452q_i2c_data *obj;
+	struct i2c_client *client = mma8452q_i2c_client;
+	struct mma8452q_i2c_data *obj;
+	int tmp[MMA8452Q_AXES_NUM];
+	int err, mul, len;
+	len = 0;
+	GSE_LOG("fwq show_cali_value \n");
 
 	if(NULL == client)
 	{
@@ -1275,11 +1122,9 @@ static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 	}
 
 	obj = i2c_get_clientdata(client);
+	
 
-	int err, len = 0, mul;
-	int tmp[MMA8452Q_AXES_NUM];
-
-	if(err = MMA8452Q_ReadOffset(client, obj->offset))
+	if((err = MMA8452Q_ReadOffset(client, obj->offset)))
 	{
 		return -EINVAL;
 	}
@@ -1289,7 +1134,7 @@ static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
 	}
 	else
 	{    
-		mul = obj->reso->sensitivity/MMA8452q_offset_resolution.sensitivity;
+		mul = obj->reso->sensitivity/mma8452q_offset_resolution.sensitivity;
 		len += snprintf(buf+len, PAGE_SIZE-len, "[HW ][%d] (%+3d, %+3d, %+3d) : (0x%02X, 0x%02X, 0x%02X)\n", mul,                        
 			obj->offset[MMA8452Q_AXIS_X], obj->offset[MMA8452Q_AXIS_Y], obj->offset[MMA8452Q_AXIS_Z],
 			obj->offset[MMA8452Q_AXIS_X], obj->offset[MMA8452Q_AXIS_Y], obj->offset[MMA8452Q_AXIS_Z]);
@@ -1306,15 +1151,15 @@ static ssize_t show_cali_value(struct device_driver *ddri, char *buf)
     }
 }
 /*----------------------------------------------------------------------------*/
-static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t count)
+static ssize_t store_cali_value(struct device_driver *ddri, const char *buf, size_t count)
 {
-	struct i2c_client *client = MMA8452q_i2c_client;  
+	struct i2c_client *client = mma8452q_i2c_client;  
 	int err, x, y, z;
 	int dat[MMA8452Q_AXES_NUM];
 
 	if(!strncmp(buf, "rst", 3))
 	{
-		if(err = MMA8452Q_ResetCalibration(client))
+		if((err = MMA8452Q_ResetCalibration(client)))
 		{
 			GSE_ERR("reset offset err = %d\n", err);
 		}	
@@ -1324,7 +1169,7 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 		dat[MMA8452Q_AXIS_X] = x;
 		dat[MMA8452Q_AXIS_Y] = y;
 		dat[MMA8452Q_AXIS_Z] = z;
-		if(err = MMA8452Q_WriteCalibration(client, dat))
+		if((err = MMA8452Q_WriteCalibration(client, dat)))
 		{
 			GSE_ERR("write calibration err = %d\n", err);
 		}		
@@ -1339,9 +1184,9 @@ static ssize_t store_cali_value(struct device_driver *ddri, char *buf, size_t co
 /*----------------------------------------------------------------------------*/
 static ssize_t show_selftest_value(struct device_driver *ddri, char *buf)
 {
-	struct i2c_client *client = MMA8452q_i2c_client;
-	struct MMA8452q_i2c_data *obj;
-	int result =0;
+	struct i2c_client *client = mma8452q_i2c_client;
+	//struct mma8452q_i2c_data *obj;
+//	int result =0;
 	if(NULL == client)
 	{
 		GSE_ERR("i2c client is null!!\n");
@@ -1357,8 +1202,8 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 	s16 raw[MMA8452Q_AXES_NUM];
 	};
 	
-	struct i2c_client *client = MMA8452q_i2c_client;  
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct i2c_client *client = mma8452q_i2c_client;  
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
 	int idx, res, num;
 	struct item *prv = NULL, *nxt = NULL;
 	s32 avg_prv[MMA8452Q_AXES_NUM] = {0, 0, 0};
@@ -1392,7 +1237,7 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 	GSE_LOG("NORMAL:\n");
 	for(idx = 0; idx < num; idx++)
 	{
-		if(res = MMA8452Q_ReadData(client, prv[idx].raw))
+		if((res = MMA8452Q_ReadData(client, prv[idx].raw)))
 		{            
 			GSE_ERR("read data fail: %d\n", res);
 			goto exit;
@@ -1425,7 +1270,7 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 	*/
 	for(idx = 0; idx < num; idx++)
 	{
-		if(res = MMA8452Q_ReadData(client, nxt[idx].raw))
+		if((res = MMA8452Q_ReadData(client, nxt[idx].raw)))
 		{            
 			GSE_ERR("read data fail: %d\n", res);
 			goto exit;
@@ -1439,8 +1284,7 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 	//softrestet
 
 	memset(databuf, 0, sizeof(u8)*10);    
-	databuf[0] = MMA8452Q_REG_CTL_REG2;//set self test    
-	if(hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG2, databuf))
+	if((mma8452q_i2c_read_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1))<0)
 	{
 		GSE_ERR("read power ctl2 register err!\n");
 		return MMA8452Q_ERR_I2C;
@@ -1448,12 +1292,9 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 
 	databuf[0] &=~0x40;//clear original    	
 	databuf[0] |= 0x40; 
-	
-	databuf[1]= databuf[0];
-	databuf[0]= MMA8452Q_REG_CTL_REG2;
 
-	res = i2c_master_send(client, databuf, 0x2);
-	if(res <= 0)
+	res = mma8452q_i2c_write_block(client, MMA8452Q_REG_CTL_REG2, databuf, 0x1);
+	if(res < 0)
 	{
 	    GSE_LOG("fwq softrest error\n");
 		return MMA8452Q_ERR_I2C;
@@ -1495,10 +1336,10 @@ static ssize_t store_selftest_value(struct device_driver *ddri, char *buf, size_
 /*----------------------------------------------------------------------------*/
 static ssize_t show_firlen_value(struct device_driver *ddri, char *buf)
 {
-    GSE_LOG("fwq show_firlen_value \n");
 #ifdef CONFIG_MMA8452Q_LOWPASS
-	struct i2c_client *client = MMA8452q_i2c_client;
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
+	struct i2c_client *client = mma8452q_i2c_client;
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
+	GSE_LOG("fwq show_firlen_value \n");
 	if(atomic_read(&obj->firlen))
 	{
 		int idx, len = atomic_read(&obj->firlen);
@@ -1518,13 +1359,13 @@ static ssize_t show_firlen_value(struct device_driver *ddri, char *buf)
 #endif
 }
 /*----------------------------------------------------------------------------*/
-static ssize_t store_firlen_value(struct device_driver *ddri, char *buf, size_t count)
+static ssize_t store_firlen_value(struct device_driver *ddri, const char *buf, size_t count)
 {
-    GSE_LOG("fwq store_firlen_value \n");
 #ifdef CONFIG_MMA8452Q_LOWPASS
-	struct i2c_client *client = MMA8452q_i2c_client;  
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);
 	int firlen;
+	struct i2c_client *client = mma8452q_i2c_client; 
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);
+	GSE_LOG("fwq store_firlen_value \n");
 
 	if(1 != sscanf(buf, "%d", &firlen))
 	{
@@ -1553,9 +1394,9 @@ static ssize_t store_firlen_value(struct device_driver *ddri, char *buf, size_t 
 /*----------------------------------------------------------------------------*/
 static ssize_t show_trace_value(struct device_driver *ddri, char *buf)
 {
-    GSE_LOG("fwq show_trace_value \n");
 	ssize_t res;
-	struct MMA8452q_i2c_data *obj = obj_i2c_data;
+	struct mma8452q_i2c_data *obj = obj_i2c_data;
+	GSE_LOG("fwq show_trace_value \n");
 	if (obj == NULL)
 	{
 		GSE_ERR("i2c_data obj is null!!\n");
@@ -1566,11 +1407,11 @@ static ssize_t show_trace_value(struct device_driver *ddri, char *buf)
 	return res;    
 }
 /*----------------------------------------------------------------------------*/
-static ssize_t store_trace_value(struct device_driver *ddri, char *buf, size_t count)
+static ssize_t store_trace_value(struct device_driver *ddri, const char *buf, size_t count)
 {
-    GSE_LOG("fwq store_trace_value \n");
-	struct MMA8452q_i2c_data *obj = obj_i2c_data;
 	int trace;
+	struct mma8452q_i2c_data *obj = obj_i2c_data;
+	GSE_LOG("fwq store_trace_value \n");
 	if (obj == NULL)
 	{
 		GSE_ERR("i2c_data obj is null!!\n");
@@ -1591,15 +1432,17 @@ static ssize_t store_trace_value(struct device_driver *ddri, char *buf, size_t c
 /*----------------------------------------------------------------------------*/
 static ssize_t show_status_value(struct device_driver *ddri, char *buf)
 {
-    GSE_LOG("fwq show_status_value \n");
 	ssize_t len = 0;    
-	struct MMA8452q_i2c_data *obj = obj_i2c_data;
+	struct mma8452q_i2c_data *obj = obj_i2c_data;
+	GSE_LOG("fwq show_status_value \n");
 	if (obj == NULL)
 	{
 		GSE_ERR("i2c_data obj is null!!\n");
 		return 0;
 	}	
-	
+	struct i2c_client *client = mma8452q_i2c_client;
+	dumpReg(client);
+
 	if(obj->hw)
 	{
 		len += snprintf(buf+len, PAGE_SIZE-len, "CUST: %d %d (%d %d)\n", 
@@ -1620,7 +1463,7 @@ static DRIVER_ATTR(firlen,     S_IWUSR | S_IRUGO, show_firlen_value,        stor
 static DRIVER_ATTR(trace,      S_IWUSR | S_IRUGO, show_trace_value,         store_trace_value);
 static DRIVER_ATTR(status,               S_IRUGO, show_status_value,        NULL);
 /*----------------------------------------------------------------------------*/
-static struct driver_attribute *MMA8452q_attr_list[] = {
+static struct driver_attribute *mma8452q_attr_list[] = {
 	&driver_attr_chipinfo,     /*chip information*/
 	&driver_attr_sensordata,   /*dump sensor data*/
 	&driver_attr_cali,         /*show calibration data*/
@@ -1630,10 +1473,10 @@ static struct driver_attribute *MMA8452q_attr_list[] = {
 	&driver_attr_status,        
 };
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_create_attr(struct device_driver *driver) 
+static int mma8452q_create_attr(struct device_driver *driver) 
 {
 	int idx, err = 0;
-	int num = (int)(sizeof(MMA8452q_attr_list)/sizeof(MMA8452q_attr_list[0]));
+	int num = (int)(sizeof(mma8452q_attr_list)/sizeof(mma8452q_attr_list[0]));
 	if (driver == NULL)
 	{
 		return -EINVAL;
@@ -1641,19 +1484,19 @@ static int MMA8452q_create_attr(struct device_driver *driver)
 
 	for(idx = 0; idx < num; idx++)
 	{
-		if(err = driver_create_file(driver, MMA8452q_attr_list[idx]))
+		if((err = driver_create_file(driver, mma8452q_attr_list[idx])))
 		{            
-			GSE_ERR("driver_create_file (%s) = %d\n", MMA8452q_attr_list[idx]->attr.name, err);
+			GSE_ERR("driver_create_file (%s) = %d\n", mma8452q_attr_list[idx]->attr.name, err);
 			break;
 		}
 	}    
 	return err;
 }
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_delete_attr(struct device_driver *driver)
+static int mma8452q_delete_attr(struct device_driver *driver)
 {
 	int idx ,err = 0;
-	int num = (int)(sizeof(MMA8452q_attr_list)/sizeof(MMA8452q_attr_list[0]));
+	int num = (int)(sizeof(mma8452q_attr_list)/sizeof(mma8452q_attr_list[0]));
 
 	if(driver == NULL)
 	{
@@ -1663,7 +1506,7 @@ static int MMA8452q_delete_attr(struct device_driver *driver)
 
 	for(idx = 0; idx < num; idx++)
 	{
-		driver_remove_file(driver, MMA8452q_attr_list[idx]);
+		driver_remove_file(driver, mma8452q_attr_list[idx]);
 	}
 	
 
@@ -1671,12 +1514,12 @@ static int MMA8452q_delete_attr(struct device_driver *driver)
 }
 
 /*----------------------------------------------------------------------------*/
-int MMA8452q_gsensor_operate(void* self, uint32_t command, void* buff_in, int size_in,
+int mma8452q_operate(void* self, uint32_t command, void* buff_in, int size_in,
 		void* buff_out, int size_out, int* actualout)
 {
 	int err = 0;
 	int value, sample_delay;	
-	struct MMA8452q_i2c_data *priv = (struct MMA8452q_i2c_data*)self;
+	struct mma8452q_i2c_data *priv = (struct mma8452q_i2c_data*)self;
 	hwm_sensor_data* gsensor_data;
 	char buff[MMA8452Q_BUFSIZE];
 	
@@ -1705,13 +1548,13 @@ int MMA8452q_gsensor_operate(void* self, uint32_t command, void* buff_in, int si
 				{
 					sample_delay = MMA8452Q_BW_50HZ;
 				}
-				
+				mutex_lock(&mma8452q_op_mutex);
 				err = MMA8452Q_SetBWRate(priv->client, MMA8452Q_BW_100HZ); //err = MMA8452Q_SetBWRate(priv->client, sample_delay);
 				if(err != MMA8452Q_SUCCESS ) //0x2C->BW=100Hz
 				{
 					GSE_ERR("Set delay parameter error!\n");
 				}
-
+				mutex_unlock(&mma8452q_op_mutex);
 				if(value >= 50)
 				{
 					atomic_set(&priv->filter, 0);
@@ -1738,14 +1581,20 @@ int MMA8452q_gsensor_operate(void* self, uint32_t command, void* buff_in, int si
 			else
 			{
 				value = *(int *)buff_in;
+				mutex_lock(&mma8452q_op_mutex);
+				GSE_LOG("Gsensor device enable function enable = %d, sensor_power = %d!\n",value,sensor_power);
 				if(((value == 0) && (sensor_power == false)) ||((value == 1) && (sensor_power == true)))
 				{
+					enable_status = sensor_power;
 					GSE_LOG("Gsensor device have updated!\n");
 				}
 				else
 				{
+					enable_status = !sensor_power;
 					err = MMA8452Q_SetPowerMode( priv->client, !sensor_power);
+					GSE_LOG("Gsensor not in suspend MMA8452Q_SetPowerMode!, enable_status = %d\n",enable_status);
 				}
+				mutex_unlock(&mma8452q_op_mutex);
 			}
 			break;
 
@@ -1779,9 +1628,9 @@ int MMA8452q_gsensor_operate(void* self, uint32_t command, void* buff_in, int si
 /****************************************************************************** 
  * Function Configuration
 ******************************************************************************/
-static int MMA8452q_open(struct inode *inode, struct file *file)
+static int mma8452q_open(struct inode *inode, struct file *file)
 {
-	file->private_data = MMA8452q_i2c_client;
+	file->private_data = mma8452q_i2c_client;
 
 	if(file->private_data == NULL)
 	{
@@ -1791,25 +1640,21 @@ static int MMA8452q_open(struct inode *inode, struct file *file)
 	return nonseekable_open(inode, file);
 }
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_release(struct inode *inode, struct file *file)
+static int mma8452q_release(struct inode *inode, struct file *file)
 {
 	file->private_data = NULL;
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
-/*
-static int MMA8452q_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
-       unsigned long arg)
-       */
-static long MMA8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
+static long mma8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
        unsigned long arg)
 {
 	struct i2c_client *client = (struct i2c_client*)file->private_data;
-	struct MMA8452q_i2c_data *obj = (struct MMA8452q_i2c_data*)i2c_get_clientdata(client);	
+	struct mma8452q_i2c_data *obj = (struct mma8452q_i2c_data*)i2c_get_clientdata(client);	
 	char strbuf[MMA8452Q_BUFSIZE];
 	void __user *data;
 	SENSOR_DATA sensor_data;
-	int err = 0;
+	long err = 0;
 	int cali[3];
 
 	//GSE_FUN(f);
@@ -1860,7 +1705,7 @@ static long MMA8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
 				err = -EINVAL;
 				break;	  
 			}
-			
+			MMA8452Q_SetPowerMode(client,true);	
 			MMA8452Q_ReadSensorData(client, strbuf, MMA8452Q_BUFSIZE);
 			if(copy_to_user(data, strbuf, strlen(strbuf)+1))
 			{
@@ -1909,7 +1754,7 @@ static long MMA8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
 				err = -EINVAL;
 				break;	  
 			}
-			MMA8452Q_ReadRawData(client, &strbuf);
+			MMA8452Q_ReadRawData(client, strbuf);
 			if(copy_to_user(data, &strbuf, strlen(strbuf)+1))
 			{
 				err = -EFAULT;
@@ -1958,7 +1803,7 @@ static long MMA8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
 				err = -EINVAL;
 				break;	  
 			}
-			if(err = MMA8452Q_ReadCalibration(client, cali))
+			if((err = MMA8452Q_ReadCalibration(client, cali)))
 			{
 				break;
 			}
@@ -1985,58 +1830,52 @@ static long MMA8452q_unlocked_ioctl(struct file *file, unsigned int cmd,
 
 
 /*----------------------------------------------------------------------------*/
-static struct file_operations MMA8452q_fops = {
+static struct file_operations mma8452q_fops = {
 	.owner = THIS_MODULE,
-	.open = MMA8452q_open,
-	.release = MMA8452q_release,
-	//.ioctl = MMA8452q_ioctl,
-       .unlocked_ioctl = MMA8452q_unlocked_ioctl,
-
+	.open = mma8452q_open,
+	.release = mma8452q_release,
+	.unlocked_ioctl = mma8452q_unlocked_ioctl,
 };
 /*----------------------------------------------------------------------------*/
-static struct miscdevice MMA8452q_device = {
+static struct miscdevice mma8452q_device = {
 	.minor = MISC_DYNAMIC_MINOR,
 	.name = "gsensor",
-	.fops = &MMA8452q_fops,
+	.fops = &mma8452q_fops,
 };
 /*----------------------------------------------------------------------------*/
-#ifndef CONFIG_HAS_EARLYSUSPEND
+#ifndef USE_EARLY_SUSPEND
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_suspend(struct i2c_client *client, pm_message_t msg) 
+static int mma8452q_suspend(struct i2c_client *client, pm_message_t msg) 
 {
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);    
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);    
 	int err = 0;
 	u8  dat=0;
 	GSE_FUN();    
-
+    mutex_lock(&mma8452q_op_mutex);
 	if(msg.event == PM_EVENT_SUSPEND)
 	{   
 		if(obj == NULL)
 		{
 			GSE_ERR("null pointer!!\n");
+			mutex_unlock(&mma8452q_op_mutex);
 			return -EINVAL;
 		}
-		//read old data
-		if ((err = hwmsen_read_byte_sr(client, MMA8452Q_REG_CTL_REG1, &dat))) 
-		{
-           GSE_ERR("read ctl_reg1  fail!!\n");
-           return err;
-        }
-		dat = dat&0b11111110;//stand by mode
 		atomic_set(&obj->suspend, 1);
-		if(err = hwmsen_write_byte(client, MMA8452Q_REG_CTL_REG1, dat))
+		if((err = MMA8452Q_SetPowerMode(obj->client, false)))
 		{
 			GSE_ERR("write power control fail!!\n");
-			return err;
-		}        
+			mutex_unlock(&mma8452q_op_mutex);
+			return -EINVAL;
+		}       
 		MMA8452Q_power(obj->hw, 0);
 	}
+	mutex_unlock(&mma8452q_op_mutex);
 	return err;
 }
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_resume(struct i2c_client *client)
+static int mma8452q_resume(struct i2c_client *client)
 {
-	struct MMA8452q_i2c_data *obj = i2c_get_clientdata(client);        
+	struct mma8452q_i2c_data *obj = i2c_get_clientdata(client);        
 	int err;
 	GSE_FUN();
 
@@ -2045,87 +1884,91 @@ static int MMA8452q_resume(struct i2c_client *client)
 		GSE_ERR("null pointer!!\n");
 		return -EINVAL;
 	}
-
+	mutex_lock(&mma8452q_op_mutex);
 	MMA8452Q_power(obj->hw, 1);
-	if(err = MMA8452Q_Init(client, 0))
+
+	if((err = MMA8452Q_Init(client, 0)))
 	{
 		GSE_ERR("initialize client fail!!\n");
+		mutex_unlock(&mma8452q_op_mutex);
 		return err;        
 	}
 	atomic_set(&obj->suspend, 0);
-
+    mutex_unlock(&mma8452q_op_mutex);
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
 #else /*CONFIG_HAS_EARLY_SUSPEND is defined*/
 /*----------------------------------------------------------------------------*/
-static void MMA8452q_early_suspend(struct early_suspend *h) 
+static void mma8452q_early_suspend(struct early_suspend *h) 
 {
-	struct MMA8452q_i2c_data *obj = container_of(h, struct MMA8452q_i2c_data, early_drv);   
-	int err;
+	struct mma8452q_i2c_data *obj = container_of(h, struct mma8452q_i2c_data, early_drv);   
+	int err = 0;
+	u8  dat=0;
 	GSE_FUN();    
-
-	if(obj == NULL)
-	{
-		GSE_ERR("null pointer!!\n");
-		return;
+    mutex_lock(&mma8452q_op_mutex);
+	if(msg.event == PM_EVENT_SUSPEND)
+	{   
+		if(obj == NULL)
+		{
+			GSE_ERR("null pointer!!\n");
+			mutex_unlock(&mma8452q_op_mutex);
+			return -EINVAL;
+		}
+		atomic_set(&obj->suspend, 1);
+		if((err = MMA8452Q_SetPowerMode(obj->client, false)))
+		{
+			GSE_ERR("write power control fail!!\n");
+			mutex_unlock(&mma8452q_op_mutex);
+			return -EINVAL;
+		}       
+		MMA8452Q_power(obj->hw, 0);
 	}
-	atomic_set(&obj->suspend, 1); 
-	/*
-	if(err = hwmsen_write_byte(obj->client, MMA8452Q_REG_POWER_CTL, 0x00))
-	{
-		GSE_ERR("write power control fail!!\n");
-		return;
-	}  
-	*/
-	if(err = MMA8452Q_SetPowerMode(obj->client, false))
-	{
-		GSE_ERR("write power control fail!!\n");
-		return;
-	}
-
-	sensor_power = false;
-	
-	MMA8452Q_power(obj->hw, 0);
+	sensor_suspend = 1;
+	mutex_unlock(&mma8452q_op_mutex);
 }
 /*----------------------------------------------------------------------------*/
-static void MMA8452q_late_resume(struct early_suspend *h)
+static void mma8452q_late_resume(struct early_suspend *h)
 {
-	struct MMA8452q_i2c_data *obj = container_of(h, struct MMA8452q_i2c_data, early_drv);         
+	struct mma8452q_i2c_data *obj = container_of(h, struct mma8452q_i2c_data, early_drv);         
 	int err;
 	GSE_FUN();
 
 	if(obj == NULL)
 	{
 		GSE_ERR("null pointer!!\n");
-		return;
+		return -EINVAL;
 	}
-
+	mutex_lock(&mma8452q_op_mutex);
 	MMA8452Q_power(obj->hw, 1);
-	if(err = MMA8452Q_Init(obj->client, 0))
+
+	if((err = MMA8452Q_Init(client, 0)))
 	{
 		GSE_ERR("initialize client fail!!\n");
-		return;        
+		mutex_unlock(&mma8452q_op_mutex);
+		return err;        
 	}
-	atomic_set(&obj->suspend, 0);    
+	sensor_suspend = 0;
+	atomic_set(&obj->suspend, 0);
+    mutex_unlock(&mma8452q_op_mutex);
 }
 /*----------------------------------------------------------------------------*/
 #endif /*CONFIG_HAS_EARLYSUSPEND*/
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_i2c_detect(struct i2c_client *client, int kind, struct i2c_board_info *info) 
+static int mma8452q_i2c_detect(struct i2c_client *client, struct i2c_board_info *info) 
 {    
 	strcpy(info->type, MMA8452Q_DEV_NAME);
 	return 0;
 }
 
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
+static int mma8452q_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
 	struct i2c_client *new_client;
-	struct MMA8452q_i2c_data *obj;
+	struct mma8452q_i2c_data *obj;
 	struct hwmsen_object sobj;
 	int err = 0;
-	printk("\r\n zhuoshineng mma8452q_i2c_probe \r\n");
+	int retry = 0;
 	GSE_FUN();
 
 	if(!(obj = kzalloc(sizeof(*obj), GFP_KERNEL)))
@@ -2134,11 +1977,11 @@ static int MMA8452q_i2c_probe(struct i2c_client *client, const struct i2c_device
 		goto exit;
 	}
 	
-	memset(obj, 0, sizeof(struct MMA8452q_i2c_data));
+	memset(obj, 0, sizeof(struct mma8452q_i2c_data));
 
-	obj->hw = mma8452q_get_cust_acc_hw();//modified for auto detect g-sensor by zhuoshineng
+	obj->hw = mma8452q_get_cust_acc_hw();
 	
-	if(err = hwmsen_get_convert(obj->hw->direction, &obj->cvt))
+	if((err = hwmsen_get_convert(obj->hw->direction, &obj->cvt)))
 	{
 		GSE_ERR("invalid direction: %d\n", obj->hw->direction);
 		goto exit;
@@ -2169,21 +2012,26 @@ static int MMA8452q_i2c_probe(struct i2c_client *client, const struct i2c_device
 	
 #endif
 
-	MMA8452q_i2c_client = new_client;	
+	mma8452q_i2c_client = new_client;	
 
-	if(err = MMA8452Q_Init(new_client, 1))
+	for(retry = 0; retry < 3; retry++){
+	if((err = MMA8452Q_Init(new_client, 1)))
 	{
-		goto exit_init_failed;
+			GSE_ERR("MMA8452Q_device init cilent fail time: %d\n", retry);
+			continue;
+		}
 	}
+	if(err != 0)
+		goto exit_init_failed;
 	
 
-	if(err = misc_register(&MMA8452q_device))
+	if((err = misc_register(&mma8452q_device)))
 	{
-		GSE_ERR("MMA8452q_device register failed\n");
+		GSE_ERR("mma8452q_device register failed\n");
 		goto exit_misc_device_register_failed;
 	}
 
-       if((err = MMA8452q_create_attr(&(MMA8452q_init_info.platform_diver_addr->driver))))//modified for auto detect g-sensor by zhuoshineng
+	if((err = mma8452q_create_attr(&(mma8452q_init_info.platform_diver_addr->driver))))
 	{
 		GSE_ERR("create attribute err = %d\n", err);
 		goto exit_create_attr_failed;
@@ -2191,144 +2039,114 @@ static int MMA8452q_i2c_probe(struct i2c_client *client, const struct i2c_device
 
 	sobj.self = obj;
     sobj.polling = 1;
-    sobj.sensor_operate = MMA8452q_gsensor_operate;
-	if(err = hwmsen_attach(ID_ACCELEROMETER, &sobj))
+    sobj.sensor_operate = mma8452q_operate;
+	if((err = hwmsen_attach(ID_ACCELEROMETER, &sobj)))
 	{
 		GSE_ERR("attach fail = %d\n", err);
 		goto exit_kfree;
 	}
 
-#ifdef CONFIG_HAS_EARLYSUSPEND
-	obj->early_drv.level    = EARLY_SUSPEND_LEVEL_DISABLE_FB - 1,
-	obj->early_drv.suspend  = MMA8452q_early_suspend,
-	obj->early_drv.resume   = MMA8452q_late_resume,    
+#ifdef USE_EARLY_SUSPEND
+	obj->early_drv.level    = EARLY_SUSPEND_LEVEL_STOP_DRAWING - 2,
+	obj->early_drv.suspend  = mma8452q_early_suspend,
+	obj->early_drv.resume   = mma8452q_late_resume,    
 	register_early_suspend(&obj->early_drv);
 #endif 
 
-	GSE_LOG("%s: OK\n", __func__);    
-       MMA8452q_init_flag =0;//add for auto detect g-sensor by zhuoshineng
-
+	GSE_LOG("%s: OK\n", __func__);
+	mma8452q_init_flag = 0;    
 	return 0;
 
 	exit_create_attr_failed:
-	misc_deregister(&MMA8452q_device);
+	misc_deregister(&mma8452q_device);
 	exit_misc_device_register_failed:
 	exit_init_failed:
 	//i2c_detach_client(new_client);
 	exit_kfree:
 	kfree(obj);
 	exit:
-	GSE_ERR("%s: err = %d\n", __func__, err);        
-       MMA8452q_init_flag = -1;//add for auto detect g-sensor by zhuoshineng 
+	GSE_ERR("%s: err = %d\n", __func__, err);
+	mma8452q_init_flag = -1;          
 	return err;
 }
 
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_i2c_remove(struct i2c_client *client)
+static int mma8452q_i2c_remove(struct i2c_client *client)
 {
 	int err = 0;	
 	
-       if(err = MMA8452q_delete_attr(&(MMA8452q_init_info.platform_diver_addr->driver)))//modified for auto detect g-sensor by zhuoshineng
+	if((err = mma8452q_delete_attr(&(mma8452q_init_info.platform_diver_addr->driver))))
 	{
-		GSE_ERR("MMA8452q_delete_attr fail: %d\n", err);
+		GSE_ERR("mma8452q_delete_attr fail: %d\n", err);
 	}
 	
-	if(err = misc_deregister(&MMA8452q_device))
+	if((err = misc_deregister(&mma8452q_device)))
 	{
 		GSE_ERR("misc_deregister fail: %d\n", err);
 	}
 
-	if(err = hwmsen_detach(ID_ACCELEROMETER))
+	if((err = hwmsen_detach(ID_ACCELEROMETER)))
 	    
 
-	MMA8452q_i2c_client = NULL;
+	mma8452q_i2c_client = NULL;
 	i2c_unregister_device(client);
 	kfree(i2c_get_clientdata(client));
 	return 0;
 }
 /*----------------------------------------------------------------------------*/
-#if 0//zhuoshineng
-static int mma8452q_probe(struct platform_device *pdev) 
-{
-	struct acc_hw *hw = mma8452q_get_cust_acc_hw();
-	GSE_FUN();
 
-	MMA8452Q_power(hw, 1);
-	//MMA8452q_force[0] = hw->i2c_num;
-	if(i2c_add_driver(&MMA8452q_i2c_driver))
-	{
-		GSE_ERR("add driver error\n");
-		return -1;
-	}
-	return 0;
-}
-#endif
 /*----------------------------------------------------------------------------*/
-static int MMA8452q_remove(void)//modified for auto detect g-sensor by zhuoshineng
+static int  mma8452q_remove(void)
 {
-    struct acc_hw *hw = mma8452q_get_cust_acc_hw();
+    struct acc_hw *hw =  mma8452q_get_cust_acc_hw();
 
     GSE_FUN();    
     MMA8452Q_power(hw, 0);    
-    i2c_del_driver(&MMA8452q_i2c_driver);
+    i2c_del_driver(&mma8452q_i2c_driver);
     return 0;
 }
 /*----------------------------------------------------------------------------*/
-#if 0
-static struct platform_driver MMA8452q_gsensor_driver = {
-	.probe      = MMA8452q_probe,
-	.remove     = MMA8452q_remove,    
-	.driver     = {
-		.name  = "gsensor",
-		.owner = THIS_MODULE,
-	}
-};
-#endif
-static int  MMA8452q_local_init(void)//add for auto detect g-sensor by lilingyun
+
+/*----------------------------------------------------------------------------*/
+
+static int mma8452q_local_init(void)
 {
    struct acc_hw *hw = mma8452q_get_cust_acc_hw();
 	GSE_FUN();
 
 	MMA8452Q_power(hw, 1);
-//	mma8452q_force[0] = hw->i2c_num;
-	if(i2c_add_driver(&MMA8452q_i2c_driver))
+	if(i2c_add_driver(&mma8452q_i2c_driver))
 	{
 		GSE_ERR("add driver error\n");
 		return -1;
 	}
-	if(-1 == MMA8452q_init_flag)
+	if(-1 == mma8452q_init_flag)
 	{
 	   return -1;
 	}
+	
 	return 0;
 }
 
 /*----------------------------------------------------------------------------*/
-static int __init MMA8452q_init(void)
+/*----------------------------------------------------------------------------*/
+static int __init mma8452q_init(void)
 {
 	GSE_FUN();
-	i2c_register_board_info(3, &i2c_MMA8452q, 1);
-        #if 0
-	if(platform_driver_register(&MMA8452q_gsensor_driver))
-	{
-		GSE_ERR("failed to register driver");
-		return -ENODEV;
-	}
-#else
-       hwmsen_gsensor_add(&MMA8452q_init_info);//add for auto detect g-sensor by zhuoshineng
-
-#endif
+	struct acc_hw *hw = mma8452q_get_cust_acc_hw();
+	GSE_LOG("%s: i2c_number=%d\n", __func__,hw->i2c_num); 
+	i2c_register_board_info(hw->i2c_num, &i2c_MMA8452Q, 1);
+	hwmsen_gsensor_add(&mma8452q_init_info);
 	return 0;    
 }
 /*----------------------------------------------------------------------------*/
-static void __exit MMA8452q_exit(void)
+static void __exit mma8452q_exit(void)
 {
 	GSE_FUN();
-	//platform_driver_unregister(&MMA8452q_gsensor_driver);
 }
 /*----------------------------------------------------------------------------*/
-module_init(MMA8452q_init);
-module_exit(MMA8452q_exit);
+module_init(mma8452q_init);
+module_exit(mma8452q_exit);
 /*----------------------------------------------------------------------------*/
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("MMA8452Q I2C driver");

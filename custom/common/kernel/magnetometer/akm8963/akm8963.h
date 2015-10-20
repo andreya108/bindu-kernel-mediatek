@@ -212,23 +212,23 @@ struct akm8963_platform_data {
 
 #define TLIMIT_NO_SNG_HX				"2-4"
 #define TLIMIT_TN_SNG_HX				"SNG_HX"
-#define TLIMIT_LO_SNG_HX				-4096
-#define TLIMIT_HI_SNG_HX				4095
+#define TLIMIT_LO_SNG_HX				-32759
+#define TLIMIT_HI_SNG_HX				32759
 
 #define TLIMIT_NO_SNG_HY				"2-6"
 #define TLIMIT_TN_SNG_HY				"SNG_HY"
-#define TLIMIT_LO_SNG_HY				-4096
-#define TLIMIT_HI_SNG_HY				4095
+#define TLIMIT_LO_SNG_HY				-32759
+#define TLIMIT_HI_SNG_HY				32759
 
 #define TLIMIT_NO_SNG_HZ				"2-8"
 #define TLIMIT_TN_SNG_HZ				"SNG_HZ"
-#define TLIMIT_LO_SNG_HZ				-4096
-#define TLIMIT_HI_SNG_HZ				4095
+#define TLIMIT_LO_SNG_HZ				-32759
+#define TLIMIT_HI_SNG_HZ				32759
 
 #define TLIMIT_NO_SNG_ST2				"2-10"
 #define TLIMIT_TN_SNG_ST2				"SNG_ST2"
-#define TLIMIT_LO_SNG_ST2				0
-#define TLIMIT_HI_SNG_ST2				0
+#define TLIMIT_LO_SNG_ST2				16
+#define TLIMIT_HI_SNG_ST2				16
 
 #define TLIMIT_NO_SLF_ST1				"2-14"
 #define TLIMIT_TN_SLF_ST1				"SLF_ST1"
@@ -237,23 +237,23 @@ struct akm8963_platform_data {
 
 #define TLIMIT_NO_SLF_RVHX				"2-15"
 #define TLIMIT_TN_SLF_RVHX				"SLF_REVSHX"
-#define TLIMIT_LO_SLF_RVHX				-100
-#define TLIMIT_HI_SLF_RVHX				100
+#define TLIMIT_LO_SLF_RVHX				-200
+#define TLIMIT_HI_SLF_RVHX				200
 
 #define TLIMIT_NO_SLF_RVHY				"2-17"
 #define TLIMIT_TN_SLF_RVHY				"SLF_REVSHY"
-#define TLIMIT_LO_SLF_RVHY				-100
-#define TLIMIT_HI_SLF_RVHY				100
+#define TLIMIT_LO_SLF_RVHY				-200
+#define TLIMIT_HI_SLF_RVHY				200
 
 #define TLIMIT_NO_SLF_RVHZ				"2-19"
 #define TLIMIT_TN_SLF_RVHZ				"SLF_REVSHZ"
-#define TLIMIT_LO_SLF_RVHZ				-1000
-#define TLIMIT_HI_SLF_RVHZ				-300
+#define TLIMIT_LO_SLF_RVHZ				-3200
+#define TLIMIT_HI_SLF_RVHZ				-800
 
 #define TLIMIT_NO_SLF_ST2				"2-21"
 #define TLIMIT_TN_SLF_ST2				"SLF_ST2"
-#define TLIMIT_LO_SLF_ST2				0
-#define TLIMIT_HI_SLF_ST2				0
+#define TLIMIT_LO_SLF_ST2				16
+#define TLIMIT_HI_SLF_ST2				16
 
 
 

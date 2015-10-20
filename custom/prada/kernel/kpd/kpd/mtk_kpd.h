@@ -76,13 +76,30 @@ static inline void kpd_pwrkey_pmic_handler(unsigned long data){}
 #endif
 
 void kpd_pmic_rstkey_handler(unsigned long pressed);
-
+/*lenovo-sw jixj 2013.4.28 remove begin*/
+#if 0
 #define ONEKEY_REBOOT_NORMAL_MODE
 //#define TWOKEY_REBOOT_NORMAL_MODE
 //#define ONEKEY_REBOOT_OTHER_MODE
 #define TWOKEY_REBOOT_OTHER_MODE
-//#define KPD_PMIC_RSTKEY_MAP KEY_VOLUMEDOWN
+#endif
+/*lenovo-sw jixj 2013.4.28 remove end*/
+/* LENOVO.SW BEGIN.chenyb1,20130422, add for pmic homekey->vol_down mapping */
+#ifdef LENOVO_PMIC_HOME_KEY
+#define KPD_PMIC_RSTKEY_MAP KEY_VOLUMEDOWN
+#endif
+/* LENOVO.SW END.chenyb1,20130422, add for pmic homekey->vol_down mapping */
+/*lenovo-sw jixj 2013.4.28 remove begin*/
+#if 0
 #define KPD_PMIC_LPRST_TD 1 /* timeout period. 0: 5sec; 1: 7sec; 2: 9sec; 3: 11sec */
+#endif
+/*lenovo-sw jixj 2013.4.28 remove end*/
 
-
+/*lenovo-sw jixj 2013.4.28 add begin*/
+#ifdef LENOVO_LONG_POWER_RESET
+#define ONEKEY_REBOOT_NORMAL_MODE
+#define ONEKEY_REBOOT_OTHER_MODE
+#define KPD_PMIC_LPRST_TD 0 /* timeout period. 0: 8sec; 1: 11sec; 2: 14sec; 3: 5sec */
+#endif
+/*lenovo-sw jixj 2013.4.28 add end*/
 #endif

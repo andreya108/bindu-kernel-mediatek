@@ -1,12 +1,80 @@
+/* Copyright Statement:
+ *
+ * This software/firmware and related documentation ("MediaTek Software") are
+ * protected under relevant copyright laws. The information contained herein
+ * is confidential and proprietary to MediaTek Inc. and/or its licensors.
+ * Without the prior written permission of MediaTek inc. and/or its licensors,
+ * any reproduction, modification, use or disclosure of MediaTek Software,
+ * and information contained herein, in whole or in part, shall be strictly prohibited.
+ */
+/* MediaTek Inc. (C) 2010. All rights reserved.
+ *
+ * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+ * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+ * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
+ * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+ * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+ * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+ * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
+ * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
+ * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
+ * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
+ * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
+ * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
+ * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+ * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+ * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
+ * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+ *
+ * The following software/firmware and/or related documentation ("MediaTek Software")
+ * have been modified by MediaTek Inc. All revisions are subject to any receiver's
+ * applicable license agreements with MediaTek Inc.
+ */
+
+/*****************************************************************************
+*  Copyright Statement:
+*  --------------------
+*  This software is protected by Copyright and the information contained
+*  herein is confidential. The software may not be copied and the information
+*  contained herein may not be used or disclosed except with the written
+*  permission of MediaTek Inc. (C) 2008
+*
+*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
+*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
+*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
+*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
+*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+*
+*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
+*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+*
+*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
+*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
+*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
+*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
+*
+*****************************************************************************/
+
 #ifndef BUILD_LK
 #include <linux/string.h>
-#include <linux/kernel.h>
 #endif
 #include "lcm_drv.h"
 
 #ifdef BUILD_LK
 	#include <platform/mt_gpio.h>
-	#include <string.h>
 #elif defined(BUILD_UBOOT)
 	#include <asm/arch/mt_gpio.h>
 #else
@@ -64,7 +132,31 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 static void init_lcm_registers(void)
 {
 	unsigned int data_array[16];
-
+	
+	data_array[0] = 0x00023902;
+	data_array[1] = 0x0000EEFF; 				
+	dsi_set_cmdq(data_array, 2, 1);
+	MDELAY(2); 
+	
+	data_array[0] = 0x00023902;
+	data_array[1] = 0x00000826; 				
+	dsi_set_cmdq(data_array, 2, 1);
+	MDELAY(2); 
+	
+	data_array[0] = 0x00023902;
+	data_array[1] = 0x00000026; 				
+	dsi_set_cmdq(data_array, 2, 1);
+	MDELAY(2); 
+	
+	data_array[0] = 0x00023902;
+	data_array[1] = 0x000000FF; 				
+	dsi_set_cmdq(data_array, 2, 1);
+		
+	SET_RESET_PIN(0);
+	MDELAY(20); 
+	SET_RESET_PIN(1);
+	MDELAY(20); 
+		
 	data_array[0] = 0x00023902;                          
     data_array[1] = 0x00009036;                 
     dsi_set_cmdq(data_array, 2, 1); 
@@ -155,13 +247,13 @@ static void init_lcm_registers(void)
     data_array[1] = 0x00000001;                   
     dsi_set_cmdq(data_array, 2, 1);              
     data_array[0] = 0x00023902;                   
-    data_array[1] = 0x00008D02;                   
+    data_array[1] = 0x00008302;                   
     dsi_set_cmdq(data_array, 2, 1);              
     data_array[0] = 0x00023902;                   
-    data_array[1] = 0x00008D03;                   
+    data_array[1] = 0x00008303;                   
     dsi_set_cmdq(data_array, 2, 1);              
     data_array[0] = 0x00023902;                   
-    data_array[1] = 0x00008D04;     
+    data_array[1] = 0x00008304;     
     dsi_set_cmdq(data_array, 2, 1);
     data_array[0] = 0x00023902;     
     data_array[1] = 0x00003005;     
@@ -255,7 +347,7 @@ static void init_lcm_registers(void)
     data_array[1] = 0x00000221;         
     dsi_set_cmdq(data_array, 2, 1);     
     data_array[0] = 0x00023902;          
-    data_array[1] = 0x00000022; //5522          
+    data_array[1] = 0x00005522; //5522          
     dsi_set_cmdq(data_array, 2, 1);      
     data_array[0] = 0x00023902;            
     data_array[1] = 0x00000D23;            
@@ -427,6 +519,1104 @@ static void init_lcm_registers(void)
     dsi_set_cmdq(data_array, 2, 1);
 #endif
 
+//GAMMA 2.2 START
+//R+
+    data_array[0] = 0x00023902;////CMD2 
+    data_array[1] = 0x000001FF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00000075;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00004276;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00000077;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00005178;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00000079;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00006B7A;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x0000007B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x0000817C;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x0000007D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000947E;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000007F;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A580;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000081;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B382;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000083;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C184;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000085;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CD86;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000087;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F988;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000189;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001F8A;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000018B;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000598C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000018D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000858E;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000018F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D190;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000291;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000C92;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000293;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000E94;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000295;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004496;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000297;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00008098;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000299;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A69A;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000029B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D39C;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000029D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F49E;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000039F;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001EA0;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000029A3;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A4;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000036A5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A6;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044A7;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A9;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000057AA;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003AB;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000068AC;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003AD;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007AAE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003AF;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000089B0;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003B1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000095B2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+//R- 
+    
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000B3;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000042B4;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000B5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000051B6;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000B7;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00006BB8;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000B9;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000081BA;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000BB;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000094BC;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000BD;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A5BE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000BF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B3C0;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000C1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C1C2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000C3;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CDC4;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000C5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F9C6;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C7;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001FC8;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C9;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000059CA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001CD;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000085CC;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001CD;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D1CE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002CF;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000CD0;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D1;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000ED2;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D3;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044D4;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D5;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000080D6;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D7;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A6D8;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D9;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D3DA;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002DB;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F4DC;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003DD;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001EDE;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003DF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000029E0;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000036E2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E3;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044E4;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E5;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000057E6;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E7;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000068E8;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E9;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007AEA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003EB;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000089EC;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003ED;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000095EE;                 
+    dsi_set_cmdq(&data_array, 2, 1);                                                
+     
+//G+
+   data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000EF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000042F0;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000F1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000051F2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000F3;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x00006BF4;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000F5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000081F6;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;////CMD1 
+    data_array[1] = 0x000000F7;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000094F8;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000F9;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A5FA; 
+    dsi_set_cmdq(&data_array, 2, 1);  
+
+    data_array[0] = 0x00023902; //CMD2 PAGE1
+    data_array[1] = 0x000002FF;    
+    dsi_set_cmdq(&data_array, 2, 1);         
+  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000000;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B301;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000002;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C103;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000004;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CD05;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000006;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F907;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000108;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001F09;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000010A;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000590B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000010C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000850D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000010E;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D10F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000210;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000C11;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000212;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000E13;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000214;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004415;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000216;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00008017;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000218;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A619;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000021A;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D31B;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000021C;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F41D;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000031E;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001E1F;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000320;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00002921;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000322;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00003623;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000324;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004425;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000326;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00005727;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000328;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00006829;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000032A;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007A2B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000032D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000892F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000330;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00009531;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+//G- 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000032;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004233;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000034;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00005135;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000036;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00006B37;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000038;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00008139;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x0000003a;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000943B;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000003D;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A53F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000040;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B341;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000042;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C143;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000044;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CD45;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000046;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F947;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000148;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001F49;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000014A;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000594B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000014C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000854D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000014E;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D14F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000250;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000C51;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000252;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000E53;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000254;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004455;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000256;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00008058;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000259;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A65A;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000025B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D35C;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000025D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F45E;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000035F;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001E60;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000361;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00002962;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000363;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00003664;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000365;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004466;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000367;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00005768;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000369;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000686A;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000036B;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007A6C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000036D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000896E;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000036F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00009570;                 
+    dsi_set_cmdq(&data_array, 2, 1);                     
+//B+
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000071;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004272;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000073;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00005174;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000075;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00006B76;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000077;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00008178;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x00000079;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000947A;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000007B;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A57C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000007D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B37E;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000007F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C180;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000081;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CD82;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000083;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F984;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000185;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001F86;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000187;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00005988;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000189;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000858A;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000018B;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D18C;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000028D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000C8E;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000028F;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000E90;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000291;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00004492;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000293;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00008094;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000295;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A696;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000297;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D398;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000299;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F49A;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000039B;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001E9C;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000039D;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000299E;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000039F;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000036A0;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A2;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044A3;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A4;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000057A5;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A6;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000068A7;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003A9;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007AAA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003AB;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000089AC;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003AD;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000095AE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+//B-
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000000AF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000042B0;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000000B1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000051B2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000B3;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00006BB4;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000000B5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000081B6;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000000B7;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000094B8;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000B9;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A5BA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000BB;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000B3BC;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000BD;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000C1BE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000BF;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000CDC0;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000000C1;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F9C2;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C3;                 
+    dsi_set_cmdq(&data_array, 2, 1);   
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001FC4;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C5;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000059C6;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C7;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000085C8;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000001C9;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D1CA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002CB;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000CCC;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002CD;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00000ECE;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002CF;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044D0;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D1;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000080D2;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D3;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000A6D4;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D5;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000D3D6;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000002D7;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000F4D8;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003D9;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00001EDA;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003DB;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000029DC;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003DD;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000036DE;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003DF;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000044E0;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E1;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000057E2;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E3;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000068E4;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E5;                 
+    dsi_set_cmdq(&data_array, 2, 1);  
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x00007AE6;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E7;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000089E8;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000003E9;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x000095EA;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+//GAMMA2.2 END
     data_array[0] = 0x00023902;////CMD1 
     data_array[1] = 0x000000FF;                 
     dsi_set_cmdq(data_array, 2, 1);    
@@ -468,6 +1658,36 @@ static void init_lcm_registers(void)
     data_array[1] = 0x000000FF;         
     dsi_set_cmdq(data_array, 2, 1); 
 
+	/*******wengjun1 debug-----start********/
+/*
+    data_array[0] = 0x00023902;////CMD2 
+    data_array[1] = 0x000001FF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+
+    data_array[0] = 0x00023902;////mtp 
+    data_array[1] = 0x000001FB;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+
+    data_array[0] = 0x00023902;//
+    data_array[1] = 0x00003306;                 
+    dsi_set_cmdq(data_array, 2, 1);
+
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x0000FFFF;                 
+    dsi_set_cmdq(&data_array, 2, 1); 
+
+    data_array[0] = 0x00023902;////mtp 
+    data_array[1] = 0x000001FB;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+
+    data_array[0] = 0x00023902; 
+    data_array[1] = 0x0000010D;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+
+    data_array[0] = 0x00023902;
+    data_array[1] = 0x000000FF;                 
+    dsi_set_cmdq(&data_array, 2, 1);
+*/
 	/*******debug-----start********/
 	data_array[0] = 0x00110500;                
     dsi_set_cmdq(data_array, 1, 1); 
@@ -487,7 +1707,7 @@ static void init_lcm_registers(void)
     	
     data_array[0] = 0x00290500;                
     dsi_set_cmdq(data_array, 1, 1); 
-    	
+    MDELAY(50);	
     data_array[0] = 0x00023902;         
     data_array[1] = 0x000000FF;         
     dsi_set_cmdq(data_array, 2, 1); 
@@ -522,6 +1742,15 @@ static void lcm_get_params(LCM_PARAMS *params)
 		params->width  = FRAME_WIDTH;
 		params->height = FRAME_HEIGHT;
 
+#if (LCM_DSI_CMD_MODE)
+params->dbi.te_mode = LCM_DBI_TE_MODE_VSYNC_ONLY;
+//params->dbi.te_mode = LCM_DBI_TE_MODE_DISABLED;
+params->dbi.te_edge_polarity		= LCM_POLARITY_FALLING;
+params->dsi.word_count=720*3;	//DSI CMD mode need set these two bellow params, different to 6577
+params->dsi.vertical_active_line=1280;
+#endif
+
+
         #if (LCM_DSI_CMD_MODE)
 		params->dsi.mode   = CMD_MODE;
         #else
@@ -552,10 +1781,16 @@ static void lcm_get_params(LCM_PARAMS *params)
 
 		// Bit rate calculation
 		//1 Every lane speed
+		params->dsi.pll_select=1;
 		params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4	
+#if (LCM_DSI_CMD_MODE)
+		//params->dsi.PLL_CLOCK = LCM_DSI_6589_PLL_CLOCK_22;//this value must be in MTK suggested table
+		params->dsi.fbk_div =22;
+#else
 		params->dsi.fbk_div =20;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)	
-
+#endif
+		params->dsi.compatibility_for_nvk = 1;		// this parameter would be set to 1 if DriverIC is NTK's and when force match DSI clock for NTK's
 }
 
 static void lcm_init(void)
@@ -566,7 +1801,7 @@ static void lcm_init(void)
 		MDELAY(20); 
 		SET_RESET_PIN(1);
 		MDELAY(20); 
-	
+#if 0	
 		data_array[0] = 0x00023902;
 		data_array[1] = 0x0000EEFF; 				
 		dsi_set_cmdq(data_array, 2, 1);
@@ -2202,6 +3437,9 @@ static void lcm_init(void)
 		data_array[0] = 0x00290500; 			   
 		dsi_set_cmdq(data_array, 1, 1); 
 		MDELAY(50);
+#else
+		init_lcm_registers();
+#endif
 }
 
 
@@ -2275,6 +3513,15 @@ static void lcm_update(unsigned int x, unsigned int y,
 
 static unsigned int lcm_compare_id(void)
 {
+/*Begin lenovo-sw wengjun1 modify for prada nt35590 id pin detection.2013-3-7*/
+#if defined(LENOVO_PROJECT_PRADA)||defined(LENOVO_PROJECT_PRADA_ROW)
+	unsigned int ret = 0;
+	ret = mt_get_gpio_in(GPIO154);
+#if defined(BUILD_LK)
+	printf("%s, [wj]nt35590 GPIO154 = %d \n", __func__, ret);
+#endif	
+	return (ret == 0)?1:0;
+#else
 	unsigned int id=0;
 	unsigned char buffer[2];
 	unsigned int array[16];  
@@ -2301,8 +3548,8 @@ static unsigned int lcm_compare_id(void)
     	return 1;
     else
         return 0;
-
-
+#endif
+/*End lenovo-sw wengjun1 modify for prada nt35590 id pin detection.2013-3-7*/
 }
 
 
@@ -2310,6 +3557,7 @@ static unsigned int lcm_esd_check(void)
 {
   #ifndef BUILD_LK
 	char  buffer[3];
+	char  buffer1[2];
 	int   array[4];
 
 	if(lcm_esd_test)
@@ -2318,11 +3566,20 @@ static unsigned int lcm_esd_check(void)
 		return TRUE;
 	}
 
+	array[0] = 0x00023700;
+	dsi_set_cmdq(array, 1, 1);
+
+	read_reg_v2(0x0A, buffer1, 2);
+	printk("[wj]read reg(0x0A): 0x%02x 0x%02x.\n", buffer1[0], buffer1[1]);
+
 	array[0] = 0x00013700;
 	dsi_set_cmdq(array, 1, 1);
 
 	read_reg_v2(0x36, buffer, 1);
-	if(buffer[0]==0x90)
+
+
+
+	if((buffer[0]==0x90) && (buffer1[0] == 0x9C) && (buffer1[1] == 0x00))
 	{
 		return FALSE;
 	}
@@ -2337,7 +3594,7 @@ static unsigned int lcm_esd_check(void)
 static unsigned int lcm_esd_recover(void)
 {
 	lcm_init();
-	lcm_resume();
+	//lcm_resume();
 
 	return TRUE;
 }

@@ -1,108 +1,3 @@
-//4.25
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- *
- * The following software/firmware and/or related documentation ("MediaTek Software")
- * have been modified by MediaTek Inc. All revisions are subject to any receiver's
- * applicable license agreements with MediaTek Inc.
- */
-
-/*****************************************************************************
-*  Copyright Statement:
-*  --------------------
-*  This software is protected by Copyright and the information contained
-*  herein is confidential. The software may not be copied and the information
-*  contained herein may not be used or disclosed except with the written
-*  permission of MediaTek Inc. (C) 2008
-*
-*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
-*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
-*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
-*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
-*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
-*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
-*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
-*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
-*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
-*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
-*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
-*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
-*
-*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
-*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
-*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
-*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
-*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
-*
-*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
-*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
-*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
-*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
-*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
-*
-*****************************************************************************//*****************************************************************************
- *
- * Filename:
- * ---------
- *   sensor.c
- *
- * Project:
- * --------
- *   DUMA
- *
- * Description:
- * ------------
- *   Source code of Sensor driver
- *
- *
- * Author:
- * -------
- *   PC Huang (MTK02204)
- *
- *============================================================================
- *             HISTORY
- * Below this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
- *------------------------------------------------------------------------------
- * $Revision:$
- * $Modtime:$
- * $Log:$
- *
- * 07 11 2011 jun.pei
- * [ALPS00059464] hi704 sensor check in
- * .
- *
- *
- *------------------------------------------------------------------------------
- * Upper this line, this part is controlled by CC/CQ. DO NOT MODIFY!!
- *============================================================================
- ****************************************************************************/
 #include <linux/videodev2.h>
 #include <linux/i2c.h>
 #include <linux/platform_device.h>
@@ -162,8 +57,6 @@ kal_uint16 HI704_read_cmos_sensor(kal_uint8 addr)
     return get_byte;
 }
 
-static void HI704_Set_VGA_mode(void);
-
 
 /*******************************************************************************
 * // Adapter for Winmo typedef 
@@ -188,510 +81,436 @@ const HI704_SENSOR_INIT_INFO HI704_Initial_Setting_Info[] =
   
     //PAGE 0
     //Image Size/Windowing/HSYNC/VSYNC[Type1]
-			{0x03, 0x00},   //PAGEMODE(0x03)
-			{0x01, 0xf1},
-			{0x01, 0xf3},   //PWRCTL(0x01[P0])Bit[1]:Software Reset.
-			{0x01, 0xf1},
-
-			{0x03, 0x00},//fuzr1 2012-07-09 require by vendor add
-			{0x10, 0x00},//fuzr1 2012-07-09 require by vendor add
-			{0x11, 0x90},   //For No Fixed Framerate Bit[2]
-			{0x12, 0x05},  //PCLK INV
-
-			{0x20, 0x00},
-			{0x21, 0x04},
-			{0x22, 0x00},
-			{0x23, 0x04},
-
-			{0x24, 0x01},
-			{0x25, 0xe0},
-			{0x26, 0x02},
-			{0x27, 0x80},
-
-			{0x40, 0x01},   //HBLANK: 0x70 = 112
-			{0x41, 0x58},
-			{0x42, 0x00},   //VBLANK: 0x40 = 64
-			{0x43, 0x14},
-
-			//BLC
-			{0x80, 0x2e},
-			{0x81, 0x7e},
-			{0x82, 0x90},
-			{0x83, 0x30},
-			{0x84, 0x2c},
-			{0x85, 0x4b},
-			{0x89, 0x48},
-
-
-
-			{0x90, 0x0b}, //BLC_TIME_TH_ON
-			{0x91, 0x0b}, //BLC_TIME_TH_OFF 
-			{0x92, 0x40}, //BLC_AG_TH_ON
-			{0x93, 0x38}, //BLC_AG_TH_OFF
-
-			{0x98, 0x38},
-			{0x99, 0x40},
-			{0xa0, 0x00},
-			{0xa8, 0x40},
-
-			//PAGE 2
-			//Analog Circuit
-			{0x03, 0x02},      
-			{0x13, 0x40},
-			{0x14, 0x04},
-			{0x1a, 0x00},
-			{0x1b, 0x08},
-
-			{0x20, 0x33},
-			{0x21, 0xaa},
-			{0x22, 0xa7},
-			{0x23, 0xb1},       //For Sun Pot
-
-			{0x3b, 0x48},
-
-			{0x50, 0x21},
-			{0x52, 0xa2},
-			{0x53, 0x0a},
-			{0x54, 0x30},
-			{0x55, 0x10},
-			{0x56, 0x0c},
-			{0x59, 0x0F},
-
-			{0x60, 0x54},
-			{0x61, 0x5d},
-			{0x62, 0x56},
-			{0x63, 0x5c},
-			{0x64, 0x56},
-			{0x65, 0x5c},
-			{0x72, 0x57},
-			{0x73, 0x5b},
-			{0x74, 0x57},
-			{0x75, 0x5b},
-			{0x80, 0x02},
-			{0x81, 0x46},
-			{0x82, 0x07},
-			{0x83, 0x10},
-			{0x84, 0x07},
-			{0x85, 0x10},
-			{0x92, 0x24},
-			{0x93, 0x30},
-			{0x94, 0x24},
-			{0x95, 0x30},
-			{0xa0, 0x03},
-			{0xa1, 0x45},
-			{0xa4, 0x45},
-			{0xa5, 0x03},
-			{0xa8, 0x12},
-			{0xa9, 0x20},
-			{0xaa, 0x34},
-			{0xab, 0x40},
-			{0xb8, 0x55},
-			{0xb9, 0x59},
-			{0xbc, 0x05},
-			{0xbd, 0x09},
-			{0xc0, 0x5f},
-			{0xc1, 0x67},
-			{0xc2, 0x5f},
-			{0xc3, 0x67},
-			{0xc4, 0x60},
-			{0xc5, 0x66},
-			{0xc6, 0x60},
-			{0xc7, 0x66},
-			{0xc8, 0x61},
-			{0xc9, 0x65},
-			{0xca, 0x61},
-			{0xcb, 0x65},
-			{0xcc, 0x62},
-			{0xcd, 0x64},
-			{0xce, 0x62},
-			{0xcf, 0x64},
-			{0xd0, 0x53},
-			{0xd1, 0x68},
-
-			//PAGE 10
-			//Image Format, Image Effect
-			{0x03, 0x10},
-			{0x10, 0x03},
-			{0x11, 0x43},
-			{0x12, 0x30},
-
-			{0x40, 0x88},
-			{0x41, 0x02},
-			{0x48, 0x88},
-
-			{0x50, 0x48},
-
-			{0x60, 0x67},
-			{0x61, 0x00},
-			{0x62, 0x98},
-			{0x63, 0x98},
-			{0x64, 0x48},
-			{0x66, 0x90},
-			{0x67, 0x76},  //42
-
-			//PAGE 11
-			//Z-LPF
-			{0x03, 0x11},
-			{0x10, 0x25},   
-			{0x11, 0x1f},   
-
-			{0x20, 0x00},   
-			{0x21, 0x38},   
-			{0x23, 0x0a},
-
-			{0x60, 0x1a},   //10
-			{0x61, 0xa2},//82
-			{0x62, 0x00},   
-			{0x63, 0x83},   
-			{0x64, 0x83},      
-			{0x67, 0xF0},   
-			{0x68, 0x30},   
-			{0x69, 0x10},   
-
-			//PAGE 12
-			//2D
-			{0x03, 0x12},
-
-			{0x40, 0xe9},
-			{0x41, 0x09},
-
-			{0x50, 0x18},
-			{0x51, 0x24},
-
-			{0x70, 0x1f},
-			{0x71, 0x00},
-			{0x72, 0x00},
-			{0x73, 0x00},
-			{0x74, 0x10},
-			{0x75, 0x10},
-			{0x76, 0x20},
-			{0x77, 0x80},
-			{0x78, 0x88},
-			{0x79, 0x18},
-
-			{0xb0, 0x7d},
-
-			//PAGE 13
-			//Edge Enhancement
-			{0x03, 0x13},
-			{0x10, 0x01},   
-			{0x11, 0x89},   
-			{0x12, 0x14},   
-			{0x13, 0x19},   
-			{0x14, 0x08},
-
-			{0x20, 0x05},
-			{0x21, 0x03},
-			{0x23, 0x30},
-			{0x24, 0x33},
-			{0x25, 0x08},
-			{0x26, 0x18},
-			{0x27, 0x00},
-			{0x28, 0x08},
-			{0x29, 0x50},
-			{0x2a, 0xe0},
-			{0x2b, 0x10},
-			{0x2c, 0x28},
-			{0x2d, 0x40},
-			{0x2e, 0x00},
-			{0x2f, 0x00},
-
-			//PAGE 11
-			{0x30, 0x11},
-
-			{0x80, 0x03},
-			{0x81, 0x07},
-
-			{0x90, 0x05},
-			{0x91, 0x03},
-			{0x92, 0x00},
-			{0x93, 0x20},
-			{0x94, 0x42},
-			{0x95, 0x60},
-
-			//PAGE 14
-			//Lens Shading Correction
-			{0x03, 0x14},
-			{0x10, 0x01},
-
-			{0x20, 0x80},   //For Y decay
-			{0x21, 0x80},   //For Y decay
-			{0x22, 0x78},
-			{0x23, 0x4d},
-			{0x24, 0x46},
-
-			//PAGE 15 
-			//Color Correction
-			//add 0424
-			{0x03, 0x15}, 
-			{0x10, 0x03},
-			{0x14, 0x3c},
-			{0x16, 0x2c},
-			{0x17, 0x2f},
-
-			{0x30, 0xcb},
-			{0x31, 0x61},
-			{0x32, 0x16},
-			{0x33, 0x23},
-			{0x34, 0xce},
-			{0x35, 0x2b},
-			{0x36, 0x01},
-			{0x37, 0x34},
-			{0x38, 0x75},
-
-			{0x40, 0x87},
-			{0x41, 0x18},
-			{0x42, 0x91},
-			{0x43, 0x94},
-			{0x44, 0x9f},
-			{0x45, 0x33},
-			{0x46, 0x00},
-			{0x47, 0x94},
-			{0x48, 0x14},
-			//PAGE 16
-			//Gamma Correction
-			{0x03, 0x16},
-			{0x30,0x00},
-			{0x31,0x10},
-			{0x32,0x1a},
-			{0x33,0x2c},
-			{0x34,0x4c},
-			{0x35,0x68},
-			{0x36,0x82},
-			{0x37,0x98},
-			{0x38,0xac},
-			{0x39,0xbc},
-			{0x3a,0xca},
-			{0x3b,0xe0},
-			{0x3c,0xef},
-			{0x3d,0xf9},
-			{0x3e,0xff},
-
-			/*{0x03,  0x16},
-
-			{0x30,  0x00},
-			{0x31,	0x0a},
-			{0x32,	0x1b},
-			{0x33,	0x2e},
-			{0x34,	0x5c},
-			{0x35,	0x79},
-			{0x36,	0x95},
-			{0x37,	0xa4},
-			{0x38,	0xb1},
-			{0x39,	0xbd},
-			{0x3a,	0xc8},
-			{0x3b,	0xd9},
-			{0x3c,	0xe8},
-			{0x3d,	0xf5},
-			{0x3e,  0xff},*/
-			// add 0424
-			/*{0x03,  0x16},
-
-			{0x30,  0x00},
-			{0x31,  0x1c},
-			{0x32,  0x2d},
-			{0x33,  0x4e},
-			{0x34,  0x6d},
-			{0x35,  0x8b},
-			{0x36,  0xa2},
-			{0x37,  0xb5},
-			{0x38,  0xc4},
-			{0x39,  0xd0},
-			{0x3a,  0xda},
-			{0x3b,  0xea},
-			{0x3c,  0xf4},
-			{0x3d,  0xfb},
-			{0x3e,  0xff},
-			*/
-			/*// old
-			{0x03,  0x16},  
-			{0x30,  0x00},
-			{0x31,  0x1c},
-			{0x32,  0x2d},
-			{0x33,  0x4e},
-			{0x34,  0x6d},
-			{0x35,  0x8b},
-			{0x36,  0xa2},
-			{0x37,  0xb5},
-			{0x38,  0xc4},
-			{0x39,  0xd0},
-			{0x3a,  0xda},
-			{0x3b,  0xea},
-			{0x3c,  0xf4},
-			{0x3d,  0xfb},
-			{0x03,  0x16},
-
-			{0x30,  0x00},
-			{0x31,	0x0a},
-			{0x32,	0x1b},
-			{0x33,	0x2e},
-			{0x34,	0x5c},
-			{0x35,	0x79},
-			{0x36,	0x95},
-			{0x37,	0xa4},
-			{0x38,	0xb1},
-			{0x39,	0xbd},
-			{0x3a,	0xc8},
-			{0x3b,	0xd9},
-			{0x3c,	0xe8},
-			{0x3d,	0xf5},
-			{0x3e,  0xff},
-			{0x3e,  0xff},
-			*/ 
-			//PAGE 17 
-			//Auto Flicker Cancellation 
-			{0x03, 0x17},
-
-			{0xc4, 0x3c},
-			{0xc5, 0x32},
-
-			//PAGE 20 
-			//AE 
-			{0x03, 0x20},
-			{0x10, 0x0c},
-			{0x11, 0x04},
-
-			{0x20, 0x01},
-			{0x28, 0x27},
-			{0x29, 0xa1},
-
-			{0x2a, 0xf0},
-			{0x2b, 0x34},
-			{0x2c, 0x2b},
-
-			{0x30, 0xf8},
-
-			{0x39, 0x22},
-			{0x3a, 0xde},
-			{0x3b, 0x22},
-			{0x3c, 0xde},
-
-			{0x60, 0x95}, 
-			{0x68, 0x3c},
-			{0x69, 0x64},
-			{0x6A, 0x28},
-			{0x6B, 0xc8},
-
-			{0x70, 0x3a},   //For Y decay   42
-
-			{0x76, 0x22}, //Unlock bnd1
-			{0x77, 0x02}, //Unlock bnd2
-
-			{0x78, 0x12}, //Yth 1
-			{0x79, 0x27},
-			{0x7a, 0x23}, //Yth 3
-
-			{0x7c, 0x1d},
-			{0x7d, 0x22},
-			{0x83, 0x00}, //EXP Normal 20.00 fps 
-			{0x84, 0x92}, 
-			{0x85, 0x7c}, 
-			{0x86, 0x00}, //EXPMin 3000.00 fps
-			{0x87, 0xfa}, 
-			{0x88, 0x01}, //EXP Max 8.33 fps 
-			{0x89, 0x5f}, 
-			{0x8a, 0x90}, 
-			{0x8B, 0x1d}, //EXP100 
-			{0x8C, 0x4c}, 
-			{0x8D, 0x18}, //EXP120 
-			{0x8E, 0x6a}, 
-
-			{0x91, 0x02},
-			{0x92, 0xdc},
-			{0x93, 0x6c},   
-			{0x94, 0x01},
-			{0x95, 0xb7},
-			{0x96, 0x74},   
-			{0x98, 0x8C},
-			{0x99, 0x23},  
-
-			{0x9c, 0x06}, //EXP Limit 428.57 fps 
-			{0x9d, 0xd6}, 
-			{0x9e, 0x00}, //EXP Unit 
-			{0x9f, 0xfa}, 
-
-			{0xb1, 0x14},
-			{0xb2, 0x48},
-			{0xb4, 0x14},
-			{0xb5, 0x38},
-			{0xb6, 0x26},
-			{0xb7, 0x20},
-			{0xb8, 0x1d},
-			{0xb9, 0x1b},
-			{0xba, 0x1a},
-			{0xbb, 0x19},
-			{0xbc, 0x19},
-			{0xbd, 0x18},
-
-			{0xc0, 0x16},   //0x1a->0x16
-			{0xc3, 0x48},
-			{0xc4, 0x48}, 
-
-			//PAGE 22 
-			//AWB
-			{0x03, 0x22},
-			{0x10, 0xe2},
-			{0x11, 0x26},
-
-			{0x21, 0x40},
-
-			{0x30, 0x80},
-			{0x31, 0x80},
-			{0x38, 0x12},
-			{0x39, 0x33},
-
-			{0x40, 0xf0},
-			{0x41, 0x33},
-			{0x42, 0x33},
-			{0x43, 0xf3},
-			{0x44, 0x55},
-			{0x45, 0x44},
-			{0x46, 0x02},
-
-			{0x80, 0x45},
-			{0x81, 0x20},
-			{0x82, 0x48},
-			{0x83, 0x52},
-			{0x84, 0x1b},
-			{0x85, 0x50},
-			{0x86, 0x25},
-			{0x87, 0x4d},
-			{0x88, 0x38},
-			{0x89, 0x3e},
-			{0x8a, 0x29},
-			{0x8b, 0x02},
-			{0x8d, 0x22},
-			{0x8e, 0x71},  
-			{0x8f, 0x63},
-
-			{0x90, 0x60},
-			{0x91, 0x5c},
-			{0x92, 0x56},
-			{0x93, 0x52},
-			{0x94, 0x4c},
-			{0x95, 0x36},
-			{0x96, 0x31},
-			{0x97, 0x2e},
-			{0x98, 0x2a},
-			{0x99, 0x29},
-			{0x9a, 0x26},
-			{0x9b, 0x09},
-
-			//PAGE 22
-			{0x03, 0x22},
-			{0x10, 0xfb},
-
-			//PAGE 20
-			{0x03, 0x20},
-			{0x10, 0x9c},
-
-			{0x01, 0xf0},
-
-			//PAGE 0
-			{0x03, 0x00},
-			{0x01, 0x90},   //0xf1 ->0x41 : For Preview Green/Red Line.
-
-			{0xff, 0xff}    //End of Initial Setting
+    {0x03, 0x00},   //PAGEMODE(0x03)
+    {0x01, 0xf1},
+    {0x01, 0xf3},   //PWRCTL(0x01[P0])Bit[1]:Software Reset.
+    {0x01, 0xf1},
+
+    {0x11, 0x90},   //For No Fixed Framerate Bit[2]
+    {0x12, 0x04},  //PCLK INV
+        
+    {0x20, 0x00},
+    {0x21, 0x04},
+    {0x22, 0x00},
+    {0x23, 0x04},
+
+	{0x24, 0x01},
+    {0x25, 0xe0},
+    {0x26, 0x02},
+    {0x27, 0x80},
+
+	{0x40, 0x01},   //HBLANK: 0x70 = 112
+    {0x41, 0x58},
+    {0x42, 0x00},   //VBLANK: 0x40 = 64
+    {0x43, 0x13},   //0x04 -> 0x40: For Max Framerate = 30fps
+            
+    //BLC
+    {0x80, 0x2e},
+    {0x81, 0x7e},
+    {0x82, 0x90},
+    {0x83, 0x30},
+    {0x84, 0x2c},
+    {0x85, 0x4b},
+    {0x89, 0x48},
+        
+    {0x90, 0x0a},
+    {0x91, 0x0a},    
+    {0x92, 0x48},
+    {0x93, 0x40},
+    {0x98, 0x38},
+    {0x99, 0x40},
+    {0xa0, 0x00},
+    {0xa8, 0x40},
+    
+    //PAGE 2
+    //Analog Circuit
+    {0x03, 0x02},      
+    {0x13, 0x40},
+    {0x14, 0x04},
+    {0x1a, 0x00},
+    {0x1b, 0x08},
+        
+    {0x20, 0x33},
+    {0x21, 0xaa},
+    {0x22, 0xa7},
+    {0x23, 0xb1},       //For Sun Pot
+        
+    {0x3b, 0x48},
+        
+    {0x50, 0x21},
+    {0x52, 0xa2},
+    {0x53, 0x0a},
+    {0x54, 0x30},
+    {0x55, 0x10},
+    {0x56, 0x0c},
+    {0x59, 0x0F},
+        
+    {0x60, 0x54},
+    {0x61, 0x5d},
+    {0x62, 0x56},
+    {0x63, 0x5c},
+    {0x64, 0x56},
+    {0x65, 0x5c},
+    {0x72, 0x57},
+    {0x73, 0x5b},
+    {0x74, 0x57},
+    {0x75, 0x5b},
+    {0x80, 0x02},
+    {0x81, 0x46},
+    {0x82, 0x07},
+    {0x83, 0x10},
+    {0x84, 0x07},
+    {0x85, 0x10},
+    {0x92, 0x24},
+    {0x93, 0x30},
+    {0x94, 0x24},
+    {0x95, 0x30},
+    {0xa0, 0x03},
+    {0xa1, 0x45},
+    {0xa4, 0x45},
+    {0xa5, 0x03},
+    {0xa8, 0x12},
+    {0xa9, 0x20},
+    {0xaa, 0x34},
+    {0xab, 0x40},
+    {0xb8, 0x55},
+    {0xb9, 0x59},
+    {0xbc, 0x05},
+    {0xbd, 0x09},
+    {0xc0, 0x5f},
+    {0xc1, 0x67},
+    {0xc2, 0x5f},
+    {0xc3, 0x67},
+    {0xc4, 0x60},
+    {0xc5, 0x66},
+    {0xc6, 0x60},
+    {0xc7, 0x66},
+    {0xc8, 0x61},
+    {0xc9, 0x65},
+    {0xca, 0x61},
+    {0xcb, 0x65},
+    {0xcc, 0x62},
+    {0xcd, 0x64},
+    {0xce, 0x62},
+    {0xcf, 0x64},
+    {0xd0, 0x53},
+    {0xd1, 0x68},
+     
+    //PAGE 10
+    //Image Format, Image Effect
+    {0x03, 0x10},
+    {0x10, 0x03},
+    {0x11, 0x43},
+    {0x12, 0x30},
+        
+    {0x40, 0x80},
+    {0x41, 0x02},
+    {0x48, 0x98},
+        
+    {0x50, 0x48},
+           
+    {0x60, 0x7f},
+    {0x61, 0x00},
+    {0x62, 0xb0},
+    {0x63, 0xa8},
+    {0x64, 0x48},
+    {0x66, 0x90},
+    {0x67, 0x42},
+    
+    //PAGE 11
+    //Z-LPF
+    {0x03, 0x11},
+    {0x10, 0x25},   
+    {0x11, 0x1f},   
+        
+    {0x20, 0x00},   
+    {0x21, 0x38},   
+    {0x23, 0x0a},
+        
+    {0x60, 0x10},   
+    {0x61, 0x82},
+    {0x62, 0x00},   
+    {0x63, 0x83},   
+    {0x64, 0x83},      
+    {0x67, 0xF0},   
+    {0x68, 0x30},   
+    {0x69, 0x10},   
+    
+    //PAGE 12
+    //2D
+    {0x03, 0x12},
+        
+    {0x40, 0xe9},
+    {0x41, 0x09},
+        
+    {0x50, 0x18},
+    {0x51, 0x24},
+        
+    {0x70, 0x1f},
+    {0x71, 0x00},
+    {0x72, 0x00},
+    {0x73, 0x00},
+    {0x74, 0x10},
+    {0x75, 0x10},
+    {0x76, 0x20},
+    {0x77, 0x80},
+    {0x78, 0x88},
+    {0x79, 0x18},
+        
+    {0xb0, 0x7d},
+
+    //PAGE 13
+    //Edge Enhancement
+    {0x03, 0x13},
+    {0x10, 0x01},   
+    {0x11, 0x89},   
+    {0x12, 0x14},   
+    {0x13, 0x19},   
+    {0x14, 0x08},
+        
+    {0x20, 0x06},
+    {0x21, 0x03},
+    {0x23, 0x30},
+    {0x24, 0x33},
+    {0x25, 0x08},
+    {0x26, 0x18},
+    {0x27, 0x00},
+    {0x28, 0x08},
+    {0x29, 0x50},
+    {0x2a, 0xe0},
+    {0x2b, 0x10},
+    {0x2c, 0x28},
+    {0x2d, 0x40},
+    {0x2e, 0x00},
+    {0x2f, 0x00},
+
+    //PAGE 11
+    {0x30, 0x11},
+        
+    {0x80, 0x03},
+    {0x81, 0x07},
+        
+    {0x90, 0x04},
+    {0x91, 0x02},
+    {0x92, 0x00},
+    {0x93, 0x20},
+    {0x94, 0x42},
+    {0x95, 0x60},
+    
+    //PAGE 14
+    //Lens Shading Correction
+    {0x03, 0x14},
+    {0x10, 0x01},
+        
+    {0x20, 0x80},   //For Y decay
+    {0x21, 0x80},   //For Y decay
+    {0x22, 0x78},
+    {0x23, 0x4d},
+    {0x24, 0x46},
+    
+    //PAGE 15 
+    //Color Correction
+    {0x03, 0x15}, 
+    {0x10, 0x03},         
+    {0x14, 0x3c},
+    {0x16, 0x2c},
+    {0x17, 0x2f},
+          
+    {0x30, 0xc4},
+    {0x31, 0x5b},
+    {0x32, 0x1f},
+    {0x33, 0x2a},
+    {0x34, 0xce},
+    {0x35, 0x24},
+    {0x36, 0x0b},
+    {0x37, 0x3f},
+    {0x38, 0x8a},
+           
+    {0x40, 0x87},
+    {0x41, 0x18},
+    {0x42, 0x91},
+    {0x43, 0x94},
+    {0x44, 0x9f},
+    {0x45, 0x33},
+    {0x46, 0x00},
+    {0x47, 0x94},
+    {0x48, 0x14},
+    
+    //PAGE 16
+    //Gamma Correction
+    {0x03,  0x16},
+        
+    {0x30,  0x00},
+    {0x31,  0x1c},
+    {0x32,  0x2d},
+    {0x33,  0x4e},
+    {0x34,  0x6d},
+    {0x35,  0x8b},
+    {0x36,  0xa2},
+    {0x37,  0xb5},
+    {0x38,  0xc4},
+    {0x39,  0xd0},
+    {0x3a,  0xda},
+    {0x3b,  0xea},
+    {0x3c,  0xf4},
+    {0x3d,  0xfb},
+    {0x3e,  0xff},
+    
+    //PAGE 17 
+    //Auto Flicker Cancellation 
+    {0x03, 0x17},
+        
+    {0xc4, 0x3c},
+    {0xc5, 0x32},
+    
+    //PAGE 20 
+    //AE 
+    {0x03, 0x20},
+        
+    {0x10, 0x0c},
+    {0x11, 0x04},
+           
+    {0x20, 0x01},
+    {0x28, 0x27},
+    {0x29, 0xa1},   
+    {0x2a, 0xf0},
+    {0x2b, 0x34},
+    {0x2c, 0x2b},
+           
+    {0x30, 0xf8},
+    {0x39, 0x22},
+    {0x3a, 0xde},
+    {0x3b, 0x22},
+    {0x3c, 0xde},
+    
+    {0x60, 0x95},
+    {0x68, 0x3c},
+    {0x69, 0x64},
+    {0x6A, 0x28},
+    {0x6B, 0xc8},
+    
+    {0x70, 0x42},   //For Y decay   
+    {0x76, 0x22},
+    {0x77, 0x02},   
+    {0x78, 0x12},
+    {0x79, 0x27},
+    {0x7a, 0x23},  
+    {0x7c, 0x1d},
+    {0x7d, 0x22},
+    
+    {0x83, 0x00},//expTime:0x83,0x84,0x85
+    {0x84, 0xbe},
+    {0x85, 0x6e}, 
+        
+    {0x86, 0x00},//expMin is minimum time of expTime,
+    {0x87, 0xfa},
+        
+    {0x88, 0x02},
+    {0x89, 0x7a},
+    {0x8a, 0xc4},    
+        
+    {0x8b, 0x3f},
+    {0x8c, 0x7a},  
+        
+    {0x8d, 0x34},
+    {0x8e, 0xbc},
+    
+    {0x91, 0x02},
+    {0x92, 0xdc},
+    {0x93, 0x6c},   
+    {0x94, 0x01},
+    {0x95, 0xb7},
+    {0x96, 0x74},   
+    {0x98, 0x8C},
+    {0x99, 0x23},  
+        
+    {0x9c, 0x0b},   //For Y decay: Exposure Time
+    {0x9d, 0xb8},   //For Y decay: Exposure Time
+    {0x9e, 0x00},
+    {0x9f, 0xfa},
+    
+    {0xb1, 0x14},
+    {0xb2, 0x50},
+    {0xb4, 0x14},
+    {0xb5, 0x38},
+    {0xb6, 0x26},
+    {0xb7, 0x20},
+    {0xb8, 0x1d},
+    {0xb9, 0x1b},
+    {0xba, 0x1a},
+    {0xbb, 0x19},
+    {0xbc, 0x19},
+    {0xbd, 0x18},
+    
+    {0xc0, 0x16},   //0x1a->0x16
+    {0xc3, 0x48},
+    {0xc4, 0x48}, 
+    
+    //PAGE 22 
+    //AWB
+    {0x03, 0x22},
+    {0x10, 0xe2},
+    {0x11, 0x26},
+        
+    {0x21, 0x40},
+           
+    {0x30, 0x80},
+    {0x31, 0x80},
+    {0x38, 0x12},
+    {0x39, 0x33},
+        
+    {0x40, 0xf0},
+    {0x41, 0x33},
+    {0x42, 0x33},
+    {0x43, 0xf3},
+    {0x44, 0x55},
+    {0x45, 0x44},
+    {0x46, 0x02},
+           
+    {0x80, 0x45},
+    {0x81, 0x20},
+    {0x82, 0x48},
+    {0x83, 0x52},
+    {0x84, 0x1b},
+    {0x85, 0x50},
+    {0x86, 0x25},
+    {0x87, 0x4d},
+    {0x88, 0x38},
+    {0x89, 0x3e},
+    {0x8a, 0x29},
+    {0x8b, 0x02},
+    {0x8d, 0x22},
+    {0x8e, 0x71},  
+    {0x8f, 0x63},
+        
+    {0x90, 0x60},
+    {0x91, 0x5c},
+    {0x92, 0x56},
+    {0x93, 0x52},
+    {0x94, 0x4c},
+    {0x95, 0x36},
+    {0x96, 0x31},
+    {0x97, 0x2e},
+    {0x98, 0x2a},
+    {0x99, 0x29},
+    {0x9a, 0x26},
+    {0x9b, 0x09},
+
+    //PAGE 22
+    {0x03, 0x22},
+    {0x10, 0xfb},
+
+    //PAGE 20
+    {0x03, 0x20},
+    {0x10, 0x9c},
+    
+    {0x01, 0xf0},
+
+    //PAGE 0
+    {0x03, 0x00},
+    {0x01, 0x90},   //0xf1 ->0x41 : For Preview Green/Red Line.
+
+	{0xff, 0xff}    //End of Initial Setting
 
 };
 static void HI704_Initial_Setting(void)
@@ -701,7 +520,6 @@ static void HI704_Initial_Setting(void)
 	{	
 		HI704_write_cmos_sensor(HI704_Initial_Setting_Info[iEcount].address, HI704_Initial_Setting_Info[iEcount].data);
 	}
-	HI704_Set_VGA_mode();
 }
 
 static void HI704_Init_Parameter(void)
@@ -735,7 +553,7 @@ static kal_uint8 HI704_power_on(void)
 {
     kal_uint8 HI704_sensor_id = 0;
     spin_lock(&hi704_yuv_drv_lock);
-	HI704_sensor.pv_pclk = 12000000;
+    HI704_sensor.pv_pclk = 13000000;
     spin_unlock(&hi704_yuv_drv_lock);
     //Software Reset
     HI704_write_cmos_sensor(0x01,0xf1);
@@ -855,8 +673,6 @@ static void HI704_Set_Mirror_Flip(kal_uint8 image_mirror)
     *********************************************************/ 
     kal_uint8 temp_data;   
     SENSORDB("[Enter]:HI704 set Mirror_flip func:image_mirror=%d\n",image_mirror);	
-    //fuzr1 2013-1-23 for bug 1618
-   /*
     HI704_write_cmos_sensor(0x03,0x00);     //Page 0	
     temp_data = (HI704_read_cmos_sensor(0x11) & 0xfc);
     spin_lock(&hi704_yuv_drv_lock);
@@ -886,7 +702,6 @@ static void HI704_Set_Mirror_Flip(kal_uint8 image_mirror)
     HI704_sensor.mirror = temp_data;
     spin_unlock(&hi704_yuv_drv_lock);
     HI704_write_cmos_sensor(0x11, HI704_sensor.mirror);
-*/
     SENSORDB("[Exit]:HI704 set Mirror_flip func\n");
 }
 
@@ -904,61 +719,48 @@ static void HI704_set_dummy(kal_uint16 dummy_pixels,kal_uint16 dummy_lines)
 // 640 * 480
 static void HI704_Set_VGA_mode(void)
 {
-	//	HI704_write_cmos_sensor(0x01, HI704_read_cmos_sensor(0x01)|0x01);   //Sleep: For Write Reg
-              HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf1);
-		
-		HI704_write_cmos_sensor(0x03, 0x00);
-		HI704_write_cmos_sensor(0x10, 0x00);        //VGA Size
-		HI704_write_cmos_sensor(0x12, 0x05);      
+    HI704_write_cmos_sensor(0x01, HI704_read_cmos_sensor(0x01)|0x01);   //Sleep: For Write Reg
 
-		HI704_write_cmos_sensor(0x20, 0x00);
-		HI704_write_cmos_sensor(0x21, 0x04);
+    HI704_write_cmos_sensor(0x03, 0x00);
+    HI704_write_cmos_sensor(0x10, 0x00);        //VGA Size
 
-		HI704_write_cmos_sensor(0x40, 0x01);        //HBLANK: 0x70 = 112
-		HI704_write_cmos_sensor(0x41, 0x58);
-		HI704_write_cmos_sensor(0x42, 0x00);        //VBLANK: 0x04 = 4
-		HI704_write_cmos_sensor(0x43, 0x14);
+    HI704_write_cmos_sensor(0x20, 0x00);
+    HI704_write_cmos_sensor(0x21, 0x04);
 
-		HI704_write_cmos_sensor(0x03, 0x11);
-		HI704_write_cmos_sensor(0x10, 0x25);  
+    HI704_write_cmos_sensor(0x40, 0x01);        //HBLANK: 0x70 = 112
+    HI704_write_cmos_sensor(0x41, 0x58);
+    HI704_write_cmos_sensor(0x42, 0x00);        //VBLANK: 0x04 = 4
+    HI704_write_cmos_sensor(0x43, 0x13);
 
-		HI704_write_cmos_sensor(0x03, 0x20);
-              HI704_write_cmos_sensor(0x10, 0x1c);   //Close AE
-		//HI704_write_cmos_sensor(0x10, HI704_read_cmos_sensor(0x10)&0x7f);   //Close AE
-		//HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)|0x08);   //Reset AE
+    HI704_write_cmos_sensor(0x03, 0x11);
+    HI704_write_cmos_sensor(0x10, 0x25);  
 
-		//HI704_write_cmos_sensor(0x83, 0x00); //EXP Normal 20.00 fps 
-		//HI704_write_cmos_sensor(0x84, 0x92); 
-		//HI704_write_cmos_sensor(0x85, 0x7c); 
+    HI704_write_cmos_sensor(0x03, 0x20);
 
-		HI704_write_cmos_sensor(0x86, 0x00); //EXPMin 3000.00 fps
-		HI704_write_cmos_sensor(0x87, 0xfa); 
+    HI704_write_cmos_sensor(0x10, HI704_read_cmos_sensor(0x10)&0x7f);   //Close AE
+    HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)|0x08);   //Reset AE
+	
+    HI704_write_cmos_sensor(0x83, 0x00);
+    HI704_write_cmos_sensor(0x84, 0xbe);
+    HI704_write_cmos_sensor(0x85, 0x6e);
+    HI704_write_cmos_sensor(0x86, 0x00);
+    HI704_write_cmos_sensor(0x87, 0xfa);
 
-		HI704_write_cmos_sensor(0x88, 0x01); //EXP Max 8.33 fps 
-		HI704_write_cmos_sensor(0x89, 0x5f); 
-		HI704_write_cmos_sensor(0x8a, 0x90); 
+    HI704_write_cmos_sensor(0x8b, 0x3f);
+    HI704_write_cmos_sensor(0x8c, 0x7a);
+    HI704_write_cmos_sensor(0x8d, 0x34);
+    HI704_write_cmos_sensor(0x8e, 0xbc);
 
-		HI704_write_cmos_sensor(0x8B, 0x1d); //EXP100 
-		HI704_write_cmos_sensor(0x8C, 0x4c); 
-		HI704_write_cmos_sensor(0x8D, 0x18); //EXP120 
-		HI704_write_cmos_sensor(0x8E, 0x6a); 
+    HI704_write_cmos_sensor(0x9c, 0x0b);
+    HI704_write_cmos_sensor(0x9d, 0xb8);
+    HI704_write_cmos_sensor(0x9e, 0x00);
+    HI704_write_cmos_sensor(0x9f, 0xfa);
 
-		HI704_write_cmos_sensor(0x9c, 0x06); //EXP Limit 428.57 fps 
-		HI704_write_cmos_sensor(0x9d, 0xd6); 
-		HI704_write_cmos_sensor(0x9e, 0x00); //EXP Unit 
-		HI704_write_cmos_sensor(0x9f, 0xfa); 
+    HI704_write_cmos_sensor(0x01, HI704_read_cmos_sensor(0x01)&0xfe);   //Exit Sleep: For Write Reg
 
-		//HI704_write_cmos_sensor(0x01, HI704_read_cmos_sensor(0x01)&0xfe);   //Exit Sleep: For Write Reg
-
-              HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf0);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-	       HI704_write_cmos_sensor(0x10, 0x9c); 
-		   
-		//HI704_write_cmos_sensor(0x10, HI704_read_cmos_sensor(0x10)|0x80);   //Open AE
-		//    HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)&0xf7);   //Reset AE
+    HI704_write_cmos_sensor(0x03, 0x20);
+    HI704_write_cmos_sensor(0x10, HI704_read_cmos_sensor(0x10)|0x80);   //Open AE
+    HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)&0xf7);   //Reset AE
 
 }
 
@@ -1002,8 +804,7 @@ static void HI704_Cal_Min_Frame_Rate(kal_uint16 min_framerate)
     }
     else
     {
-        HI704_expbanding = (HI704_sensor.pv_pclk/HI704_sensor.pv_line_length/100)*HI704_sensor.pv_line_length/8;
-        HI704_expmax = HI704_expbanding*100*10/min_framerate ;
+        SENSORDB("[HI704][Error] Wrong Banding Setting!!!...");
     }
         
     HI704_write_cmos_sensor(0x03, 0x20);
@@ -1033,7 +834,6 @@ static void HI704_Fix_Video_Frame_Rate(kal_uint16 fix_framerate)
     HI704_sensor.video_current_frame_rate = fix_framerate;
     spin_unlock(&hi704_yuv_drv_lock);
     // Fixed Framerate
-/*
     HI704_write_cmos_sensor(0x01, HI704_read_cmos_sensor(0x01)|0x01);   //Sleep: For Write Reg
 
     HI704_write_cmos_sensor(0x03, 0x00);
@@ -1077,9 +877,7 @@ static void HI704_Fix_Video_Frame_Rate(kal_uint16 fix_framerate)
     }
     else
     {
-        HI704_expbanding = ((HI704_read_cmos_sensor(0x8b)<<8)|HI704_read_cmos_sensor(0x8c));
-
-		//SENSORDB("[HI704]Wrong Banding Setting!!!...");
+        SENSORDB("[HI704]Wrong Banding Setting!!!...");
     }
     HI704_expmax = ((HI704_expfix_temp-HI704_expbanding)/HI704_expbanding)*HI704_expbanding;    
 
@@ -1092,40 +890,9 @@ static void HI704_Fix_Video_Frame_Rate(kal_uint16 fix_framerate)
 
     HI704_write_cmos_sensor(0x03, 0x20);
     HI704_write_cmos_sensor(0x10, HI704_read_cmos_sensor(0x10)|0x80);   //Open AE
-    HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)&0xf7);   //Reset AE*/
-
-	       HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf1);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x1c);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-	//	HI704_write_cmos_sensor(0x18, 0x38);
-
-		HI704_write_cmos_sensor(0x86, 0x00); //EXPMin 3000.00 fps
-		HI704_write_cmos_sensor(0x87, 0xfa); 
-
-		HI704_write_cmos_sensor(0x88, 0x01); //EXP Max 11fps 
-		HI704_write_cmos_sensor(0x89, 0x07); 
-		HI704_write_cmos_sensor(0x8a, 0xac);
-
-		HI704_write_cmos_sensor(0x8B, 0x1d); //EXP100 
-		HI704_write_cmos_sensor(0x8C, 0x4c); 
-		HI704_write_cmos_sensor(0x8D, 0x18); //EXP120 
-		HI704_write_cmos_sensor(0x8E, 0x6a); 
-
-		HI704_write_cmos_sensor(0x9c, 0x06); //EXP Limit 428.57 fps 
-		HI704_write_cmos_sensor(0x9d, 0xd6); 
-		HI704_write_cmos_sensor(0x9e, 0x00); //EXP Unit 
-		HI704_write_cmos_sensor(0x9f, 0xfa); 
-
-		HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf0);
-
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x9c);
+    HI704_write_cmos_sensor(0x18, HI704_read_cmos_sensor(0x18)&0xf7);   //Reset AE
 }
+
 #if 0
 // 320 * 240
 static void HI704_Set_QVGA_mode(void)
@@ -1183,86 +950,17 @@ void HI704_night_mode(kal_bool enable)
     HI704_sensor.night_mode = enable;
     spin_unlock(&hi704_yuv_drv_lock);
 
-// fuzr1 2013-1-24 below code refer to A2107 code for bug 2481 
-  //fuzr1 2012-08-09 cut it  if(HI704_sensor.MPEG4_Video_mode == KAL_TRUE)
-  //fuzr1 201208-09 cut it    return;
-//{fuzr1 2012-07-09 require by vendor ++
-	if(enable)
-	{
-         
-        //HI704_Cal_Min_Frame_Rate(HI704_MIN_FRAMERATE_5); 
-		HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf1);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x1c);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-	//	HI704_write_cmos_sensor(0x18, 0x38);
+    if(HI704_sensor.MPEG4_Video_mode == KAL_TRUE)
+        return;
 
-              HI704_write_cmos_sensor(0x86, 0x00); //EXPMin 3000.00 fps
-		HI704_write_cmos_sensor(0x87, 0xfa); 
-
-		HI704_write_cmos_sensor(0x88, 0x02); //EXP Max 5.33 fps 
-		HI704_write_cmos_sensor(0x89, 0x49); 
-		HI704_write_cmos_sensor(0x8a, 0xf0);
-
-		HI704_write_cmos_sensor(0x8B, 0x1d); //EXP100 
-		HI704_write_cmos_sensor(0x8C, 0x4c); 
-		HI704_write_cmos_sensor(0x8D, 0x18); //EXP120 
-		HI704_write_cmos_sensor(0x8E, 0x6a); 
-
-		HI704_write_cmos_sensor(0x9c, 0x06); //EXP Limit 428.57 fps 
-		HI704_write_cmos_sensor(0x9d, 0xd6); 
-		HI704_write_cmos_sensor(0x9e, 0x00); //EXP Unit 
-		HI704_write_cmos_sensor(0x9f, 0xfa); 
-			
-		HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf0);
-
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x9c);
-
-	//	HI704_write_cmos_sensor(0x18, 0x30);
-	}
-	else
+    if(enable)
     {
-	    //HI704_Cal_Min_Frame_Rate(HI704_MIN_FRAMERATE_10);
-		HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf1);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x1c);
-		
-		HI704_write_cmos_sensor(0x03, 0x20);
-	//	HI704_write_cmos_sensor(0x18, 0x38);
-
-		HI704_write_cmos_sensor(0x86, 0x00); //EXPMin 3000.00 fps
-		HI704_write_cmos_sensor(0x87, 0xfa); 
-
-		HI704_write_cmos_sensor(0x88, 0x01); //EXP Max 8.33 fps 
-		HI704_write_cmos_sensor(0x89, 0x5f); 
-		HI704_write_cmos_sensor(0x8a, 0x90);
-
-		HI704_write_cmos_sensor(0x8B, 0x1d); //EXP100 
-		HI704_write_cmos_sensor(0x8C, 0x4c); 
-		HI704_write_cmos_sensor(0x8D, 0x18); //EXP120 
-		HI704_write_cmos_sensor(0x8E, 0x6a); 
-
-		HI704_write_cmos_sensor(0x9c, 0x06); //EXP Limit 428.57 fps 
-		HI704_write_cmos_sensor(0x9d, 0xd6); 
-		HI704_write_cmos_sensor(0x9e, 0x00); //EXP Unit 
-		HI704_write_cmos_sensor(0x9f, 0xfa); 
-
-		HI704_write_cmos_sensor(0x03, 0x00); 	
-		HI704_write_cmos_sensor(0x01, 0xf0);
-
-		HI704_write_cmos_sensor(0x03, 0x20);
-		HI704_write_cmos_sensor(0x10, 0x9c);
-
-	//	HI704_write_cmos_sensor(0x18, 0x30);
-	}
-//fuzr1 2012-07-09 require by vendor --}
+        HI704_Cal_Min_Frame_Rate(HI704_MIN_FRAMERATE_5);                            
+    }
+    else
+    {
+        HI704_Cal_Min_Frame_Rate(HI704_MIN_FRAMERATE_10);
+    }
 }
 
 /*************************************************************************
@@ -1286,7 +984,7 @@ static UINT32 HI704Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 					  MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
     spin_lock(&hi704_yuv_drv_lock);
-    sensor_config_data->SensorImageMirror = IMAGE_NORMAL;//IMAGE_HV_MIRROR; 
+    sensor_config_data->SensorImageMirror = IMAGE_HV_MIRROR; 
     if(HI704_sensor.first_init == KAL_TRUE)
     {
         HI704_sensor.MPEG4_Video_mode = HI704_sensor.MPEG4_Video_mode;
@@ -1313,7 +1011,7 @@ static UINT32 HI704Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
     HI704_Set_Mirror_Flip(sensor_config_data->SensorImageMirror);
 
     SENSORDB("[Exit]:HI704 preview func\n");
-    return ERROR_NONE; 
+    return TRUE; 
 }	/* HI704_Preview */
 
 
@@ -1324,11 +1022,7 @@ UINT32 HI704Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
     spin_lock(&hi704_yuv_drv_lock);
     HI704_sensor.pv_mode = KAL_FALSE;	
     spin_unlock(&hi704_yuv_drv_lock);
-	/* fuzr1 2013-1-18 remove below for bug 1618 "
-    sensor_config_data->SensorImageMirror = IMAGE_HV_MIRROR;
-	HI704_Set_VGA_mode();
-    HI704_Set_Mirror_Flip(IMAGE_V_MIRROR);
-    */
+
     return ERROR_NONE;
 }	/* HM3451Capture() */
 
@@ -1343,12 +1037,12 @@ UINT32 HI704GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution)
     pSensorResolution->SensorPreviewHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
     pSensorResolution->SensorVideoWidth=HI704_IMAGE_SENSOR_PV_WIDTH - 16;
     pSensorResolution->SensorVideoHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
-    //pSensorResolution->Sensor3DFullWidth=HI704_IMAGE_SENSOR_FULL_WIDTH - 10;  
-   // pSensorResolution->Sensor3DFullHeight=HI704_IMAGE_SENSOR_FULL_HEIGHT - 10-10;
-   // pSensorResolution->Sensor3DPreviewWidth=HI704_IMAGE_SENSOR_PV_WIDTH - 16;
-    //pSensorResolution->Sensor3DPreviewHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
-   // pSensorResolution->Sensor3DVideoWidth=HI704_IMAGE_SENSOR_PV_WIDTH - 16;
-   // pSensorResolution->Sensor3DVideoHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
+    pSensorResolution->Sensor3DFullWidth=HI704_IMAGE_SENSOR_FULL_WIDTH - 10;  
+    pSensorResolution->Sensor3DFullHeight=HI704_IMAGE_SENSOR_FULL_HEIGHT - 10-10;
+    pSensorResolution->Sensor3DPreviewWidth=HI704_IMAGE_SENSOR_PV_WIDTH - 16;
+    pSensorResolution->Sensor3DPreviewHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
+    pSensorResolution->Sensor3DVideoWidth=HI704_IMAGE_SENSOR_PV_WIDTH - 16;
+    pSensorResolution->Sensor3DVideoHeight=HI704_IMAGE_SENSOR_PV_HEIGHT - 12-10;
 
     SENSORDB("[Exit]:HI704 get Resolution func\n");	
     return ERROR_NONE;
@@ -1358,86 +1052,78 @@ UINT32 HI704GetInfo(MSDK_SCENARIO_ID_ENUM ScenarioId,
 					  MSDK_SENSOR_INFO_STRUCT *pSensorInfo,
 					  MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
 {
+    SENSORDB("[Enter]:HI704 getInfo func:ScenarioId = %d\n",ScenarioId);
 
-	 pSensorInfo->SensorPreviewResolutionX=HI704_IMAGE_SENSOR_PV_WIDTH;
-	 pSensorInfo->SensorPreviewResolutionY=HI704_IMAGE_SENSOR_PV_HEIGHT;
-	 pSensorInfo->SensorCameraPreviewFrameRate=30;
+    pSensorInfo->SensorPreviewResolutionX=HI704_IMAGE_SENSOR_PV_WIDTH;
+    pSensorInfo->SensorPreviewResolutionY=HI704_IMAGE_SENSOR_PV_HEIGHT;
+    pSensorInfo->SensorFullResolutionX=HI704_IMAGE_SENSOR_FULL_WIDTH;
+    pSensorInfo->SensorFullResolutionY=HI704_IMAGE_SENSOR_FULL_HEIGHT;
 
-	pSensorInfo->SensorFullResolutionX=HI704_IMAGE_SENSOR_FULL_WIDTH;
-	pSensorInfo->SensorFullResolutionY=HI704_IMAGE_SENSOR_FULL_HEIGHT;
-	pSensorInfo->SensorCameraPreviewFrameRate=30;
-	pSensorInfo->SensorVideoFrameRate=30;
-	pSensorInfo->SensorStillCaptureFrameRate=10;
-	pSensorInfo->SensorWebCamCaptureFrameRate=15;
-	pSensorInfo->SensorResetActiveHigh=FALSE;
-	pSensorInfo->SensorResetDelayCount=1;
-	
-	pSensorInfo->SensorOutputDataFormat=SENSOR_OUTPUT_FORMAT_YUYV;//SENSOR_OUTPUT_FORMAT_YVYU;//SENSOR_OUTPUT_FORMAT_YUYV;
-	
-	pSensorInfo->SensorClockPolarity=SENSOR_CLOCK_POLARITY_LOW; 
-	pSensorInfo->SensorClockFallingPolarity=SENSOR_CLOCK_POLARITY_LOW;
+    pSensorInfo->SensorCameraPreviewFrameRate=30;
+    pSensorInfo->SensorVideoFrameRate=30;
+    pSensorInfo->SensorStillCaptureFrameRate=30;
+    pSensorInfo->SensorWebCamCaptureFrameRate=15;
+    pSensorInfo->SensorResetActiveHigh=FALSE;//low is to reset 
+    pSensorInfo->SensorResetDelayCount=4;  //4ms 
+    pSensorInfo->SensorOutputDataFormat=SENSOR_OUTPUT_FORMAT_YUYV; //SENSOR_OUTPUT_FORMAT_YVYU;
+    pSensorInfo->SensorClockPolarity=SENSOR_CLOCK_POLARITY_LOW;	
+    pSensorInfo->SensorClockFallingPolarity=SENSOR_CLOCK_POLARITY_LOW;
+    pSensorInfo->SensorHsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
+    pSensorInfo->SensorVsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
+    pSensorInfo->SensorInterruptDelayLines = 1; 
+    pSensorInfo->SensroInterfaceType=SENSOR_INTERFACE_TYPE_PARALLEL;
 
-	pSensorInfo->SensorVsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
-	pSensorInfo->SensorHsyncPolarity = SENSOR_CLOCK_POLARITY_LOW;
-	pSensorInfo->SensorInterruptDelayLines = 1;
-	
 
-	pSensorInfo->SensroInterfaceType		= SENSOR_INTERFACE_TYPE_PARALLEL;
+    pSensorInfo->CaptureDelayFrame = 4; 
+    pSensorInfo->PreviewDelayFrame = 4;//10; 
+    pSensorInfo->VideoDelayFrame = 0; 
+    pSensorInfo->SensorMasterClockSwitch = 0; 
+    pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;   	
 
-	
-	pSensorInfo->SensorMasterClockSwitch = 0; 
-	pSensorInfo->SensorDrivingCurrent = ISP_DRIVING_8MA;//ISP_DRIVING_4MA;		
-	pSensorInfo->CaptureDelayFrame =3; 
-	pSensorInfo->PreviewDelayFrame =1;//3; 
-	pSensorInfo->VideoDelayFrame = 2;//4;//4; 
-
-	pSensorInfo->YUVAwbDelayFrame = 3; 
-	pSensorInfo->YUVEffectDelayFrame = 2; 
-	
-	switch (ScenarioId) 
-	{
-		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
-		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-			pSensorInfo->SensorClockFreq=24;//26;//24;//modify for banding by yezq 20130403
-			
-			pSensorInfo->SensorClockDividCount= 3;
-			pSensorInfo->SensorClockRisingCount= 0;
-			pSensorInfo->SensorClockFallingCount= 2;
-			pSensorInfo->SensorPixelClockCount= 3;
-			
-			pSensorInfo->SensorDataLatchCount= 2;
-			
-			pSensorInfo->SensorGrabStartX = 0; 
-			pSensorInfo->SensorGrabStartY = 0; 
-
-		break;
-
-		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-			pSensorInfo->SensorClockFreq=24;//26;//24;//modify for banding by yezq 20130403
-			pSensorInfo->SensorClockDividCount= 3;
-			pSensorInfo->SensorClockRisingCount= 0;
-			pSensorInfo->SensorClockFallingCount= 2;
-			pSensorInfo->SensorPixelClockCount= 3;
-			pSensorInfo->SensorDataLatchCount= 2;
-			pSensorInfo->SensorGrabStartX = 0; 
-			pSensorInfo->SensorGrabStartY = 0;					
-			
-		break;
-				
-		default:
-			pSensorInfo->SensorClockFreq=24;//26;//24;//modify for banding by yezq 20130403
-			pSensorInfo->SensorClockDividCount=3;
-			pSensorInfo->SensorClockRisingCount=0;
-			pSensorInfo->SensorClockFallingCount=2;
-			pSensorInfo->SensorPixelClockCount=3;
-			pSensorInfo->SensorDataLatchCount=2;
-			pSensorInfo->SensorGrabStartX = 0; 
-			pSensorInfo->SensorGrabStartY = 0;					
-		break;
-	}	
+    switch (ScenarioId)
+    {
+    case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
+    case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
+    case MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW:
+    case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:		
+        pSensorInfo->SensorClockFreq=26;
+        pSensorInfo->SensorClockDividCount=	3;
+        pSensorInfo->SensorClockRisingCount= 0;
+        pSensorInfo->SensorClockFallingCount= 2;
+        pSensorInfo->SensorPixelClockCount= 3;
+        pSensorInfo->SensorDataLatchCount= 2;
+        pSensorInfo->SensorGrabStartX = 1; 
+        pSensorInfo->SensorGrabStartY = 10;  	
+        break;
+    case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
+    case MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE:
+        pSensorInfo->SensorClockFreq=26;
+        pSensorInfo->SensorClockDividCount=	3;
+        pSensorInfo->SensorClockRisingCount= 0;
+        pSensorInfo->SensorClockFallingCount= 2;
+        pSensorInfo->SensorPixelClockCount= 3;
+        pSensorInfo->SensorDataLatchCount= 2;
+        pSensorInfo->SensorGrabStartX = 1; 
+        pSensorInfo->SensorGrabStartY = 10;//1;     			
+        break;
+    default:
+        pSensorInfo->SensorClockFreq=26;
+        pSensorInfo->SensorClockDividCount=3;
+        pSensorInfo->SensorClockRisingCount=0;
+        pSensorInfo->SensorClockFallingCount=2;
+        pSensorInfo->SensorPixelClockCount=3;
+        pSensorInfo->SensorDataLatchCount=2;
+        pSensorInfo->SensorGrabStartX = 1; 
+        pSensorInfo->SensorGrabStartY = 10;//1;     			
+        break;
+    }
+    //	HI704_PixelClockDivider=pSensorInfo->SensorPixelClockCount;
     memcpy(pSensorConfigData, &HI704SensorConfigData, sizeof(MSDK_SENSOR_CONFIG_STRUCT));
-	return ERROR_NONE;
-}
+
+    SENSORDB("[Exit]:HI704 getInfo func\n");	
+    return ERROR_NONE;
+}	/* HI704GetInfo() */
+
 
 UINT32 HI704Control(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *pImageWindow,
 					  MSDK_SENSOR_CONFIG_STRUCT *pSensorConfigData)
@@ -1461,7 +1147,7 @@ UINT32 HI704Control(MSDK_SCENARIO_ID_ENUM ScenarioId, MSDK_SENSOR_EXPOSURE_WINDO
     }
 
     SENSORDB("[Exit]:HI704 Control func\n");	
-    return ERROR_NONE;
+    return TRUE;
 }	/* HI704Control() */
 
 
@@ -1499,12 +1185,12 @@ BOOL HI704_set_param_wb(UINT16 para)
         {
         HI704_write_cmos_sensor(0x03, 0x22);			
         HI704_write_cmos_sensor(0x11, 0x2e);				
-			//   HI704_write_cmos_sensor(0x80, 0x38);
-			//  HI704_write_cmos_sensor(0x82, 0x38);				
-			HI704_write_cmos_sensor(0x83, 0x5e);
-			HI704_write_cmos_sensor(0x84, 0x18);
-			HI704_write_cmos_sensor(0x85, 0x58);
-			HI704_write_cmos_sensor(0x86, 0x20);				
+        HI704_write_cmos_sensor(0x80, 0x38);
+        HI704_write_cmos_sensor(0x82, 0x38);				
+        HI704_write_cmos_sensor(0x83, 0x5e);
+        HI704_write_cmos_sensor(0x84, 0x24);
+        HI704_write_cmos_sensor(0x85, 0x59);
+        HI704_write_cmos_sensor(0x86, 0x24);				
         HI704_write_cmos_sensor(0x10, 0xfb);				
         }                
         break;
@@ -1584,7 +1270,7 @@ BOOL HI704_set_param_wb(UINT16 para)
         return FALSE;
     }
 
-    return ERROR_NONE;	
+    return TRUE;	
 } /* HI704_set_param_wb */
 
 /*************************************************************************
@@ -1618,7 +1304,7 @@ BOOL HI704_set_param_effect(UINT16 para)
     case MEFFECT_OFF:
         {
         HI704_write_cmos_sensor(0x03, 0x10);
-        HI704_write_cmos_sensor(0x11, 0x43);
+        HI704_write_cmos_sensor(0x11, 0x03);
         HI704_write_cmos_sensor(0x12, 0x30);
         HI704_write_cmos_sensor(0x13, 0x00);
         HI704_write_cmos_sensor(0x44, 0x80);
@@ -1774,19 +1460,19 @@ BOOL HI704_set_param_exposure(UINT16 para)
     switch (para)
     {
     case AE_EV_COMP_13:  //+4 EV
-        HI704_write_cmos_sensor(0x40,0x50);
+        HI704_write_cmos_sensor(0x40,0x60);
         break;  
     case AE_EV_COMP_10:  //+3 EV
-        HI704_write_cmos_sensor(0x40,0x38);
+        HI704_write_cmos_sensor(0x40,0x48);
         break;    
     case AE_EV_COMP_07:  //+2 EV
-        HI704_write_cmos_sensor(0x40,0x28);
+        HI704_write_cmos_sensor(0x40,0x30);
         break;    
     case AE_EV_COMP_03:	 //	+1 EV	
         HI704_write_cmos_sensor(0x40,0x18);	
         break;    
     case AE_EV_COMP_00:  // +0 EV
-        HI704_write_cmos_sensor(0x40,0x08);
+        HI704_write_cmos_sensor(0x40,0x10);
         break;    
     case AE_EV_COMP_n03:  // -1 EV
         HI704_write_cmos_sensor(0x40,0x98);
@@ -1804,7 +1490,7 @@ BOOL HI704_set_param_exposure(UINT16 para)
         return FALSE;
     }
 
-    return ERROR_NONE;	
+    return TRUE;	
 } /* HI704_set_param_exposure */
 
 void HI704_set_AE_mode(UINT32 iPara)
@@ -1863,7 +1549,7 @@ UINT32 HI704YUVSensorSetting(FEATURE_ID iCmd, UINT32 iPara)
     default:
         break;
     }
-    return ERROR_NONE;
+    return TRUE;
 }   /* HI704YUVSensorSetting */
 
 UINT32 HI704YUVSetVideoMode(UINT16 u2FrameRate)
@@ -1873,7 +1559,7 @@ UINT32 HI704YUVSetVideoMode(UINT16 u2FrameRate)
     spin_unlock(&hi704_yuv_drv_lock);
     SENSORDB("[Enter]HI704 Set Video Mode:FrameRate= %d\n",u2FrameRate);
     SENSORDB("HI704_sensor.video_mode = %d\n",HI704_sensor.MPEG4_Video_mode);
-     return TRUE;  //fuzr1 2013-2-18 add for bug 5022 for capture mode and video mode different
+
     if(u2FrameRate == 30) u2FrameRate = 20;
    
     spin_lock(&hi704_yuv_drv_lock);
@@ -1903,6 +1589,7 @@ void HI704GetAEMaxNumMeteringAreas(UINT32 *pFeatureReturnPara32)
     *pFeatureReturnPara32 = 0;    
     SENSORDB("HI704GetAEMaxNumMeteringAreas *pFeatureReturnPara32 = %d\n",  *pFeatureReturnPara32);	
 }
+
 void HI704GetExifInfo(UINT32 exifAddr)
 {
     SENSOR_EXIF_INFO_STRUCT* pExifInfo = (SENSOR_EXIF_INFO_STRUCT*)exifAddr;
@@ -1914,79 +1601,6 @@ void HI704GetExifInfo(UINT32 exifAddr)
     pExifInfo->RealISOValue = AE_ISO_100;
 }
 
-UINT32 HI704SetMaxFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MUINT32 frameRate) {
-	kal_uint32 pclk;
-	kal_int16 dummyLine;
-	kal_uint16 lineLength,frameHeight;
-		
-	SENSORDB("HI704SetMaxFramerateByScenario: scenarioId = %d, frame rate = %d\n",scenarioId,frameRate);
-
-	switch (scenarioId) {
-		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
-			pclk = 480/10;
-			lineLength = HI704_VGA_DEFAULT_PIXEL_NUMS;
-			frameHeight = (10 * pclk)/frameRate/lineLength;
-			dummyLine = frameHeight - HI704_VGA_DEFAULT_LINE_NUMS;
-			SENSORDB("HI704SetMaxFramerateByScenario MSDK_SCENARIO_ID_CAMERA_PREVIEW: lineLength = %d, dummy=%d\n",lineLength,dummyLine);
-			//HI704SetDummy(0, dummyLine);			
-			break;			
-		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-			pclk = 480/10;
-			lineLength = HI704_VGA_DEFAULT_PIXEL_NUMS;
-			frameHeight = (10 * pclk)/frameRate/lineLength;
-			dummyLine = frameHeight - HI704_VGA_DEFAULT_LINE_NUMS;
-			SENSORDB("HI704SetMaxFramerateByScenario MSDK_SCENARIO_ID_VIDEO_PREVIEW: lineLength = %d, dummy=%d\n",lineLength,dummyLine);			
-			//HI704SetDummy(0, dummyLine);			
-			break;			
-		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-		case MSDK_SCENARIO_ID_CAMERA_ZSD:			
-			pclk = 480/10;
-			lineLength = HI704_VGA_DEFAULT_PIXEL_NUMS;
-			frameHeight = (10 * pclk)/frameRate/lineLength;
-			dummyLine = frameHeight - HI704_VGA_DEFAULT_LINE_NUMS;
-			SENSORDB("HI704SetMaxFramerateByScenario MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG: lineLength = %d, dummy=%d\n",lineLength,dummyLine);			
-			//HI704SetDummy(0, dummyLine);			
-			break;		
-        case MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW: //added
-            break;
-        case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
-			break;
-        case MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE: //added   
-			break;		
-		default:
-			break;
-	}	
-	return ERROR_NONE;
-}
-
-UINT32 HI704GetDefaultFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MUINT32 *pframeRate) 
-{
-
-	switch (scenarioId) {
-		case MSDK_SCENARIO_ID_CAMERA_PREVIEW:
-		case MSDK_SCENARIO_ID_VIDEO_PREVIEW:
-			 *pframeRate = 300;
-			 break;
-		case MSDK_SCENARIO_ID_CAMERA_CAPTURE_JPEG:
-		case MSDK_SCENARIO_ID_CAMERA_ZSD:
-			 *pframeRate = 300;
-			break;		
-        case MSDK_SCENARIO_ID_CAMERA_3D_PREVIEW: //added
-        case MSDK_SCENARIO_ID_CAMERA_3D_VIDEO:
-        case MSDK_SCENARIO_ID_CAMERA_3D_CAPTURE: //added   
-			 *pframeRate = 300;
-			break;		
-		default:
-			break;
-	}
-
-	return ERROR_NONE;
-}
-void HI704GetAEAWBLock(UINT32 *pAElockRet32,UINT32 *pAWBlockRet32)
-{
-    *pAElockRet32 = 1;
-	*pAWBlockRet32 = 1;
-}
 UINT32 HI704FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 							 UINT8 *pFeaturePara,UINT32 *pFeatureParaLen)
 {
@@ -2076,20 +1690,11 @@ UINT32 HI704FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
         HI704GetAEMaxNumMeteringAreas(pFeatureReturnPara32);            
         *pFeatureParaLen=4;
         break;   
-	case SENSOR_FEATURE_GET_AE_AWB_LOCK_INFO:
-		HI704GetAEAWBLock((*pFeatureData32),*(pFeatureData32+1));
-		break;
     case SENSOR_FEATURE_GET_EXIF_INFO:
         SENSORDB("SENSOR_FEATURE_GET_EXIF_INFO\n");
         SENSORDB("EXIF addr = 0x%x\n",*pFeatureData32);          
         HI704GetExifInfo(*pFeatureData32);
         break;        
-	case SENSOR_FEATURE_SET_MAX_FRAME_RATE_BY_SCENARIO:
-		HI704SetMaxFramerateByScenario((MSDK_SCENARIO_ID_ENUM)*pFeatureData32, *(pFeatureData32+1));
-		break;
-	case SENSOR_FEATURE_GET_DEFAULT_FRAME_RATE_BY_SCENARIO:
-		HI704GetDefaultFramerateByScenario((MSDK_SCENARIO_ID_ENUM)*pFeatureData32, (MUINT32 *)(*(pFeatureData32+1)));
-		break;        
     default:
         break;			
     }

@@ -45,16 +45,16 @@
 #include "akm8963.h"
 #include <linux/hwmsen_helper.h>
 
-
-
+static DEFINE_MUTEX(akm8963_i2c_mutex);
+static DEFINE_MUTEX(akm8963_op_mutex);
 
 /*----------------------------------------------------------------------------*/
-#define DEBUG 0
+#define DEBUG 1
 #define AKM8963_DEV_NAME         "akm8963"
 #define DRIVER_VERSION          "1.0.1"
 /*----------------------------------------------------------------------------*/
 #define AKM8963_DEBUG		1
-#define AKM8963_DEBUG_MSG	0
+#define AKM8963_DEBUG_MSG	1
 #define AKM8963_DEBUG_FUNC	0
 #define AKM8963_DEBUG_DATA	1
 #define MAX_FAILURE_COUNT	3
@@ -68,7 +68,7 @@
 #endif
 
 #if AKM8963_DEBUG_FUNC
-#define AKMFUNC(func) printk(KERN_INFO "AKM8963 " func " is called\n")
+#define AKMFUNC(func) printk(KERN_ERR "AKM8963 " func " is called\n")
 #else
 #define AKMFUNC(func)
 #endif
@@ -104,6 +104,8 @@ static struct i2c_board_info __initdata i2c_akm8963={ I2C_BOARD_INFO("akm8963", 
 static int akm8963_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id); 
 static int akm8963_i2c_remove(struct i2c_client *client);
 static int akm8963_i2c_detect(struct i2c_client *client, struct i2c_board_info *info);
+static int akm8963_suspend(struct i2c_client *client, pm_message_t msg);
+static int akm8963_resume(struct i2c_client *client);
 static int akm_probe(struct platform_device *pdev);
 static int akm_remove(struct platform_device *pdev);
 
@@ -125,7 +127,7 @@ struct akm8963_i2c_data {
     atomic_t layout;   
     atomic_t trace;
 	struct hwmsen_convert   cvt;
-#if defined(CONFIG_HAS_EARLYSUSPEND)    
+#if defined(USE_EARLY_SUSPEND)    
     struct early_suspend    early_drv;
 #endif 
 };
@@ -138,7 +140,7 @@ static struct i2c_driver akm8963_i2c_driver = {
 	.probe      = akm8963_i2c_probe,
 	.remove     = akm8963_i2c_remove,
 	.detect     = akm8963_i2c_detect,
-#if !defined(CONFIG_HAS_EARLYSUSPEND)
+#if !defined(USE_EARLY_SUSPEND)
 	.suspend    = akm8963_suspend,
 	.resume     = akm8963_resume,
 #endif 
@@ -188,6 +190,7 @@ static void akm8963_power(struct mag_hw *hw, unsigned int on)
 	}
 	power_on = on;
 }
+
 static long AKI2C_RxData(char *rxData, int length)
 {
 	uint8_t loop_i;
@@ -199,10 +202,11 @@ static long AKI2C_RxData(char *rxData, int length)
 	char addr = rxData[0];
 #endif
 
-
+	mutex_lock(&akm8963_i2c_mutex);
 	/* Caller should check parameter validity.*/
 	if((rxData == NULL) || (length < 1))
 	{
+		mutex_unlock(&akm8963_i2c_mutex);
 		return -EINVAL;
 	}
 
@@ -216,7 +220,7 @@ static long AKI2C_RxData(char *rxData, int length)
 		}
 		mdelay(10);
 	}
-	
+	mutex_unlock(&akm8963_i2c_mutex);
 	if(loop_i >= AKM8963_RETRY_COUNT)
 	{
 		printk(KERN_ERR "%s retry over %d\n", __func__, AKM8963_RETRY_COUNT);
@@ -245,10 +249,11 @@ static long AKI2C_TxData(char *txData, int length)
 	struct i2c_client *client = this_client;  
 	struct akm8963_i2c_data *data = i2c_get_clientdata(client);
 #endif
-
+	mutex_lock(&akm8963_i2c_mutex);
 	/* Caller should check parameter validity.*/
 	if ((txData == NULL) || (length < 2))
 	{
+		mutex_unlock(&akm8963_i2c_mutex);
 		return -EINVAL;
 	}
 
@@ -261,7 +266,7 @@ static long AKI2C_TxData(char *txData, int length)
 		}
 		mdelay(10);
 	}
-	
+	mutex_unlock(&akm8963_i2c_mutex);
 	if(loop_i >= AKM8963_RETRY_COUNT)
 	{
 		printk(KERN_ERR "%s retry over %d\n", __func__, AKM8963_RETRY_COUNT);
@@ -314,7 +319,7 @@ static long AKECS_SetMode_SelfTest(void)
 	
 	/* Set measure mode */
 	buffer[0] = AK8963_REG_CNTL1;
-	buffer[1] = AK8963_MODE_SELF_TEST;
+	buffer[1] = AK8963_MODE_SELF_TEST|1<<4;  //16 bit mode;
 	/* Set data */
 	return AKI2C_TxData(buffer, 2);
 }
@@ -412,10 +417,10 @@ static int AKECS_CheckDevice(void)
 		return ret;
 	}
 	/* Check read data */
-	if(buffer[0] != 0x48)
-	{
-		return -ENXIO;
-	}
+	//if(buffer[0] != 0x48)
+	//{
+	//	return -ENXIO;
+	//}
 	
 	return 0;
 }
@@ -519,7 +524,7 @@ static int AKECS_GetRawData(char *rbuf, int size)
 {
 	char strbuf[SENSOR_DATA_SIZE];
 	s16 data[3];
-	if(atomic_read(&open_flag) == 0)
+	if((atomic_read(&open_flag) == 0) || (factory_mode == 1))
 	{
 		AKECS_SetMode_SngMeasure();
 		msleep(10);
@@ -644,10 +649,12 @@ static int FctShipmntTestProcess_Body(void)
 	//***********************************************
 	
 	// Set to PowerDown mode 
-	if (AKECS_SetMode(AK8963_MODE_POWERDOWN) < 0) {
-		AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
-		return 0;
-	}
+	//if (AKECS_SetMode(AK8963_MODE_POWERDOWN) < 0) {
+	//	AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
+	//	return 0;
+	//}
+	AKECS_Reset(0);
+	msleep(1);
 	
 	// When the serial interface is SPI,
 	// write "00011011" to I2CDIS register(to disable I2C,).
@@ -750,7 +757,7 @@ static int FctShipmntTestProcess_Body(void)
 	//***********************************************
 	
 	// Set to SNG measurement pattern (Set CNTL register) 
-	if (AKECS_SetMode(AK8963_MODE_SNG_MEASURE) < 0) {
+	if (AKECS_SetMode(AK8963_MODE_SNG_MEASURE|1<<4) < 0) {
 		AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
 		return 0;
 	}
@@ -788,7 +795,7 @@ static int FctShipmntTestProcess_Body(void)
 	}
 	
 	// Set to Self-test mode (Set CNTL register)
-	if (AKECS_SetMode(AK8963_MODE_SELF_TEST) < 0) {
+	if (AKECS_SetMode(AK8963_MODE_SELF_TEST|1<<4) < 0) {
 		AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
 		return 0;
 	}
@@ -1176,7 +1183,7 @@ static long akm8963_unlocked_ioctl(struct file *file, unsigned int cmd,unsigned 
 	hwm_sensor_data* osensor_data;
 	uint32_t enable;
 
-  printk(KERN_ERR"akm8963 cmd:0x%x\n", cmd);	
+  	//printk(KERN_ERR"akm8963 cmd:0x%x\n", cmd);	
 	switch (cmd)
 	{
 		case ECS_IOCTL_WRITE:
@@ -1489,7 +1496,9 @@ int akm8963_operate(void* self, uint32_t command, void* buff_in, int size_in,
 				{
 					akmd_delay = 20;
 				}
+				else{
 				akmd_delay = value;
+				}
 			}	
 			break;
 
@@ -1594,7 +1603,9 @@ int akm8963_orientation_operate(void* self, uint32_t command, void* buff_in, int
 				{
 					akmd_delay = 20;
 				}
+				else{
 				akmd_delay = value;
+				}
 			}	
 			break;
 
@@ -1664,16 +1675,26 @@ int akm8963_orientation_operate(void* self, uint32_t command, void* buff_in, int
 }
 
 /*----------------------------------------------------------------------------*/
-#ifndef	CONFIG_HAS_EARLYSUSPEND
+#ifndef	USE_EARLY_SUSPEND
 /*----------------------------------------------------------------------------*/
 static int akm8963_suspend(struct i2c_client *client, pm_message_t msg) 
 {
 	int err;
-	struct akm8963_i2c_data *obj = i2c_get_clientdata(client)
+	struct akm8963_i2c_data *obj = i2c_get_clientdata(client);
 	    
 
 	if(msg.event == PM_EVENT_SUSPEND)
 	{
+		if(NULL == obj)
+		{
+			AKMDBG("null pointer!!\n");
+			return -1;
+		}
+	if ((err = AKECS_SetMode(AK8963_MODE_POWERDOWN)) < 0) {
+		AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
+		return err;
+	}
+	
 		akm8963_power(obj->hw, 0);
 	}
 	return 0;
@@ -1682,11 +1703,19 @@ static int akm8963_suspend(struct i2c_client *client, pm_message_t msg)
 static int akm8963_resume(struct i2c_client *client)
 {
 	int err;
-	struct akm8963_i2c_data *obj = i2c_get_clientdata(client)
-
+	struct akm8963_i2c_data *obj = i2c_get_clientdata(client);
+	if(NULL == obj)
+		{
+			AKMDBG(KERN_ERR "null pointer!!\n");
+			return -1;
+		}
 
 	akm8963_power(obj->hw, 1);
-	
+		
+	if ((err = AKECS_SetMode(AK8963_MODE_SNG_MEASURE)) < 0) {
+		AKMDBG("%s:%d Error.\n", __FUNCTION__, __LINE__);
+		return err;
+		}
 
 	return 0;
 }
@@ -1700,7 +1729,7 @@ static void akm8963_early_suspend(struct early_suspend *h)
 
 	if(NULL == obj)
 	{
-		printk(KERN_ERR "null pointer!!\n");
+		AKMDBG("null pointer!!\n");
 		return;
 	}
 	if ((err = AKECS_SetMode(AK8963_MODE_POWERDOWN)) < 0) {
@@ -1719,7 +1748,7 @@ static void akm8963_late_resume(struct early_suspend *h)
 
 	if(NULL == obj)
 	{
-		printk(KERN_ERR "null pointer!!\n");
+		AKMDBG("null pointer!!\n");
 		return;
 	}
 	akm8963_power(obj->hw, 1);
@@ -1730,7 +1759,7 @@ static void akm8963_late_resume(struct early_suspend *h)
 		}
 }
 /*----------------------------------------------------------------------------*/
-#endif /*CONFIG_HAS_EARLYSUSPEND*/
+#endif /*USE_EARLY_SUSPEND*/
 /*----------------------------------------------------------------------------*/
 static int akm8963_i2c_detect(struct i2c_client *client, struct i2c_board_info *info) 
 {    
@@ -1810,7 +1839,7 @@ static int akm8963_i2c_probe(struct i2c_client *client, const struct i2c_device_
 		goto exit_kfree;
 	}
 	
-#if CONFIG_HAS_EARLYSUSPEND
+#ifdef USE_EARLY_SUSPEND
 	data->early_drv.level    = EARLY_SUSPEND_LEVEL_STOP_DRAWING - 2,
 	data->early_drv.suspend  = akm8963_early_suspend,
 	data->early_drv.resume   = akm8963_late_resume,    
@@ -1845,13 +1874,43 @@ static int akm8963_i2c_remove(struct i2c_client *client)
 	misc_deregister(&akm8963_device);    
 	return 0;
 }
+static int akm_gpio_rst_config(void)
+{
+	int ret = 0;	
+#ifdef GPIO_COMPASS_RST_PIN
+	printk("akm8963 reset pin is used for this project\n");
+	ret = mt_set_gpio_mode(GPIO_COMPASS_RST_PIN, GPIO_MODE_00);
+	if(ret < 0)
+	{
+		printk(KERN_ERR "set gpio mode error\n");
+	}
+	ret = mt_set_gpio_dir(GPIO_COMPASS_RST_PIN, GPIO_DIR_OUT);
+	if(ret < 0)
+	{
+		printk(KERN_ERR "set gpio dir error\n");
+	}
+	ret = mt_set_gpio_out(GPIO_COMPASS_RST_PIN, GPIO_OUT_ZERO);
+	if(ret < 0)
+	{
+		printk(KERN_ERR "set gpio out value error\n");
+	}
+	mdelay(125);
+	ret = mt_set_gpio_out(GPIO_COMPASS_RST_PIN, 1);
+	if(ret < 0)
+	{
+		printk(KERN_ERR "set gpio out value error\n");
+	}
+#endif
+	return ret;
+}
 /*----------------------------------------------------------------------------*/
 static int akm_probe(struct platform_device *pdev) 
 {
 	struct mag_hw *hw = get_cust_mag_hw();
-
 	akm8963_power(hw, 1);
-	
+
+	akm_gpio_rst_config();
+
 	atomic_set(&dev_open_count, 0);
 	//akm8963_force[0] = hw->i2c_num;
 

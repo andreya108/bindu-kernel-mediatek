@@ -137,6 +137,14 @@ AUDIO_ACF_CUSTOM_PARAM_STRUCT *CFG_FILE_VIBSPK_COMPFLT_REC_TOTAL
 
 };
 
+/* lenovo-sw jixj add sn 20120213 */	
+LID_BIT VER_LID(AP_CFG_CUSTOM_FILE_CUSTOM_SN_LID)
+File_CustomSN_Struct *CFG_FILE_CUSTOMSN_REC_TOTAL
+{
+
+};	
+/* lenovo-sw jixj add sn end */
+
 /*lenovo-sw jixj 2013.1.28 add begin*/
 LID_BIT VER_LID(AP_CFG_RDCL_NVRAM_DATA_LID)
 File_Custom_Data_Struct *CFG_FILE_CUSTOM_IMEI_REC_TOTAL
@@ -149,7 +157,8 @@ File_Custom_Data_Info *CFG_FILE_CUSTOM_DATA_INFO_REC_TOTAL
 {
 
 };
-/*lenovo-sw jixj 2013.1.28 add end*/
+/* lenovo-sw jixj add sn end */
+
 END_NVRAM_DATA
 
 #endif /* CUSTOM_NVRAM_DATA_ITEM_H */

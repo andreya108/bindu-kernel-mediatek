@@ -54,8 +54,7 @@ struct key {
 	char name[KEYS_NAME_LEN + 1];	/* recommend: max 6 chars */
 };
 
-//#define KEYS_PWRKEY_MAP		{ KEY_ENDCALL, "PwrEnd" }
-#define KEYS_PWRKEY_MAP		{ KEY_POWER, "Power" }
+#define KEYS_PWRKEY_MAP		{ KEY_ENDCALL, "PwrEnd" }
 
 #define DEFINE_KEYS_KEYMAP(x)		\
 struct key x[] = {			\
@@ -69,8 +68,9 @@ struct key x[] = {			\
 	{ KEY_VOLUMEDOWN, "VLDown" },	\
 }
 
-#define CUST_KEY_UP		KEY_UP
-#define CUST_KEY_VOLUP		KEY_BACK
+/* lenovo-sw liaoxl 1.7.2013 change start: for lenovo keypad layout */
+#define CUST_KEY_UP			KEY_UP
+#define CUST_KEY_VOLUP		KEY_VOLUMEUP
 #define CUST_KEY_DOWN		KEY_DOWN
 #define CUST_KEY_VOLDOWN	KEY_VOLUMEDOWN
 #define CUST_KEY_LEFT		KEY_MENU
@@ -78,6 +78,8 @@ struct key x[] = {			\
 #define CUST_KEY_RIGHT		KEY_BACK
 
 #define CUST_KEY_CONFIRM	KEY_POWER
-#define CUST_KEY_BACK		KEY_VOLUMEUP
+#define CUST_KEY_BACK		KEY_BACK
+#define CUST_KEY_OK			KEY_HOMEPAGE
+/* lenovo-sw liaoxl 1.7.2013 change end: for lenovo keypad layout */
 
 #endif /* FTM_CUST_KEYS_H */

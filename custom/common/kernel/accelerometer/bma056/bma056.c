@@ -1940,6 +1940,8 @@ static void bma255_early_suspend(struct early_suspend *h)
 		return;
 	}
 	atomic_set(&obj->suspend, 1); 
+//lenovo-sw molg1 change 20121213
+	/****
 	if(err = BMA255_SetPowerMode(obj->client, false))
 	{
 		GSE_ERR("write power control fail!!\n");
@@ -1950,6 +1952,7 @@ static void bma255_early_suspend(struct early_suspend *h)
 	
 	BMA255_power(obj->hw, 0);
 
+	**************/
 }
 /*----------------------------------------------------------------------------*/
 static void bma255_late_resume(struct early_suspend *h)
@@ -1964,13 +1967,15 @@ static void bma255_late_resume(struct early_suspend *h)
 		GSE_ERR("null pointer!!\n");
 		return;
 	}
-
+//lenovo-sw molg1 change 20121213
+	/***
 	BMA255_power(obj->hw, 1);
 	if(err = bma255_init_client(obj->client, 0))
 	{
 		GSE_ERR("initialize client fail!!\n");
 		return;        
 	}
+	***********/
 	atomic_set(&obj->suspend, 0);    
 }
 /*----------------------------------------------------------------------------*/

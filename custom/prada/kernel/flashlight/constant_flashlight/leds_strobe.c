@@ -23,6 +23,7 @@
 #include <linux/xlog.h>
 #include <mach/upmu_common.h>
 
+
 #if defined(LENOVO_FLASH_ADP1650)
 #include <linux/i2c.h>
 #include <linux/leds.h>

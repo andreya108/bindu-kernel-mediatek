@@ -1,38 +1,3 @@
-/* Copyright Statement:
- *
- * This software/firmware and related documentation ("MediaTek Software") are
- * protected under relevant copyright laws. The information contained herein
- * is confidential and proprietary to MediaTek Inc. and/or its licensors.
- * Without the prior written permission of MediaTek inc. and/or its licensors,
- * any reproduction, modification, use or disclosure of MediaTek Software,
- * and information contained herein, in whole or in part, shall be strictly prohibited.
- */
-/* MediaTek Inc. (C) 2010. All rights reserved.
- *
- * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
- * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
- * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER ON
- * AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
- * NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
- * SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
- * SUPPLIED WITH THE MEDIATEK SOFTWARE, AND RECEIVER AGREES TO LOOK ONLY TO SUCH
- * THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. RECEIVER EXPRESSLY ACKNOWLEDGES
- * THAT IT IS RECEIVER'S SOLE RESPONSIBILITY TO OBTAIN FROM ANY THIRD PARTY ALL PROPER LICENSES
- * CONTAINED IN MEDIATEK SOFTWARE. MEDIATEK SHALL ALSO NOT BE RESPONSIBLE FOR ANY MEDIATEK
- * SOFTWARE RELEASES MADE TO RECEIVER'S SPECIFICATION OR TO CONFORM TO A PARTICULAR
- * STANDARD OR OPEN FORUM. RECEIVER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND
- * CUMULATIVE LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
- * AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
- * OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY RECEIVER TO
- * MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
- *
- * The following software/firmware and/or related documentation ("MediaTek Software")
- * have been modified by MediaTek Inc. All revisions are subject to any receiver's
- * applicable license agreements with MediaTek Inc.
- */
- 
 /* linux/drivers/hwmon/lis33de.c
  *
  * (C) Copyright 2008 
@@ -62,10 +27,8 @@
 extern struct acc_hw* mma8452q_get_cust_acc_hw(void); 
 
 	 
-//zhaoshaopeng 	 
-//#define MMA8452Q_I2C_SLAVE_ADDR		0x3A //0x3A<->SA0=1 ;0x38<->SA0=0
+#define MMA8452Q_I2C_SLAVE_ADDR		0x3A //0x3A<->SA0=1 ;0x38<->SA0=0
 	 
-#define MMA8452Q_I2C_SLAVE_ADDR		0x38
 	 /* MMA8452Q Register Map  (Please refer to MMA8452Q Specifications) */
 
 #define MMA8452Q_REG_DEVID			0x0D //use  device id = 0x3A
@@ -107,9 +70,8 @@ extern struct acc_hw* mma8452q_get_cust_acc_hw(void);
 //end define register
 
 
-//zhaoshaopeng for 52 from 3A
-#define MMA8452Q_FIXED_DEVID			0x2A //use0x3A
 
+#define MMA8452Q_FIXED_DEVID			0x2A //use
 	 
 #define MMA8452Q_BW_200HZ			0x10 //use
 #define MMA8452Q_BW_100HZ			0x18 //use
@@ -120,7 +82,7 @@ extern struct acc_hw* mma8452q_get_cust_acc_hw(void);
 #define MMA8452Q_MEASURE_MODE		0x01 //use	
 //#define MMA8452Q_DATA_READY			0x80
 	 
-#define MMA8452Q_10BIT_RES			0x02 //changed not ready
+#define MMA8452Q_12BIT_RES			0x02 //changed not ready
 #define MMA8452Q_RANGE_2G			0x00 //use
 #define MMA8452Q_RANGE_4G			0x01 //use
 #define MMA8452Q_RANGE_8G			0x02 //use

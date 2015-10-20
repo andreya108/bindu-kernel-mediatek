@@ -33,6 +33,10 @@
 #include "CFG_WIFI_Default.h"
 #include "CFG_PRODUCT_INFO_File.h"
 #include "CFG_PRODUCT_INFO_Default.h"
+/* lenovo-sw jixj add sn 20120213 */	
+#include "../cfgfileinc/CFG_CustomSN_File.h"	
+#include "../cfgdefault/CFG_CustomSN_Default.h"	
+/* lenovo-sw jixj add sn end */
 /*lenovo-sw jixj 2013.1.28 add begin*/
 #include "../cfgfileinc/CFG_Custom_IMEI_File.h"
 #include "../cfgdefault/CFG_Custom_IMEI_Default.h"
@@ -132,12 +136,16 @@ extern "C"
         { "/data/nvram/APCFG/APRDCL/VibSpk_CompFlt",   VER(AP_CFG_RDCL_FILE_VIBSPK_COMPFLT_LID), CFG_FILE_AUDIO_COMPFLT_REC_SIZE,
             CFG_FILE_VIBSPK_COMPFLT_REC_TOTAL, SIGNLE_DEFUALT_REC  ,    (char *)&audio_vibspk_custom_default, DataReset , NULL
         },
-/*lenovo-sw jixj 2013.1.28 add begin*/
-		{ "/data/nvram/APCFG/APRDCL/NVRAM_DATA",		 VER(AP_CFG_RDCL_NVRAM_DATA_LID), 		CFG_FILE_CUSTOM_IMEI_REC_SIZE,
+/* lenovo-sw jixj add sn 20120213 */	
+	{ "/data/nvram/APCFG/APRDCL/CUSTOM_SN",		 VER(AP_CFG_CUSTOM_FILE_CUSTOM_SN_LID), 		CFG_FILE_CUSTOMSN_REC_SIZE,
+            CFG_FILE_CUSTOMSN_REC_TOTAL,		SIGNLE_DEFUALT_REC, (char *)&stCustomSNDefault, DataReset , NULL},	 
+/* lenovo-sw jixj add sn 20120213 */
+        /*lenovo-sw jixj 2013.1.28 add begin*/
+	{ "/data/nvram/APCFG/APRDCL/NVRAM_DATA",		 VER(AP_CFG_RDCL_NVRAM_DATA_LID), 		CFG_FILE_CUSTOM_IMEI_REC_SIZE,
             CFG_FILE_CUSTOM_IMEI_REC_TOTAL,		SIGNLE_DEFUALT_REC, (char *)&stCustomIMEIDefault, DataReset , NULL},
-		{ "/data/nvram/APCFG/APRDCL/IMPORTANT_DATA",		 VER(AP_CFG_RDCL_CUSTOM_DATA_LID), 		CFG_FILE_CUSTOM_DATA_INFO_REC_SIZE,
+	{ "/data/nvram/APCFG/APRDCL/IMPORTANT_DATA",		 VER(AP_CFG_RDCL_CUSTOM_DATA_LID), 		CFG_FILE_CUSTOM_DATA_INFO_REC_SIZE,
             CFG_FILE_CUSTOM_DATA_INFO_REC_TOTAL,		SIGNLE_DEFUALT_REC, (char *)&stCustomDataDefault, DataReset , NULL},	 
-/*lenovo-sw jixj 2013.1.28 add edn*/
+/*lenovo-sw jixj 2013.1.28 add edn*/         
     };
 
     int iNvRamFileMaxLID=AP_CFG_CUSTOM_FILE_MAX_LID;

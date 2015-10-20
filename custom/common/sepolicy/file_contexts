@@ -580,4 +580,6 @@
 /dev/exm0(/.*)? u:object_r:exm0_device:s0  
 /data/nfc_socket(/.*)? u:object_r:nfc_socket:s0   
 
+#Lenovo Easyimage, it's safe for PRC too, No need PRC/ROW control
+/preload(/.*)?		u:object_r:system_file:s0
 

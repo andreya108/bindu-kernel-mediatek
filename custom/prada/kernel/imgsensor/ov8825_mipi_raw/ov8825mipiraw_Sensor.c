@@ -28,14 +28,18 @@ static DEFINE_SPINLOCK(ov8825mipiraw_drv_lock);
 #define OV8825_TEST_PATTERN_CHECKSUM (0xa3fe2449)
 
 
-#define OV8825_DEBUG
+//#define OV8825_DEBUG
 //#define OV8825_DEBUG_SOFIA
 
 #ifdef OV8825_DEBUG
 	#define OV8825DB(fmt, arg...) xlog_printk(ANDROID_LOG_DEBUG, "[OV8825Raw] ",  fmt, ##arg)
+   //#define OV8825DB(fmt, arg...)    printk(KERN_INFO  "%s: " fmt, __FUNCTION__ ,##arg)
+
 #else
 	#define OV8825DB(fmt, arg...)
 #endif
+#define OV8825ERR(fmt, arg...)   printk(KERN_ERR  "[OV8825Raw] ERROR,line=%d " fmt, __LINE__, ##arg)
+#define OV8825FUC(fmt, arg...)	xlog_printk(ANDROID_LOG_DEBUG, "[OV8825Raw] ",  fmt, ##arg)
 
 #ifdef OV8825_DEBUG_SOFIA
 	#define OV8825DBSOFIA(fmt, arg...) xlog_printk(ANDROID_LOG_DEBUG, "[OV8825Raw] ",  fmt, ##arg)
@@ -67,9 +71,10 @@ static OV8825_PARA_STRUCT ov8825;
 
 extern int iReadReg(u16 a_u2Addr , u8 * a_puBuff , u16 i2cId);
 extern int iWriteReg(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);
+extern int iWriteReg_init(u16 a_u2Addr , u32 a_u4Data , u32 a_u4Bytes , u16 i2cId);//lenovo.sw wangsx3 20140709 add for prada,used in ov8825 getSensorID
 
 #define OV8825_write_cmos_sensor(addr, para) iWriteReg((u16) addr , (u32) para , 1, OV8825MIPI_WRITE_ID)
-
+#define OV8825_write_cmos_sensor_init(addr, para) iWriteReg_init((u16) addr , (u32) para , 1, OV8825MIPI_WRITE_ID)
 kal_uint16 OV8825_read_cmos_sensor(kal_uint32 addr)
 {
 kal_uint16 get_byte=0;
@@ -731,7 +736,6 @@ kal_bool OV8825_set_sensor_item_info(kal_uint16 group_idx, kal_uint16 item_idx, 
 #define M_ID 0
 #define LENS_ID 0
 
-
 kal_bool OV8825OTPWriteSensor(kal_uint16 address, kal_uint16 para)
 {
 	 OV8825_write_cmos_sensor(address, para);	
@@ -748,7 +752,7 @@ kal_uint16 OV8825OTPReadSensor(kal_uint16 address)
 
 u16 OV8825_update_awb_gain(u16 R_gain, u16 G_gain, u16 B_gain)
 {
-	OV8825DB("OV8825_update_awb_gain ENTER :\n ");
+	OV8825FUC("OV8825_update_awb_gain ENTER :\n ");
 
 	OV8825DB("OV8825_update_awb_gain R_gain =0x%x, G_gain=0x%x, B_gain=0x%x\n",R_gain, G_gain, B_gain);
 	
@@ -837,7 +841,7 @@ u16 tempAddress = 0x3d00+address;
 u16 j = 0;
 u16 i=0,k=0;
 
-	OV8825DB("OV8825_ReadOtp ENTER :\n ");
+	OV8825FUC("OV8825_ReadOtp ENTER :\n ");
 
 	while (i<buffersize)
 	{
@@ -921,7 +925,7 @@ kal_bool OV8825OTPShading(void)
 	u8 pTemp[4]={0};
 	u8 index = 3;
 
-	OV8825DB("OV8825OTPShading ENTER :\n ");
+	OV8825FUC("OV8825OTPShading ENTER :\n ");
 	//check which group is valid
 	for(i=0;i<3;i++)
 	{
@@ -934,7 +938,7 @@ kal_bool OV8825OTPShading(void)
 	}
 	if (index == 3)
 	{
-		OV8825DB("[OV8825OTP]No Shading OTP Data\n");
+		OV8825ERR("[OV8825OTP]No Shading OTP Data\n");
 		return KAL_FALSE;
 	}
 	//read shading from otp
@@ -967,7 +971,7 @@ kal_bool OV8825OTPWbPregain(void)
 	u16 index = 3;
 	u16 RoverG_dec,BoverG_dec;
 
-	OV8825DB("OV8825OTPWbPregain ENTER :\n ");
+	OV8825FUC("OV8825OTPWbPregain ENTER :\n ");
 	
 	//check which group is valid
 	for(i=0;i<3;i++)
@@ -981,7 +985,7 @@ kal_bool OV8825OTPWbPregain(void)
 	}
 	if (index == 3)
 	{
-	OV8825DB("No AWB OTP Data\n");
+	OV8825ERR("No AWB OTP Data\n");
 	return KAL_FALSE;
 	}
 	
@@ -1016,19 +1020,19 @@ static void OnReadOTPOV8825(void)
 	{
 		OV8825DB("ov8825 awb otp ok!!\n");
 	}else{
-		OV8825DB("ov8825 awb otp fail!!\n");
+		OV8825ERR("ov8825 awb otp fail!!\n");
 	}
 //read LSC parameter
 	if(OV8825OTPShading())
 	{
 		OV8825DB("ov8825 lenc otp ok!!\n");
 	}else{
-		OV8825DB("ov8825 lenc otp fail!!\n");
+		OV8825ERR("ov8825 lenc otp fail!!\n");
 	}
 }
 void OV8825PreviewSettingOTP(void)
 {	
-	OV8825DB("OV8825PreviewSettingOTP enter :\n ");
+	OV8825FUC("OV8825PreviewSettingOTP enter :\n ");
 	
 	//;//OV8830_1632*1224_setting_2lanes_520Mbps/lane_72.22MSCLK30fps
 	//;//Base_on_OV8825_APP_R1.0
@@ -1292,7 +1296,7 @@ void OV8825VideoSetting(void)
 		OV8825DB("OV8825VideoSetting/4lane_16:9 enter_streamOff :\n ");
 	}
 	
-	OV8825DB("OV8825VideoSetting_ob:\n ");
+	OV8825FUC("OV8825VideoSetting_ob:\n ");
 
 	OV8825_write_cmos_sensor(0x3003,0xce);// ;//;//PLL_CTRL0
 	OV8825_write_cmos_sensor(0x3004,0xbf);// ;//0xe0 ;//0xd8 ;//;//PLL_CTRL1, 
@@ -1408,7 +1412,7 @@ void OV8825CaptureSetting(void)
 		OV8825DB("OV8825CaptureSetting_4lane_streamOff :\n ");
 	}
 	
-		OV8825DB("OV8825CaptureSetting_4lane_OB:\n ");
+		OV8825FUC("OV8825CaptureSetting_4lane_OB:\n ");
 
 		OV8825_write_cmos_sensor(0x3003,0xce);//;//PLL_CTRL0              
 		OV8825_write_cmos_sensor(0x3004,0xc2);//d8 ;//PLL_CTRL1//tony_5_8             
@@ -1508,7 +1512,7 @@ void OV8825CaptureSetting(void)
 static void OV8825_Sensor_Init(void)
 {
 
-	OV8825DB("OV8825_Sensor_Init 4lane_OB:\n ");	
+	OV8825FUC("OV8825_Sensor_Init 4lane_OB:\n ");	
 	
     ReEnteyCamera = KAL_TRUE;
 		
@@ -1826,7 +1830,7 @@ UINT32 OV8825Open(void)
 	volatile signed int i;
 	kal_uint16 sensor_id = 0;
 
-	OV8825DB("OV8825Open enter :\n ");
+	OV8825FUC("OV8825Open enter :\n ");
 	OV8825_write_cmos_sensor(0x0103,0x01);// Reset sensor
     mDELAY(2);
 
@@ -1837,6 +1841,7 @@ UINT32 OV8825Open(void)
 		OV8825DB("OOV8825 READ ID :%x",sensor_id);
 		if(sensor_id != OV8825_SENSOR_ID)
 		{
+			OV8825ERR("sensor_id!= OV8825_SENSOR_ID,sensor_id=%x\n",sensor_id);
 			return ERROR_SENSOR_CONNECT_FAIL;
 		}else
 			break;
@@ -1865,7 +1870,7 @@ UINT32 OV8825Open(void)
 	ov8825.realGain = 0x1f;//ispBaseGain as 1x
 	spin_unlock(&ov8825mipiraw_drv_lock);
 
-	OV8825DB("OV8825Open exit :\n ");
+	OV8825FUC("OV8825Open exit :\n ");
 
     return ERROR_NONE;
 }
@@ -1890,9 +1895,9 @@ UINT32 OV8825GetSensorID(UINT32 *sensorID)
 {
     int  retry = 1;
 
-	OV8825DB("OV8825GetSensorID enter :\n ");
-	OV8825_write_cmos_sensor(0x0103,0x01);// Reset sensor
-    mDELAY(10);
+	OV8825FUC("OV8825GetSensorID enter :\n ");
+	OV8825_write_cmos_sensor_init(0x0103,0x01);// Reset sensor //lenovo.sw wangsx3 20140709 add for prada,use I2C pulling mode,instead of timeout mode
+    mDELAY(5);//lenovo.sw wangsx3 20140709 reduce ov8825 delay time 
 
     // check if sensor ID correct
     do {
@@ -1902,7 +1907,7 @@ UINT32 OV8825GetSensorID(UINT32 *sensorID)
         		OV8825DB("Sensor ID = 0x%04x\n", *sensorID);
             	break;
         	}
-        OV8825DB("Read Sensor ID Fail = 0x%04x\n", *sensorID);
+        OV8825ERR("Read Sensor ID Fail = 0x%04x\n", *sensorID);
         retry--;
     } while (retry > 0);
 
@@ -2071,7 +2076,7 @@ UINT32 OV8825Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                                                 MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
 
-	OV8825DB("OV8825Preview enter:");
+	OV8825FUC("OV8825Preview enter:");
 
 	// preview size
 	if(ov8825.sensorMode == SENSOR_MODE_PREVIEW)
@@ -2101,7 +2106,7 @@ UINT32 OV8825Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV8825DBSOFIA("[OV8825Preview]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
 
     mDELAY(40);
-	OV8825DB("OV8825Preview exit:\n");
+	OV8825FUC("OV8825Preview exit:\n");
     return ERROR_NONE;
 }	/* OV8825Preview() */
 
@@ -2111,7 +2116,7 @@ UINT32 OV8825Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                                                 MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
 
-	OV8825DB("OV8825Video enter:");
+	OV8825FUC("OV8825Video enter:");
 
 	if(ov8825.sensorMode == SENSOR_MODE_VIDEO)
 	{
@@ -2135,7 +2140,7 @@ UINT32 OV8825Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
 
     mDELAY(40);
-	OV8825DB("OV8825Video exit:\n");
+	OV8825FUC("OV8825Video exit:\n");
     return ERROR_NONE;
 }
 
@@ -2152,7 +2157,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	{
 		OV8825DB("OV8825Capture BusrtShot!!!\n");
 	}else{
-	OV8825DB("OV8825Capture enter:\n");
+	OV8825FUC("OV8825Capture enter:\n");
 
 	//Record Preview shutter & gain
 	shutter=OV8825_read_shutter();
@@ -2182,7 +2187,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
 
 
-	OV8825DB("OV8825Capture exit:\n");
+	OV8825FUC("OV8825Capture exit:\n");
 	}
 
     return ERROR_NONE;

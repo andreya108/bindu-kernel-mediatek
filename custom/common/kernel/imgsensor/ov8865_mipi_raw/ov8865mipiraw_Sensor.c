@@ -24,13 +24,14 @@
 #include "ov8865mipiraw_CameraCustomized.h"
 static DEFINE_SPINLOCK(ov8865mipiraw_drv_lock);
 
-#define OV8865_DEBUG
+//#define OV8865_DEBUG
 #ifdef OV8865_DEBUG
 	#define OV8865DB(fmt, arg...) xlog_printk(ANDROID_LOG_DEBUG, "[OV8865Raw] ",  fmt, ##arg)
 #else
 	#define OV8865DB(fmt, arg...)
 #endif
-
+#define OV8865ERR(fmt, arg...)   printk(KERN_ERR  "[OV8865Raw] ERROR,line=%d " fmt, __LINE__, ##arg)
+#define OV8865FUC(fmt, arg...)	xlog_printk(ANDROID_LOG_DEBUG, "[OV8865Raw] ",  fmt, ##arg)
 
 kal_uint32 OV8865_FeatureControl_PERIOD_PixelNum=OV8865_PV_PERIOD_PIXEL_NUMS;
 kal_uint32 OV8865_FeatureControl_PERIOD_LineNum=OV8865_PV_PERIOD_LINE_NUMS;
@@ -871,7 +872,7 @@ static int read_otp_lenc(int index, struct otp_struct *otp_ptr)
 static int update_awb_gain(int R_gain, int G_gain, int B_gain)
 {
 	
-	OV8865DB("OV8865DB_update_awb_gain ENTER :\n ");
+	OV8865FUC("OV8865DB_update_awb_gain ENTER :\n ");
 
 	OV8865DB("OV8865DB_update_awb_gain R_gain =0x%x, G_gain=0x%x, B_gain=0x%x\n",R_gain, G_gain, B_gain);
 	if (R_gain>0x1000) {
@@ -1055,7 +1056,7 @@ static int update_otp_lenc()
 	}
 	if (i>3) {
 		
-		OV8865DB("[OV8865OTP]No WB OTP Data\n");
+		OV8865ERR("[OV8865OTP]No WB OTP Data\n");
 		// no valid WB OTP data
 		return 1;
 	}
@@ -1105,7 +1106,7 @@ static void OV8865_SetDummy( const kal_uint32 iPixels, const kal_uint32 iLines )
 
 void OV8865PreviewSetting(void)
 {
-	OV8865DB(" OV8865PreviewSetting_4lane enter\n");
+	OV8865FUC(" OV8865PreviewSetting_4lane enter\n");
 
 	OV8865_write_cmos_sensor(0x0100,0x00);//; software standby
 
@@ -1229,7 +1230,7 @@ void OV8865PreviewSetting(void)
 
 void OV8865VideoSetting(void)
 {
-	OV8865DB(" OV8865VideoSetting_4lane enter\n");
+	OV8865FUC(" OV8865VideoSetting_4lane enter\n");
 
 	OV8865_write_cmos_sensor(0x0100,0x00);
 
@@ -1354,7 +1355,7 @@ void OV8865VideoSetting(void)
 
 void OV8865CaptureSetting(void)
 {
-	OV8865DB("OV8865CaptureSetting_4lane enter\n");
+	OV8865FUC("OV8865CaptureSetting_4lane enter\n");
 
 	OV8865_write_cmos_sensor(0x0100,0x00);
 
@@ -1480,7 +1481,7 @@ void OV8865CaptureSetting(void)
 
 static void OV8865_Sensor_Init(void)
 {
-	OV8865DB("OV8865CaptureSetting_2lane enter\n");
+	OV8865FUC("OV8865CaptureSetting_2lane enter\n");
 
 	//// add 3d85/3d8c/3d85 for otp auto load at power on
 	//// add 5b00~5b05 for odpc related register control
@@ -1825,7 +1826,7 @@ UINT32 OV8865Open(void)
 	volatile signed int i;
 	kal_uint16 sensor_id = 0;
 
-	OV8865DB("OV8865 Open enter :\n ");
+	OV8865FUC("OV8865 Open enter :\n ");
 	OV8865_write_cmos_sensor(0x0103,0x01);// Reset sensor
     mdelay(2);
 
@@ -1835,6 +1836,7 @@ UINT32 OV8865Open(void)
 		OV8865DB("OV8865 READ ID :%x",sensor_id);
 		if(sensor_id != OV8865_SENSOR_ID)
 		{
+			OV8865ERR("sensor_id!= OV8865_SENSOR_ID,sensor_id=%x\n",sensor_id);
 			return ERROR_SENSOR_CONNECT_FAIL;
 		}else
 			break;
@@ -1843,7 +1845,7 @@ UINT32 OV8865Open(void)
 	OV8865_Sensor_Init();
     OV8865_Init_Para();
 	
-	OV8865DB("OV8865Open exit :\n ");
+	OV8865FUC("OV8865Open exit :\n ");
 
     return ERROR_NONE;
 }
@@ -1851,9 +1853,9 @@ UINT32 OV8865Open(void)
 
 UINT32 OV8865GetSensorID(UINT32 *sensorID)
 {
-    int  retry = 2;
+    int  retry = 1;
 
-	OV8865DB("OV8865GetSensorID enter :\n ");
+	OV8865FUC("OV8865GetSensorID enter :\n ");
     mdelay(5);
 
     do {
@@ -1863,7 +1865,7 @@ UINT32 OV8865GetSensorID(UINT32 *sensorID)
         		OV8865DB("Sensor ID = 0x%04x\n", *sensorID);
             	break;
         	}
-        OV8865DB("Read Sensor ID Fail = 0x%04x\n", *sensorID);
+        OV8865ERR("Read Sensor ID Fail = 0x%04x\n", *sensorID);
         retry--;
     } while (retry > 0);
 
@@ -1947,7 +1949,7 @@ UINT32 OV8865Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                                                 MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
 
-	OV8865DB("OV8865Preview enter:");
+	OV8865FUC("OV8865Preview enter:");
 
 	OV8865PreviewSetting();
 
@@ -1963,7 +1965,7 @@ UINT32 OV8865Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV8865SetFlipMirror(ov8865.imgMirror);
 
     mdelay(40);//THIS DELAY SHOULD BE NEED BY CTS OR MONKEY
-	OV8865DB("OV8865Preview exit:\n");
+	OV8865FUC("OV8865Preview exit:\n");
 
 	  
     return ERROR_NONE;
@@ -1974,7 +1976,7 @@ UINT32 OV8865Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
                                                 MSDK_SENSOR_CONFIG_STRUCT *sensor_config_data)
 {
 
-	OV8865DB("OV8865Video enter:");
+	OV8865FUC("OV8865Video enter:");
 
 	OV8865VideoSetting();
 
@@ -1988,7 +1990,7 @@ UINT32 OV8865Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	OV8865SetFlipMirror(ov8865.imgMirror);
 
     mdelay(40);//THIS DELAY SHOULD BE NEED BY CTS OR MONKEY
-	OV8865DB("OV8865Video exit:\n");
+	OV8865FUC("OV8865Video exit:\n");
     return ERROR_NONE;
 }
 
@@ -2038,7 +2040,7 @@ UINT32 OV8865Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 UINT32 OV8865GetResolution(MSDK_SENSOR_RESOLUTION_INFO_STRUCT *pSensorResolution)
 {
 
-    OV8865DB("OV8865GetResolution!!\n");
+    OV8865FUC("OV8865GetResolution!!\n");
 
 	pSensorResolution->SensorPreviewWidth	= OV8865_IMAGE_SENSOR_PV_WIDTH;
     pSensorResolution->SensorPreviewHeight	= OV8865_IMAGE_SENSOR_PV_HEIGHT;
