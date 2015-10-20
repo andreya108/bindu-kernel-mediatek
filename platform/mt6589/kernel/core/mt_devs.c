@@ -1523,6 +1523,15 @@ static struct platform_device ssw_device = {
 	.id = -1};
 #endif
 
+/* lenovo-sw zhouwl, 20130408, add for nxp-tfa9887 */
+#ifdef LENOVO_NXP_SMARTPA_SUPPORT
+static struct platform_device lenovo_tfa9887_dev = {
+    .name   = "tfa9887",
+    .id     = -1,
+};
+#endif
+/* lenovo-sw zhouwl, 20130408, add for nxp-tfa9887 */
+
 /*=======================================================================*/
 /* battery driver                                                         */
 /*=======================================================================*/
@@ -2167,6 +2176,14 @@ retval = platform_device_register(&dummychar_device);
     if (retval != 0){
         return retval;
     }
+/* lenovo-sw zhouwl, 20130408, add for nxp-tfa9887 */
+#ifdef LENOVO_NXP_SMARTPA_SUPPORT
+	retval = platform_device_register(&lenovo_tfa9887_dev);
+	if (retval != 0){
+		return retval;
+	}
+#endif	
+/* lenovo-sw zhouwl, 20130408, add for nxp-tfa9887 */
 
     return 0;
 }

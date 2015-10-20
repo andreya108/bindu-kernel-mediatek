@@ -1,0 +1,1 @@
+../../lenovo89_wet_kk/configs/avc_hardware.mk

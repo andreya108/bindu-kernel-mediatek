@@ -246,6 +246,17 @@ config MTK_FORCE_CPU_89T
        default n
        help
 
+config LENOVO_89T_GPU_BOOST
+        bool "Support MTK GPU turbo mode"
+        default n
+        help
+
+config HAS_MEMUTILS
+        default n
+        bool "Motorola MSM memcpy enhancements"
+        help
+        faster memcpy performance for 64 bytes cache line
+
 endmenu
 
 config VFP_OPT

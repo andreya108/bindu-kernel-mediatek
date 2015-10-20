@@ -127,13 +127,6 @@ service wlanLoader /system/bin/wlan_loader
 # Connectivity related services (End)
 #
 
-# sw jincai1 20140213 for lms begin
-service lms /system/bin/lms
-   chmod 755 /system/bin/lms
-   class main
-   user root
-# sw jincai1 20140213 for lms end
-
 # lenovo nac service loader begin, liuyfc@lenovo.com
     service nac_server /system/bin/nac_server
     class main

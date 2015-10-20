@@ -90,6 +90,12 @@ extern void pmic_ldo_vol_sel(MT65XX_POWER powerId, MT65XX_POWER_VOLTAGE powerVol
 
 extern bool hwPowerOn(MT65XX_POWER powerId, MT65XX_POWER_VOLTAGE powerVolt, char *mode_name);
 extern bool hwPowerDown(MT65XX_POWER powerId, char *mode_name);
+#if 1//def CONFIG_LENOVO
+extern bool hwCameraPowerOn(MT65XX_POWER powerId, MT65XX_POWER_VOLTAGE powerVolt, char *mode_name);
+extern bool hwCameraPowerDown(MT65XX_POWER powerId, char *mode_name);
+extern bool cameraPowerOnOff(MT65XX_POWER powerId,bool on);
+#endif
+
 
 #endif // _MT6320_PMIC_LDO_H_
 

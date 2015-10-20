@@ -1566,11 +1566,14 @@ LENOVO_LCM_EFFECT = yes
 #lenovo add by jixu@lenovo.com begin
 LENOVO_BACKLIGHT_CURRENT_SETTING = yes
 LENOVO_LCM_INFO = yes
-#LENOVO_LEDS_GPIO_SUPPORT = yes
+LENOVO_LEDS_GPIO_SUPPORT = yes
 #lenovo add by jixu@lenovo.com end
 
 #lenovo-sw yexh1, add dynamic userdata feature for different size of emmc device
 LENOVO_DYNAMIC_USERDATA = yes
 #lenovo-sw yexh1 end
 
+#lenovo-sw lixh10 add 20140616 begin
+LENOVO_VIBRATOR_HAPTIC_FEEDBACK = yes
+#lenovo-sw lixh10 add 20140616 begin
 LENOVO_CPUFREQ_LIMIT = 1209000

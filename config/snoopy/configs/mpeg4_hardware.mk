@@ -1,0 +1,1 @@
+../../lenovo89_wet_kk/configs/mpeg4_hardware.mk

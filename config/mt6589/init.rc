@@ -457,6 +457,12 @@ on post-fs-data
     chown root diag /sys/module/tpd_debug/parameters/tpd_em_log
     chown root diag /sys/module/tpd_debug/parameters/tpd_em_log_to_fs
 
+    #lenovo-sw wengjun1 add for tp debug
+    chown system system /sys/module/tpd_debug/parameters/tpd_hold_cpu_ms
+    chown system system /sys/module/tpd_debug/parameters/tpd_boost_cpu_cores
+    chown system system /sys/module/tpd_debug/parameters/tpd_thread_isr
+    #lenovo-sw add end 
+
     chmod 0660 /dev/pmem_multimedia
     chown system media /dev/pmem_multimedia
 
@@ -970,6 +976,14 @@ on property:vold.decrypt=trigger_shutdown_framework
     class_reset late_start
     class_reset default
     class_reset main
+
+## Begin lenovo-sw liugy4 2013/09/12 support sd swap after encrypting phone
+on property:persist.sys.emmc=/storage/sdcard0
+    update_emmc_prop
+
+on property:persist.sys.emmc=/storage/sdcard1
+    update_emmc_prop
+## // End lenovo-sw liugy4 2013/09/12 
 
 on property:sys.powerctl=*
     powerctl ${sys.powerctl}
@@ -1613,10 +1627,3 @@ service MtkCodecService /system/bin/MtkCodecService
     class main
     user root
     group audio media sdcard_r
-
-# Execute files in /etc/init.d during boot
-service userinit /system/xbin/busybox run-parts /system/etc/init.d
-	oneshot
-	class late_start
-	user root
-	group root

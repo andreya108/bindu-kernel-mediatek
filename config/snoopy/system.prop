@@ -1,0 +1,79 @@
+#
+# system.prop for generic sdk
+#
+
+rild.libpath=/system/lib/mtk-ril.so
+rild.libargs=-d /dev/ttyC0
+
+
+# MTK, Infinity, 20090720 {
+wifi.interface=wlan0
+# MTK, Infinity, 20090720 }
+
+# MTK, mtk03034, 20101210 {
+ro.mediatek.wlan.wsc=1
+# MTK, mtk03034 20101210}
+# MTK, mtk03034, 20110318 {
+ro.mediatek.wlan.p2p=1
+# MTK, mtk03034 20110318}
+
+# MTK, mtk03034, 20101213 {
+mediatek.wlan.ctia=0
+# MTK, mtk03034 20101213}
+
+
+#
+wifi.tethering.interface=ap0
+#
+
+ro.opengles.version=131072
+
+wifi.direct.interface=p2p0
+dalvik.vm.heapgrowthlimit=128m
+# Lenovo-sw wuzb1 2014-05-15
+dalvik.vm.heapsize=384m
+
+# USB MTP WHQL
+ro.sys.usb.mtp.whql.enable=0
+
+# Power off opt in IPO
+sys.ipo.pwrdncap=2
+
+ro.sys.usb.storage.type=mtp,mass_storage
+
+# USB BICR function
+ro.sys.usb.bicr=yes
+
+# USB Charge only function
+ro.sys.usb.charging.only=yes
+
+# audio
+ro.camera.sound.forced=0
+ro.audio.silent=0
+
+ro.zygote.preload.enable=0
+
+#lenovo-sw chenglong1 add for camera exif info
+#
+# camera related exif info
+#
+ro.camera.main.hwinfo=3.85
+ro.camera.sub.hwinfo=3.38
+
+# Leovo product series
+ro.lenovo.series=VIBE X
+
+# Lenovo snoopy 1080P screen optimization
+ro.hwui.drop_shadow_cache_size=5.0
+ro.hwui.gradient_cache_size=0.8
+ro.hwui.layer_cache_size=36.0
+ro.hwui.path_cache_size=24.0
+ro.hwui.r_buffer_cache_size=6.0
+ro.hwui.shape_cache_size=3.0
+ro.hwui.text_large_cache_height=1024
+ro.hwui.text_large_cache_width=2048
+ro.hwui.text_small_cache_height=512
+ro.hwui.text_small_cache_width=1024
+ro.hwui.texture_cache_flushrate=0.4
+ro.hwui.texture_cache_size=64.0
+

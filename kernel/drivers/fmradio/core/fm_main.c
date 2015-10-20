@@ -1815,7 +1815,7 @@ fm_s32 fm_tune(struct fm *fm, struct fm_tune_parm *parm)
     fm_op_state_set(fm, FM_STA_TUNE);
     WCN_DBG(FM_ALT | MAIN, "tuning to %d\n", parm->freq);
 
-    if (fm_false == fm_low_ops.bi.setfreq(parm->freq)) {
+    if (fm_true != fm_low_ops.bi.setfreq(parm->freq)) {
         parm->err = FM_TUNE_FAILED;
         WCN_DBG(FM_ALT | MAIN, "FM tune failed\n");
         ret = -EPERM;

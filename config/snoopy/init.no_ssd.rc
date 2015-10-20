@@ -1,0 +1,21 @@
+# MTK project .rc configure 
+
+	
+#
+# NO SHARED_SDCARD feature option
+#
+
+on init
+    # See storage config details at http://source.android.com/tech/storage/
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    mkdir /storage/sdcard0 0700 root root
+    
+    export EXTERNAL_STORAGE /storage/sdcard0
+
+    # Support legacy paths
+    symlink /storage/sdcard0 /sdcard
+    symlink /storage/sdcard0 /mnt/sdcard
+
+service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+    class late_start
+    disabled

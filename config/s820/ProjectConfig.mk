@@ -1160,6 +1160,10 @@ MTK_SENSOR_SUPPORT=yes
 MTK_SHARED_SDCARD=no
 #End, lenovo-sw wangxf14 note for lenovo feature
 
+#Begin lenovo-sw liugy4 2014/03/21 porting feature option
+LENOVO_SHARED_SDCARD=no
+#end lenovo-sw liugy4 2014/03/21
+
 # this feature is used for notification when Msensor accuracy is not good in the situation that user is using a m-sensor related APK. a toast will be showen when m-sensor accuracy is not good once.
 MTK_SHOW_MSENSOR_TOAST_SUPPORT=yes
 
@@ -1532,6 +1536,7 @@ LENOVO_LONG_POWER_RESET = yes
 #lenovo-sw jixj 2013.6.12 add end
 #lenovo-sw jixj 2013.6.12 add begin
 LENOVO_UBOOT_DL_CHECK = yes
+LENOVO_FRONTCAMERA_CAMENCODER_LOWFPS = yes
 #lenovo-sw jixj 2013.6.12 add end
 #lenovo-sw zhangjiano 2014.3.01 add flash drv for adp1650 begin
 LENOVO_FLASH_ADP1650 = yes
@@ -1567,6 +1572,10 @@ LENOVO_DYNAMIC_USERDATA = yes
 LENOVO_SN3193_LED_SUPPORT_NEW = yes
 #LENOVO_SHINELED_SUPPORT = yes
 #lenovo-sw jixu end
+
+#lenovo-sw lixh10 add 20140616 begin
+LENOVO_VIBRATOR_HAPTIC_FEEDBACK = yes
+#lenovo-sw lixh10 add 20140616 begin
 
 LENOVO_CPUFREQ_LIMIT = 1209000
 

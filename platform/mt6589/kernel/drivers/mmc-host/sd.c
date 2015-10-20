@@ -2043,9 +2043,12 @@ int msdc_reinit(struct msdc_host *host)
     card = mmc->card;
     if (card == NULL) 
         ERR_MSG("mmc->card is NULL");
+    /*Lenovo-sw begin yexh1 add 2013-05-7,add for bad SD card reinit in IPO boot up */
     if(host->block_bad_card)
+    {
+        host->block_bad_card = 0;
 		ERR_MSG("Need block this bad SD card from re-initialization");
-
+    }
     // eMMC first 
     #ifdef MTK_EMMC_SUPPORT
     if (host->hw->host_function == MSDC_EMMC) { 

@@ -55,6 +55,12 @@ PVRSRV_ERROR MTKSetFreqInfo(unsigned int freq, unsigned int tbltype)
 {
     printk(" freq= %d", freq);
 
+#ifdef CONFIG_LENOVO_89T_GPU_BOOST
+    /* mt6589t can be boost up to 357.5Mhz */
+    freq = 357500;
+#endif
+
+#ifndef CONFIG_LENOVO_89T_GPU_BOOST
 #if defined(MTK_FREQ_OD_INIT)
     if (freq > GPU_DVFS_F5)
     {
@@ -65,6 +71,7 @@ PVRSRV_ERROR MTKSetFreqInfo(unsigned int freq, unsigned int tbltype)
         mt_gpufreq_keep_frequency_non_OD_init(GPU_MMPLL_D5, GPU_POWER_VRF18_1_05V);
     }
     else
+#endif
 #endif
     {
         mt_gpufreq_set_initial(freq, GPU_POWER_VRF18_1_05V);

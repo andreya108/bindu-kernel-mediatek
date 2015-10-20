@@ -4636,7 +4636,11 @@ PVRSRV_ERROR PVROSFuncInit(IMG_VOID)
 {
 #if defined(PVR_LINUX_TIMERS_USING_WORKQUEUES)
     {
+#if 1//for ALPS01435516
+        psTimerWorkQueue = alloc_workqueue("pvr_timer", WQ_HIGHPRI, 1);
+#else
         psTimerWorkQueue = create_workqueue("pvr_timer");
+#endif
         if (psTimerWorkQueue == NULL)
         {
 	    PVR_DPF((PVR_DBG_ERROR, "%s: couldn't create timer workqueue", __FUNCTION__));		

@@ -1,0 +1,1 @@
+../../lenovo89_wet_kk/configs/mp3_codec.mk

@@ -85,6 +85,8 @@ obj-y += pftracer.o
 AFLAGS_swsusp.o	:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 obj-$(CONFIG_HIBERNATION)	+= cpu_hibernate.o swsusp.o
 
+obj-$(CONFIG_HAS_MEMUTILS) += memutils/
+
 ifneq ($(MTK_TABLET_HARDWARE), )
 ccflags-y += -DMTK_TABLET_PLATFORM=\"$(shell echo $(MTK_TABLET_HARDWARE) | tr a-z A-Z )\"
 endif

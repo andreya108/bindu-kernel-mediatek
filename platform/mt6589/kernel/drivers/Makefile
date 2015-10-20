@@ -38,13 +38,14 @@ obj-y   += jpeg/
 obj-y   += gdma/
 endif
 
-obj-y   += i2c/
-obj-y   += dispsys/
-obj-y   += dual_ccci/
 #lenovo-sw, chenlj2, 2013-6-21, add for hall
 ifeq ($(LENOVO_HALL_SENSOR_SUPPORT),yes)
 obj-y   += hall/
 endif
+
+obj-y   += i2c/
+obj-y   += dispsys/
+obj-y   += dual_ccci/
 obj-y   += accdet/
 obj-y   += leds/
 obj-y   += vibrator/
@@ -57,3 +58,7 @@ include $(MTK_PATH_BUILD)/common.mk
 obj-y   += $(call all-subdirs-with-makefile,cpu_stress)
 
 obj-y   += met/
+#lenovo-sw zhouwl, 20130408, add for nxp-tfa9887
+ifeq ($(LENOVO_NXP_SMARTPA_SUPPORT),yes)
+obj-y += nxp/
+endif

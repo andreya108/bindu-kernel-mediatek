@@ -325,7 +325,9 @@ MD5_SIZE=0x01600000
 MD5_SMEM_SIZE=0x00200000
 MT6280_SUPER_DONGLE=no
 MTK_2IN1_SPK_SUPPORT=no
+#Begin, lenovo-sw wangxf14 note for lenovo feature
 MTK_2SDCARD_SWAP=no
+#End, lenovo-sw wangxf14 note for lenovo feature
 
 # 3g dongle SUPPORT
 MTK_3GDONGLE_SUPPORT=no
@@ -366,7 +368,10 @@ MTK_ASR_SUPPORT=yes
 MTK_ATV_CHIP=
 # yes: UI can show "AudEnh" , The system can enhance headset audio effect. User can decide to enable or disable this function.
 # no: UI can't show "AudEnh" , The system doesn't enhance headset audio effect.
-MTK_AUDENH_SUPPORT=yes
+#lenovo-sw zhouwl, 2014-03-03, close headset audio effect function
+MTK_AUDENH_SUPPORT=no
+#MTK_AUDENH_SUPPORT=yes
+#lenovo-sw zhouwl, 2014-03-03, close headset audio effect function
 MTK_AUDIO=yes
 MTK_AUDIO_ADPCM_SUPPORT=yes
 
@@ -516,7 +521,8 @@ MTK_BT_PROFILE_HFP=no
 MTK_BT_PROFILE_HIDH=no
 
 # When this option is set to "yes", "Profile Manager" feature will be enabled and advanced UI will be showed.
-MTK_BT_PROFILE_MANAGER=yes
+# liubin modified 2014.01.07, disable Profile Manager
+MTK_BT_PROFILE_MANAGER=no
 
 # When this option set to yes, the Bluetooth "Message Access Profile - Client Role" (MAPC) will be enabled.
 MTK_BT_PROFILE_MAPC=no
@@ -715,7 +721,9 @@ MTK_DSPIRDBG=no
 MTK_DT_SUPPORT=no
 
 # For MTK's dual mic configuration.
-MTK_DUAL_MIC_SUPPORT=yes
+#lenovo-sw zhouwl, 2014-03-13, for prada
+MTK_DUAL_MIC_SUPPORT = yes
+#MTK_DUAL_MIC_SUPPORT=no
 MTK_DVFS_DISABLE_LOW_VOLTAGE_SUPPORT=no
 MTK_DX_HDCP_SUPPORT=no
 
@@ -1410,6 +1418,7 @@ MTK_VIDEO_THUMBNAIL_PLAY_SUPPORT=yes
 # To enable/disable feature Video Wallpaper on the project. If MTK_VLW_APP = yes MtkVideoLiveWallpaper.apk will be built into bootimage and users can use this feature on their device, vice versa.
 MTK_VLW_APP=yes
 MTK_VOICE_CONTACT_SEARCH_SUPPORT=no
+#lenovo huangdra 20140317 sync from other project.
 MTK_VOICE_UI_SUPPORT=no
 MTK_VOICE_UNLOCK_SUPPORT=yes
 MTK_VOICE_UNLOCK_USE_TAB_LIB=no

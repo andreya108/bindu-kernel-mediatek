@@ -92,7 +92,7 @@ int set_tp_protect(bool flag);
 /*End lenovo-sw wengjun1 add for control glove function. 2013-5-7*/
 
 extern int g_pmic_cid;
-
+unsigned int iCapacity_99_loop_fullcheck=0;
 //lenovo_sw liaohj add for charging led 2013-07-24
 #if defined (LENOVO_PROJECT_SMARTT)
 extern int g_temp_charging_blue_flag;
@@ -959,6 +959,25 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
         bat_data->BAT_PRESENT = 1;
     else
         bat_data->BAT_PRESENT = 0;
+
+ //start,snoopyrow-3043,chenggh2 
+	if( bat_data->BAT_CAPACITY == 99 &&
+	BMT_status.charger_type == STANDARD_CHARGER&&
+	upmu_is_chr_det()==KAL_TRUE )
+	{
+		iCapacity_99_loop_fullcheck ++;
+		if(iCapacity_99_loop_fullcheck >= 180)// keeping 0.5 hour capacity 99 with AC chargr IN
+		{
+			g_bat_full_user_view = KAL_TRUE;
+		}
+	}
+	else
+	{
+		iCapacity_99_loop_fullcheck = 0;//reset value
+	}
+	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "iCapacity_99_loop_fullcheck= %d\n",iCapacity_99_loop_fullcheck);
+//end,snoopyrow-3043,chenggh2 
+
 
     /* Charger and Battery Exist */
     //if( (upmu_is_chr_det(CHR)==KAL_TRUE) && (!g_Battery_Fail) )

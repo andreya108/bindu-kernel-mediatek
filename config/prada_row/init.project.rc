@@ -3,12 +3,6 @@ on init
     mkdir /mnt/media_rw/usbotg 0700 media_rw media_rw
     mkdir /storage/usbotg 0700 root root
 
-#lenovo-sw yexh1 2014_03_19 modify for usbotg sdcard2 modify begin
-    mkdir /mnt/media_rw/usbotg1 0700 media_rw media_rw
-    mkdir /storage/usbotg1 0700 root root   
- #lenovo-sw yexh1  end
-    
-
 on post-fs-data
 
 #
@@ -52,6 +46,7 @@ on post-fs-data
 #lenovo.sw wangsx3 20140515 add main backup sensor ov8865
     chmod 0660 /dev/DW9718AF
     chown system camera /dev/DW9718AF
+
 # BT
     chmod 0660 /dev/stpbt
     chown bluetooth radio /dev/stpbt
@@ -101,13 +96,6 @@ service fuse_usbotg /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/
     class late_start
     disabled
 
-#lenovo-sw yexh1 2014_03_19 modify for usbotg sdcard2 modify begin
-service fuse_usbotg1 /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/usbotg1 /storage/usbotg1
-    class late_start
-    disabled   
- #lenovo-sw yexh1  end
-
-
 #
 # Connectivity related services (Begin)
 #
@@ -142,17 +130,10 @@ service wlanLoader /system/bin/wlan_loader
 service bmm056d /system/bin/bmm056d
     class main
 #    oneshot
-    
+
 #
 # Connectivity related services (End)
 #
-
-# sw jincai1 20140213 for lms begin
-service lms /system/bin/lms
-   chmod 755 /system/bin/lms
-   class main
-   user root
-# sw jincai1 20140213 for lms end
 
 # lenovo nac service loader begin, liuyfc@lenovo.com
     service nac_server /system/bin/nac_server
@@ -177,3 +158,9 @@ service backgrounddata /system/bin/sh -c "am broadcast -a com.lenovo.action.BACK
 service writeconfig /system/bin/writeconfig
    class main
    user root
+
+#lenovo-sw jixj 2013.6.26 added for customsn
+service custom_sn /system/bin/custom_sn
+   class main
+   oneshot
+#lenovo-sw jixj 2013.6.26 added forcustomsn end
