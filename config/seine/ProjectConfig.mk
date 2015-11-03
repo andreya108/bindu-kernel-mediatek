@@ -1344,7 +1344,7 @@ MTK_WEATHER_WIDGET_APP=no
 MTK_WEB_NOTIFICATION_SUPPORT=yes
 
 # Define MTK weekly number(internal use only)
-MTK_WEEK_NO=  
+MTK_WEEK_NO=
 MTK_WFD_HDCP_TX_SUPPORT=no
 MTK_WFD_SINK_SUPPORT=no
 MTK_WFD_SINK_UIBC_SUPPORT=no
@@ -1559,14 +1559,14 @@ LENOVO_PREBUILD_APP_ODEX = no
 BOSH_BMC056_SENSOR = yes
 #lenovo-sw molg1 2014.3.13 add end
 
-# Lenovo-sw2 houdz1 add, 20140318 begin 
+# Lenovo-sw2 houdz1 add, 20140318 begin
 LENOVO_BACKLIGHT_LIMIT = yes
 LENOVO_LCM_EFFECT = yes
 #Lenovo-sw2 houdz1 add, 20140318 end
 #lenovo add by jixu@lenovo.com begin
 LENOVO_BACKLIGHT_CURRENT_SETTING = yes
 LENOVO_LCM_INFO = yes
-LENOVO_LEDS_GPIO_SUPPORT = yes
+LENOVO_LEDS_GPIO_SUPPORT = no
 #lenovo add by jixu@lenovo.com end
 
 #lenovo-sw yexh1, add dynamic userdata feature for different size of emmc device
