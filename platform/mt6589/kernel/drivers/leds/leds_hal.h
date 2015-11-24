@@ -2,7 +2,7 @@
 #include <cust_leds.h>
 #include <cust_leds_def.h>
 
-#define AAAAAAAAAAAAAAAAAAAA 
+#define AAAAAAAAAAAAAAAAAAAA
 /****************************************************************************
  * LED HAL functions
  ***************************************************************************/
@@ -35,6 +35,7 @@ extern int  mt_mt65xx_blink_set(struct led_classdev *led_cdev,
 
 struct cust_mt65xx_led* mt_get_cust_led_list(void);
 
-
-
-
+#ifdef LEDS_GPIO_SLEEP_WORKAROUND
+extern void mt_leds_suspend();
+extern void mt_leds_resume();
+#endif

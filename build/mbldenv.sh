@@ -6,7 +6,7 @@
 #TOOLCHAIN=linaro-4.9.4
 #TOOLCHAIN=linaro-old
 #TOOLCHAIN=gcc
-TOOLCHAIN=uber4.9
+TOOLCHAIN=linaro-5.1
 
 TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
@@ -41,7 +41,7 @@ case "$TOOLCHAIN" in
 	;;
   uber6.0)
 	echo "Building with UBER 6.0 arm-eabi"
-	PATH=$PWD/prebuilts/UBERTC/arm-eabi-6.0-d67c5cb38df4/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	PATH=$PWD/prebuilts/UBERTC/arm-eabi-6.0/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-eabi-
 	;;
   linaro-old)
@@ -53,6 +53,12 @@ case "$TOOLCHAIN" in
 	echo "Building with LINARO 4.9.4"
 	PATH=$PWD/prebuilts/arm-cortex_a7-linux-gnueabihf-linaro_4.9.4-2015.06/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-cortex_a7-linux-gnueabihf-
+	;;
+
+  linaro-5.1)
+	echo "Building with LINARO 5.1"
+	PATH=$PWD/prebuilts/gcc-linaro-5.1-2015.08-x86_64_arm-eabi/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	export CROSS_COMPILE=arm-eabi-
 	;;
   *)
 	echo "Unknown toolchain $TOOLCHAIN selected"

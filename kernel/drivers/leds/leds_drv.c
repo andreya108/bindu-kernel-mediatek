@@ -25,8 +25,8 @@
 #include <mach/mt_pwm.h>
 //#include <mach/mt_pwm_hal.h>
 //#include <mach/mt_gpio.h>
-#include <mach/pmic_mt6329_hw_bank1.h> 
-#include <mach/pmic_mt6329_sw_bank1.h> 
+#include <mach/pmic_mt6329_hw_bank1.h>
+#include <mach/pmic_mt6329_sw_bank1.h>
 #include <mach/pmic_mt6329_hw.h>
 #include <mach/pmic_mt6329_sw.h>
 #include <mach/upmu_common_sw.h>
@@ -57,7 +57,7 @@ struct mt65xx_led_data *g_leds_data[MT65XX_LED_TYPE_TOTAL];
 /****************************************************************************
  * DEBUG MACROS
  ***************************************************************************/
-static int debug_enable_led = 1;
+static int debug_enable_led = 0;
 #define LEDS_DRV_DEBUG(format, args...) do{ \
 	if(debug_enable_led) \
 	{\
@@ -79,7 +79,7 @@ int setMaxbrightness(int max_level, int enable);
 #endif
 
 /******************************************************************************
-   for DISP backlight High resolution 
+   for DISP backlight High resolution
 ******************************************************************************/
 #ifdef LED_INCREASE_LED_LEVEL_MTKPATCH
 #define LED_INTERNAL_LEVEL_BIT_CNT 10
@@ -96,9 +96,9 @@ static int mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level);
 
 //define int limit for brightness limitation
 static unsigned  int limit = 255;
-static unsigned  int limit_flag = 0;  
-static unsigned  int last_level = 0; 
-static unsigned  int current_level = 0; 
+static unsigned  int limit_flag = 0;
+static unsigned  int last_level = 0;
+static unsigned  int current_level = 0;
 static DEFINE_MUTEX(bl_level_limit_mutex);
 extern int disp_bls_set_max_backlight(unsigned int level);
 
@@ -107,7 +107,7 @@ extern int disp_bls_set_max_backlight(unsigned int level);
 //if enabe=1, the value of brightness will smaller  than max_level, whatever lightservice transfers to driver
 int setMaxbrightness(int max_level, int enable)
 {
-#if !defined (MTK_AAL_SUPPORT)	
+#if !defined (MTK_AAL_SUPPORT)
 	struct cust_mt65xx_led *cust_led_list = mt_get_cust_led_list();
 	mutex_lock(&bl_level_limit_mutex);
 	if (1 == enable)
@@ -115,7 +115,7 @@ int setMaxbrightness(int max_level, int enable)
 		limit_flag = 1;
 		limit = max_level;
 		mutex_unlock(&bl_level_limit_mutex);
-		//LEDS_DRV_DEBUG("[LED] setMaxbrightness limit happen and release lock!!\n");
+		//LEDS_DRV_DEBUG("[LEDS_DRV]  setMaxbrightness limit happen and release lock!!\n");
 		//LEDS_DRV_DEBUG("setMaxbrightness enable:last_level=%d, current_level=%d\n", last_level, current_level);
 		//if (limit < last_level){
 		if (0 != current_level){
@@ -133,26 +133,26 @@ int setMaxbrightness(int max_level, int enable)
 		limit_flag = 0;
 		limit = 255;
 		mutex_unlock(&bl_level_limit_mutex);
-		//LEDS_DRV_DEBUG("[LED] setMaxbrightness limit closed and and release lock!!\n");
+		//LEDS_DRV_DEBUG("[LEDS_DRV]  setMaxbrightness limit closed and and release lock!!\n");
 		//LEDS_DRV_DEBUG("setMaxbrightness disable:last_level=%d, current_level=%d\n", last_level, current_level);
-		
+
 		//if (last_level != 0){
 		if (0 != current_level){
 		LEDS_DRV_DEBUG("control temperature close:limit=%d\n", limit);
 		mt65xx_led_set_cust(&cust_led_list[MT65XX_LED_TYPE_LCD], last_level);
-		
+
 		//printk("mt65xx_leds_set_cust in setMaxbrightness:value control close!\n");
 		}
 	}
- 	
-	//LEDS_DRV_DEBUG("[LED] setMaxbrightness limit_flag = %d, limit=%d, current_level=%d\n",limit_flag, limit, current_level);
-	
+
+	//LEDS_DRV_DEBUG("[LEDS_DRV]  setMaxbrightness limit_flag = %d, limit=%d, current_level=%d\n",limit_flag, limit, current_level);
+
 #else
 	   LEDS_DRV_DEBUG("setMaxbrightness go through AAL\n");
 	   disp_bls_set_max_backlight(max_level);
-#endif //endif MTK_AAL_SUPPORT 
+#endif //endif MTK_AAL_SUPPORT
 	return 0;
-	
+
 }
 #endif
 /****************************************************************************
@@ -171,7 +171,7 @@ static void get_div_array(void)
 
 static int led_set_pwm(int pwm_num, struct nled_setting* led)
 {
-	
+
 	mt_led_set_pwm(pwm_num, led);
 	return 0;
 }
@@ -197,7 +197,7 @@ static int mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 			level = limit;
 			//LEDS_DRV_DEBUG("backlight_set_cust: control level=%d\n", level);
 		}
-	}	
+	}
 	mutex_unlock(&bl_level_limit_mutex);
 	#endif
 	#ifdef LED_INCREASE_LED_LEVEL_MTKPATCH
@@ -230,11 +230,11 @@ static void mt65xx_led_set(struct led_classdev *led_cdev, enum led_brightness le
 				level = limit;
 				LEDS_DRV_DEBUG("backlight_set_cust: control level=%d\n", level);
 			}
-		}	
+		}
 		mutex_unlock(&bl_level_limit_mutex);
 	  #endif
 	}
-	
+
 #ifdef LENOVO_BACKLIGHT_LIMIT//leovo add by jixu@lenovo.com
 		if((level>0)&&(lcm_params!=NULL)&&(strcmp(led_data->cust.name,"lcd-backlight") == 0)) {
 		int bl_app_min;
@@ -270,9 +270,12 @@ static int  mt65xx_blink_set(struct led_classdev *led_cdev,
 			     unsigned long *delay_on,
 			     unsigned long *delay_off)
 {
+//    LEDS_DRV_DEBUG("[LEDS_DRV] blink: %d:%d\n", *delay_on, *delay_off);
 	if(mt_mt65xx_blink_set(led_cdev, delay_on, delay_off)) {
+//    LEDS_DRV_DEBUG("[LEDS_DRV] blink: ENABLED\n");
 		return -1;
 	}else {
+//    LEDS_DRV_DEBUG("[LEDS_DRV] blink: DISABLED\n");
 		return 0;
 	}
 }
@@ -284,7 +287,7 @@ int mt65xx_leds_brightness_set(enum mt65xx_led_type type, enum led_brightness le
 {
 	struct cust_mt65xx_led *cust_led_list = mt_get_cust_led_list();
 
-	LEDS_DRV_DEBUG("[LED]#%d:%d\n", type, level);
+	LEDS_DRV_DEBUG("[LEDS_DRV] #%d:%d\n", type, level);
 
 	if (type < 0 || type >= MT65XX_LED_TYPE_TOTAL)
 		return -1;
@@ -303,7 +306,7 @@ EXPORT_SYMBOL(mt65xx_leds_brightness_set);
 
 static ssize_t show_duty(struct device *dev,struct device_attribute *attr, char *buf)
 {
-	LEDS_DRV_DEBUG("[LED]get backlight duty value is:%d \n",bl_duty);
+	LEDS_DRV_DEBUG("[LEDS_DRV] get backlight duty value is:%d \n",bl_duty);
 	return sprintf(buf, "%u\n", bl_duty);
 }
 static ssize_t store_duty(struct device *dev,struct device_attribute *attr, const char *buf, size_t size)
@@ -317,10 +320,10 @@ static ssize_t store_duty(struct device *dev,struct device_attribute *attr, cons
 	count = pvalue - buf;
 	if (*pvalue && isspace(*pvalue))
 		count++;
-    
+
 	if(count == size)
 	{
-	
+
 		if(bl_setting->mode == MT65XX_LED_MODE_PMIC)
 		{
 			//duty:0-16
@@ -332,9 +335,9 @@ static ssize_t store_duty(struct device *dev,struct device_attribute *attr, cons
 			{
 				LEDS_DRV_DEBUG("duty value is error, please select vaule from [0-15]!\n");
 			}
-		
+
 		}
-		
+
 		else if(bl_setting->mode == MT65XX_LED_MODE_PWM)
 		{
 			if(level == 0)
@@ -343,13 +346,13 @@ static ssize_t store_duty(struct device *dev,struct device_attribute *attr, cons
 			}else if(level <= 64)
 			{
 				mt_backlight_set_pwm_duty(bl_setting->data,level, bl_div,&bl_setting->config_data);
-			}	
+			}
 		}
-            
+
     	mt_set_bl_duty(level);
 
 	}
-	
+
 	return size;
 }
 
@@ -369,15 +372,15 @@ static ssize_t store_div(struct device *dev,struct device_attribute *attr, const
 	char *pvalue = NULL;
 	unsigned int div = 0;
 	size_t count = 0;
-	
+
 	bl_duty = mt_get_bl_duty();
 	LEDS_DRV_DEBUG("set backlight div start \n");
 	div = simple_strtoul(buf,&pvalue,10);
 	count = pvalue - buf;
-	
+
 	if (*pvalue && isspace(*pvalue))
 		count++;
-		
+
 	if(count == size)
 	{
          if(div < 0 || (div > 7))
@@ -385,13 +388,13 @@ static ssize_t store_div(struct device *dev,struct device_attribute *attr, const
             LEDS_DRV_DEBUG("set backlight div parameter error: %d[div:0~7]\n", div);
             return 0;
 		}
-        
+
 		if(bl_setting->mode == MT65XX_LED_MODE_PWM)
 		{
             LEDS_DRV_DEBUG("set PWM backlight div OK: div=%d, duty=%d\n", div, bl_duty);
             mt_backlight_set_pwm_div(bl_setting->data, bl_duty, div,&bl_setting->config_data);
 		}
-		
+
         else if(bl_setting->mode == MT65XX_LED_MODE_CUST_LCM)
         {
 			bl_brightness = mt_get_bl_brightness();
@@ -399,9 +402,9 @@ static ssize_t store_div(struct device *dev,struct device_attribute *attr, const
 	        ((cust_brightness_set)(bl_setting->data))(bl_brightness, div);
         }
         mt_set_bl_div(div);
-		
+
 	}
-	
+
 	return size;
 }
 
@@ -412,19 +415,19 @@ static ssize_t show_frequency(struct device *dev,struct device_attribute *attr, 
 {
 	bl_div = mt_get_bl_div();
 	bl_frequency = mt_get_bl_frequency();
-	
+
 	if(bl_setting->mode == MT65XX_LED_MODE_PWM)
     {
-        mt_set_bl_frequency(32000/div_array[bl_div]);               
+        mt_set_bl_frequency(32000/div_array[bl_div]);
     }
     else if(bl_setting->mode == MT65XX_LED_MODE_CUST_LCM)
     {
-        //mtkfb_get_backlight_pwm(bl_div, &bl_frequency);  
+        //mtkfb_get_backlight_pwm(bl_div, &bl_frequency);
         mt_backlight_get_pwm_fsel(bl_div, &bl_frequency);
     }
 
-    LEDS_DRV_DEBUG("[LED]get backlight PWM frequency value is:%d \n", bl_frequency);
-    
+    LEDS_DRV_DEBUG("[LEDS_DRV] get backlight PWM frequency value is:%d \n", bl_frequency);
+
 	return sprintf(buf, "%u\n", bl_frequency);
 }
 
@@ -441,18 +444,18 @@ static ssize_t store_pwm_register(struct device *dev,struct device_attribute *at
 	{
 		LEDS_DRV_DEBUG("store_pwm_register: size:%d,address:0x%s\n", size,buf);
 		reg_address = simple_strtoul(buf,&pvalue,16);
-	
+
 		if(*pvalue && (*pvalue == '#'))
 		{
 			reg_value = simple_strtoul((pvalue+1),NULL,16);
 			LEDS_DRV_DEBUG("set pwm register:[0x%x]= 0x%x\n",reg_address,reg_value);
 			//OUTREG32(reg_address,reg_value);
 			mt_store_pwm_register(reg_address,reg_value);
-			
+
 		}else if(*pvalue && (*pvalue == '@'))
 		{
 			LEDS_DRV_DEBUG("get pwm register:[0x%x]=0x%x\n",reg_address,mt_show_pwm_register(reg_address));
-		}	
+		}
 	}
 
 	return size;
@@ -474,7 +477,7 @@ static int __init mt65xx_leds_probe(struct platform_device *pdev)
 	int i;
 	int ret, rc;
 	struct cust_mt65xx_led *cust_led_list = mt_get_cust_led_list();
-	LEDS_DRV_DEBUG("[LED]%s\n", __func__);
+	LEDS_DRV_DEBUG("[LEDS_DRV] %s\n", __func__);
 	get_div_array();
 	for (i = 0; i < MT65XX_LED_TYPE_TOTAL; i++) {
 		if (cust_led_list[i].mode == MT65XX_LED_MODE_NONE) {
@@ -501,46 +504,46 @@ static int __init mt65xx_leds_probe(struct platform_device *pdev)
 		INIT_WORK(&g_leds_data[i]->work, mt_mt65xx_led_work);
 
 		ret = led_classdev_register(&pdev->dev, &g_leds_data[i]->cdev);
-        
+
 		if(strcmp(g_leds_data[i]->cdev.name,"lcd-backlight") == 0)
 		{
 			rc = device_create_file(g_leds_data[i]->cdev.dev, &dev_attr_duty);
             if(rc)
             {
-                LEDS_DRV_DEBUG("[LED]device_create_file duty fail!\n");
+                LEDS_DRV_DEBUG("[LEDS_DRV] device_create_file duty fail!\n");
             }
-            
+
             rc = device_create_file(g_leds_data[i]->cdev.dev, &dev_attr_div);
             if(rc)
             {
-                LEDS_DRV_DEBUG("[LED]device_create_file duty fail!\n");
+                LEDS_DRV_DEBUG("[LEDS_DRV] device_create_file duty fail!\n");
             }
-            
+
             rc = device_create_file(g_leds_data[i]->cdev.dev, &dev_attr_frequency);
             if(rc)
             {
-                LEDS_DRV_DEBUG("[LED]device_create_file duty fail!\n");
+                LEDS_DRV_DEBUG("[LEDS_DRV] device_create_file duty fail!\n");
             }
-            
+
 	    rc = device_create_file(g_leds_data[i]->cdev.dev, &dev_attr_pwm_register);
             if(rc)
             {
-                LEDS_DRV_DEBUG("[LED]device_create_file duty fail!\n");
+                LEDS_DRV_DEBUG("[LEDS_DRV] device_create_file duty fail!\n");
             }
 			bl_setting = &g_leds_data[i]->cust;
 		}
 
 		if (ret)
 			goto err;
-		
+
 	}
 #ifdef CONTROL_BL_TEMPERATURE
-	
-		last_level = 0;  
+
+		last_level = 0;
 		limit = 255;
-		limit_flag = 0; 
+		limit_flag = 0;
 		current_level = 0;
-		LEDS_DRV_DEBUG("[LED]led probe last_level = %d, limit = %d, limit_flag = %d, current_level = %d\n",last_level,limit,limit_flag,current_level);
+		LEDS_DRV_DEBUG("[LEDS_DRV] led probe last_level = %d, limit = %d, limit_flag = %d, current_level = %d\n",last_level,limit,limit_flag,current_level);
 #endif
 
 
@@ -576,53 +579,62 @@ static int mt65xx_leds_remove(struct platform_device *pdev)
 	return 0;
 }
 
-/*
-static int mt65xx_leds_suspend(struct platform_device *pdev, pm_message_t state)
+#ifdef LEDS_GPIO_SLEEP_WORKAROUND
+static int mt65xx_leds_suspend(struct platform_device *pdev)
 {
+//    LEDS_DRV_DEBUG("[LEDS_DRV] %s\n", __func__);
+    mt_leds_suspend();
 	return 0;
 }
-*/
+
+static int mt65xx_leds_resume(struct platform_device *pdev)
+{
+//    LEDS_DRV_DEBUG("[LEDS_DRV] %s\n", __func__);
+    mt_leds_resume();
+	return 0;
+}
+#endif
 
 static void mt65xx_leds_shutdown(struct platform_device *pdev)
 {
 	int i;
     struct nled_setting led_tmp_setting = {NLED_OFF,0,0};
-    
-    LEDS_DRV_DEBUG("[LED]%s\n", __func__);
-    LEDS_DRV_DEBUG("[LED]mt65xx_leds_shutdown: turn off backlight\n");
-    
+
+//    LEDS_DRV_DEBUG("[LEDS_DRV] %s\n", __func__);
+    LEDS_DRV_DEBUG("[LEDS_DRV] mt65xx_leds_shutdown: turn off backlight\n");
+
 	for (i = 0; i < MT65XX_LED_TYPE_TOTAL; i++) {
 		if (!g_leds_data[i])
 			continue;
 		switch (g_leds_data[i]->cust.mode) {
-			
+
 		    case MT65XX_LED_MODE_PWM:
 			    if(strcmp(g_leds_data[i]->cust.name,"lcd-backlight") == 0)
 			    {
 					//mt_set_pwm_disable(g_leds_data[i]->cust.data);
 					//mt_pwm_power_off (g_leds_data[i]->cust.data);
 					mt_led_pwm_disable(g_leds_data[i]->cust.data);
-			    }else
+			    } else
 			    {
 				    led_set_pwm(g_leds_data[i]->cust.data,&led_tmp_setting);
 			    }
                 break;
-                
+
 		   // case MT65XX_LED_MODE_GPIO:
 			//    brightness_set_gpio(g_leds_data[i]->cust.data, 0);
             //    break;
-                
+
 		    case MT65XX_LED_MODE_PMIC:
 			    brightness_set_pmic(g_leds_data[i]->cust.data, 0, 0);
                 break;
 		    case MT65XX_LED_MODE_CUST_LCM:
-				LEDS_DRV_DEBUG("[LED]backlight control through LCM!!1\n");
+				LEDS_DRV_DEBUG("[LEDS_DRV] backlight control through LCM!!1\n");
 			    ((cust_brightness_set)(g_leds_data[i]->cust.data))(0, bl_div);
                 break;
             case MT65XX_LED_MODE_CUST_BLS_PWM:
-				LEDS_DRV_DEBUG("[LED]backlight control through BLS!!1\n");
+				LEDS_DRV_DEBUG("[LEDS_DRV] backlight control through BLS!!1\n");
 			    ((cust_set_brightness)(g_leds_data[i]->cust.data))(0);
-                break;    
+                break;
 		    case MT65XX_LED_MODE_NONE:
 		    default:
 			    break;
@@ -638,7 +650,10 @@ static struct platform_driver mt65xx_leds_driver = {
 	},
 	.probe		= mt65xx_leds_probe,
 	.remove		= mt65xx_leds_remove,
-	//.suspend	= mt65xx_leds_suspend,
+#ifdef LEDS_GPIO_SLEEP_WORKAROUND
+	.suspend	= mt65xx_leds_suspend,
+	.resume	    = mt65xx_leds_resume,
+#endif
 	.shutdown   = mt65xx_leds_shutdown,
 };
 
@@ -654,18 +669,18 @@ static int __init mt65xx_leds_init(void)
 {
 	int ret;
 
-	LEDS_DRV_DEBUG("[LED]%s\n", __func__);
+	LEDS_DRV_DEBUG("[LEDS_DRV] %s\n", __func__);
 
 #if 0
 	ret = platform_device_register(&mt65xx_leds_device);
 	if (ret)
-		printk("[LED]mt65xx_leds_init:dev:E%d\n", ret);
+		printk("[LEDS_DRV] mt65xx_leds_init:dev:E%d\n", ret);
 #endif
 	ret = platform_driver_register(&mt65xx_leds_driver);
 
 	if (ret)
 	{
-		LEDS_DRV_DEBUG("[LED]mt65xx_leds_init:drv:E%d\n", ret);
+		LEDS_DRV_DEBUG("[LEDS_DRV] mt65xx_leds_init:drv:E%d\n", ret);
 //		platform_device_unregister(&mt65xx_leds_device);
 		return ret;
 	}

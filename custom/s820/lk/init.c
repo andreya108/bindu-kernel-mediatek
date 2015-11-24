@@ -34,15 +34,17 @@
 #include <reg.h>
 #include <target.h>
 #include <platform/mt_reg_base.h>
+#include <platform/mt_pmic.h>
 #include <platform/mmc_core.h>
 #include <platform/boot_mode.h>
 #include <target/cust_key.h>
-
 
 static unsigned int target_id;
 extern void dmb(void);
 
 static void target_detect(void);
+
+static const char *builtby="[  andreya108@4pda/xda  ]";
 
 void target_early_init(void)
 {
@@ -64,9 +66,25 @@ void target_fastboot_init(void)
 
 }
 
+void on_init_action(void) {
+
+    int i=0;
+
+    for (;builtby[i]!=0;i++);
+
+    upmu_set_rg_vibr_vosel(0x5);
+//    upmu_set_rg_vibr_vosel(0x7);
+    upmu_set_rg_vibr_en(0x1);
+//    udelay(100000); //0.1secs
+    udelay(2000*i); //0.05secs
+    upmu_set_rg_vibr_vosel(0x4);
+    upmu_set_rg_vibr_en(0x0);
+}
+
 extern BOOTMODE g_boot_mode;
 BOOL fastboot_trigger(void)
 {
+  BOOL rc = FALSE;
   ulong begin = get_timer(0);
   dprintf(INFO,"\n Check FASTBOOT\n");
 
@@ -83,16 +101,17 @@ BOOL fastboot_trigger(void)
 
   dprintf(INFO,"Wait 50ms for special keys\n");
   
-  while(get_timer(begin)<50)
+  while(get_timer(begin)<100)
   {    
     if(mtk_detect_key(MT_CAMERA_KEY))
     { 
    	  dprintf(INFO,"[FASTBOOT]Key Detect\n");
    	  g_boot_mode = FASTBOOT;
-   	  return TRUE;
+   	  rc = TRUE;
+   	  break;
     }
   }
         
-  return FALSE;	
+  return rc;	
 }
 

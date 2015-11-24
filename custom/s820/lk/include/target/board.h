@@ -17,4 +17,6 @@
 
 #define CFG_POWER_CHARGING
 
+#define PRADA_VIBRATE
+
 #endif
