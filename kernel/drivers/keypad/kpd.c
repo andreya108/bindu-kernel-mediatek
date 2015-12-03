@@ -92,7 +92,7 @@ static void fcover_key_handler(unsigned long data)
 {
 	bool pressed;
 	u8 old_state = fcover_key_state;
-      
+
 	fcover_key_state = !fcover_key_state;
 	pressed = (fcover_key_state == !!FCOVER_KEY_POLARITY);
 	printk("\r\n leanda fcover_key_eint_handler in pressed=%d, fcover_key_state=%d,old_state=%d \r\n", pressed, fcover_key_state, old_state);
@@ -105,7 +105,7 @@ static void fcover_key_handler(unsigned long data)
             input_report_key(kpd_input_dev, KEY_FCOVER_1, 0);
         	input_sync(kpd_input_dev);
         	printk("report Linux keycode = %u\n", KEY_FCOVER_1);
-			
+
 //======================test=========================
 #ifdef KERNEL_OPEN_FCOVER
 			if(lcm_backlight_flag == 1)
@@ -121,7 +121,7 @@ static void fcover_key_handler(unsigned long data)
 				printk("report Linux keycode = %u\n", KPD_PWRKEY_MAP);
 			}
 #endif
-//======================end===========================			
+//======================end===========================
 	}
 	else  // open
 	{
@@ -157,7 +157,7 @@ static void kpd_memory_setting(void);
 /*********************************************************************/
 static int kpd_pdrv_probe(struct platform_device *pdev);
 static int kpd_pdrv_remove(struct platform_device *pdev);
-#ifndef USE_EARLY_SUSPEND	
+#ifndef USE_EARLY_SUSPEND
 static int kpd_pdrv_suspend(struct platform_device *pdev, pm_message_t state);
 static int kpd_pdrv_resume(struct platform_device *pdev);
 #endif
@@ -166,10 +166,10 @@ static int kpd_pdrv_resume(struct platform_device *pdev);
 static struct platform_driver kpd_pdrv = {
 	.probe		= kpd_pdrv_probe,
 	.remove		= kpd_pdrv_remove,
-#ifndef USE_EARLY_SUSPEND	
+#ifndef USE_EARLY_SUSPEND
 	.suspend	= kpd_pdrv_suspend,
 	.resume		= kpd_pdrv_resume,
-#endif	
+#endif
 	.driver		= {
 		.name	= KPD_NAME,
 		.owner	= THIS_MODULE,
@@ -202,9 +202,9 @@ static ssize_t kpd_store_call_state(struct device_driver *ddri, const char *buf,
 			kpd_print("kpd call state: ringing state!\n");
 		break;
 		case 3 :
-			kpd_print("kpd call state: active or hold state!\n");	
+			kpd_print("kpd call state: active or hold state!\n");
 		break;
-            
+
 		default:
    			kpd_print("kpd call state: Invalid values\n");
         	break;
@@ -215,8 +215,8 @@ static ssize_t kpd_store_call_state(struct device_driver *ddri, const char *buf,
 static ssize_t kpd_show_call_state(struct device_driver *ddri, char *buf)
 {
 	ssize_t res;
-	res = snprintf(buf, PAGE_SIZE, "%d\n", call_status);     
-	return res;   
+	res = snprintf(buf, PAGE_SIZE, "%d\n", call_status);
+	return res;
 }
 static DRIVER_ATTR(kpd_call_state,	S_IWUSR | S_IRUGO,	kpd_show_call_state,	kpd_store_call_state);
 
@@ -225,7 +225,7 @@ static struct driver_attribute *kpd_attr_list[] = {
 };
 
 /*----------------------------------------------------------------------------*/
-static int kpd_create_attr(struct device_driver *driver) 
+static int kpd_create_attr(struct device_driver *driver)
 {
 	int idx, err = 0;
 	int num = (int)(sizeof(kpd_attr_list)/sizeof(kpd_attr_list[0]));
@@ -237,11 +237,11 @@ static int kpd_create_attr(struct device_driver *driver)
 	for(idx = 0; idx < num; idx++)
 	{
 		if((err = driver_create_file(driver, kpd_attr_list[idx])))
-		{            
+		{
 			kpd_print("driver_create_file (%s) = %d\n", kpd_attr_list[idx]->attr.name, err);
 			break;
 		}
-	}    
+	}
 	return err;
 }
 /*----------------------------------------------------------------------------*/
@@ -253,11 +253,11 @@ static int kpd_delete_attr(struct device_driver *driver)
 	if (!driver)
 	return -EINVAL;
 
-	for (idx = 0; idx < num; idx++) 
+	for (idx = 0; idx < num; idx++)
 	{
 		driver_remove_file(driver, kpd_attr_list[idx]);
 	}
-	
+
 	return err;
 }
 /*----------------------------------------------------------------------------*/
@@ -294,14 +294,14 @@ static inline void kpd_update_aee_state(void) {
 	if(aee_pressed_keys == ((1<<AEE_VOLUMEUP_BIT) | (1<<AEE_VOLUMEDOWN_BIT))) {
 		/* if volumeup and volumedown was pressed the same time then start the time of ten seconds */
 		aee_timer_started = true;
-		
+
 #if AEE_ENABLE_5_15
 		aee_timer_5s_started = true;
-		hrtimer_start(&aee_timer_5s, 
+		hrtimer_start(&aee_timer_5s,
 				ktime_set(AEE_DELAY_TIME_5S, 0),
 				HRTIMER_MODE_REL);
 #endif
-		hrtimer_start(&aee_timer, 
+		hrtimer_start(&aee_timer,
 				ktime_set(AEE_DELAY_TIME, 0),
 				HRTIMER_MODE_REL);
 		kpd_print("aee_timer started\n");
@@ -310,7 +310,7 @@ static inline void kpd_update_aee_state(void) {
 /*
   * hrtimer_cancel - cancel a timer and wait for the handler to finish.
   * Returns:
-  *	0 when the timer was not active. 
+  *	0 when the timer was not active.
   *	1 when the timer was active.
  */
 			if(hrtimer_cancel(&aee_timer))
@@ -323,7 +323,7 @@ static inline void kpd_update_aee_state(void) {
 					aee_kernel_reminding("manual dump", "Trigger Vol Up +Vol Down 5s");
 				}
 #endif
-					
+
 			}
 #if AEE_ENABLE_5_15
 			flags_5s = false;
@@ -337,7 +337,7 @@ static inline void kpd_update_aee_state(void) {
 /*
   * hrtimer_cancel - cancel a timer and wait for the handler to finish.
   * Returns:
-  *	0 when the timer was not active. 
+  *	0 when the timer was not active.
   *	1 when the timer was active.
  */
 			if(hrtimer_cancel(&aee_timer_5s))
@@ -383,7 +383,7 @@ static enum hrtimer_restart aee_timer_func(struct hrtimer *timer) {
 
 #if AEE_ENABLE_5_15
 static enum hrtimer_restart aee_timer_5s_func(struct hrtimer *timer) {
-	
+
 	//printk("kpd: vol up+vol down AEE manual dump timer 5s !\n");
 	flags_5s = true;
 	return HRTIMER_NORESTART;
@@ -490,20 +490,20 @@ static void kpd_keymap_handler(unsigned long data)
 				       hw_keycode);
 			}
 			BUG_ON(hw_keycode >= KPD_NUM_KEYS);
-			linux_keycode = kpd_keymap[hw_keycode];			
+			linux_keycode = kpd_keymap[hw_keycode];
 			if (unlikely(linux_keycode == 0)) {
 				kpd_print("Linux keycode = 0\n");
 				continue;
-			}		
+			}
 			kpd_aee_handler(linux_keycode, pressed);
-			
+
 			kpd_backlight_handler(pressed, linux_keycode);
 			input_report_key(kpd_input_dev, linux_keycode, pressed);
 			input_sync(kpd_input_dev);
 			kpd_print("report Linux keycode = %u\n", linux_keycode);
 		}
 	}
-	
+
 	memcpy(kpd_keymap_state, new_state, sizeof(new_state));
 	kpd_print("save new keymap state\n");
 	enable_irq(MT_KP_IRQ_ID);
@@ -606,7 +606,7 @@ long kpd_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		}else{
 			printk("[AUTOTEST] Not Support LEFT KEY!!\n");
 		}
-		break;		
+		break;
 	case RELEASE_LEFT_KEY:
 		if(test_bit(KEY_LEFT, kpd_input_dev->keybit)){
 			printk("[AUTOTEST] RELEASE LEFT KEY!!\n");
@@ -799,11 +799,11 @@ long kpd_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 		}
 		break;
 #endif
-		
+
 	case SET_KPD_KCOL:
 		kpd_auto_test_for_factorymode();//API 3 for kpd factory mode auto-test
 		printk("[kpd_auto_test_for_factorymode] test performed!!\n");
-		break;		
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -831,17 +831,17 @@ static struct miscdevice kpd_dev = {
 
 static int kpd_open(struct input_dev *dev)
 {
-	kpd_slide_qwerty_init();//API 1 for kpd slide qwerty init settings	
+	kpd_slide_qwerty_init();//API 1 for kpd slide qwerty init settings
 	return 0;
 }
 
 
 static int kpd_pdrv_probe(struct platform_device *pdev)
 {
-	
+
 	int i, r;
 	int err = 0;
-	
+
 	kpd_ldvt_test_init();//API 2 for kpd LFVT test enviroment settings
 
 	/* initialize and register input device (/dev/input/eventX) */
@@ -856,9 +856,9 @@ static int kpd_pdrv_probe(struct platform_device *pdev)
 	kpd_input_dev->id.version = 0x0010;
 	kpd_input_dev->open = kpd_open;
 
-	//fulfill custom settings	
+	//fulfill custom settings
 	kpd_memory_setting();
-	
+
 	__set_bit(EV_KEY, kpd_input_dev->evbit);
 
 #if (KPD_PWRKEY_USE_EINT||KPD_PWRKEY_USE_PMIC)
@@ -931,7 +931,7 @@ static int kpd_pdrv_probe(struct platform_device *pdev)
 
 #ifndef KPD_EARLY_PORTING /*add for avoid early porting build err the macro is defined in custom file*/
 	long_press_reboot_function_setting();///API 4 for kpd long press reboot function setting
-#endif	
+#endif
 	hrtimer_init(&aee_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	aee_timer.function = aee_timer_func;
 
@@ -975,7 +975,7 @@ static int kpd_pdrv_suspend(struct platform_device *pdev, pm_message_t state)
 		kpd_wakeup_src_setting(0);
 		kpd_print("kpd_early_suspend wake up source disable!! (%d)\n", kpd_suspend);
 	}
-#endif		
+#endif
 	kpd_disable_backlight();
 	kpd_print("suspend!! (%d)\n", kpd_suspend);
 	return 0;
@@ -983,7 +983,7 @@ static int kpd_pdrv_suspend(struct platform_device *pdev, pm_message_t state)
 
 static int kpd_pdrv_resume(struct platform_device *pdev)
 {
-	kpd_suspend = false;	
+	kpd_suspend = false;
 #ifdef MTK_KP_WAKESOURCE
 	if(call_status == 2){
 		kpd_print("kpd_early_suspend wake up source enable!! (%d)\n", kpd_suspend);
@@ -991,7 +991,7 @@ static int kpd_pdrv_resume(struct platform_device *pdev)
 		kpd_print("kpd_early_suspend wake up source resume!! (%d)\n", kpd_suspend);
 		kpd_wakeup_src_setting(1);
 	}
-#endif	
+#endif
 	kpd_print("resume!! (%d)\n", kpd_suspend);
 	return 0;
 }
@@ -1020,7 +1020,7 @@ static void kpd_early_suspend(struct early_suspend *h)
 		//kpd_wakeup_src_setting(0);
 		kpd_print("kpd_early_suspend wake up source disable!! (%d)\n", kpd_suspend);
 	}
-#endif	
+#endif
 	kpd_disable_backlight();
 	kpd_print("early suspend!! (%d)\n", kpd_suspend);
 }
@@ -1035,7 +1035,7 @@ static void kpd_early_resume(struct early_suspend *h)
 		kpd_print("kpd_early_resume wake up source enable!! (%d)\n", kpd_suspend);
 		//kpd_wakeup_src_setting(1);
 	}
-#endif	
+#endif
 	kpd_print("early resume!! (%d)\n", kpd_suspend);
 }
 

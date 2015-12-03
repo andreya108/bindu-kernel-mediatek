@@ -310,6 +310,13 @@ static void hwmsen_work_func(struct work_struct *work)
 	    event_type &= ~(1 << ID_PROXIMITY);   
 		//HWM_LOG("remove ps event!!!!!!!!!!!\n");
 	}
+	/*lenovo sw liaoxl 2014.3.31 add for SENSOR_INVALID_VALUE filter begin*/
+	if((event_type&(1 << ID_LIGHT)) && (SENSOR_INVALID_VALUE == obj_data.sensors_data[ID_LIGHT].values[0]))
+	{
+	    event_type &= ~(1 << ID_LIGHT);   
+		//HWM_LOG("remove ps event!!!!!!!!!!!\n");
+	}
+	/*lenovo sw liaoxl 2014.3.31 add for SENSOR_INVALID_VALUE filter end*/
 	
 	if(event_type != 0)
 	{		

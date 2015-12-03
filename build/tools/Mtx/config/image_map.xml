@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<image-map>
+   <!--This File is normally deliveried with Flashtool-->
+  <!--Attention: img_type_name must NOT be duplicated! -->
+  <!--brom_fomrat please follow Flashtool_handle.h to fill-->
+  <!--brom_format: NORMAL_ROM(1), SV5_BL_BIN(7), YAFFS_IMG(8)-->
+  <!--eboot_format please follow android_dl_structure.h to fill-->
+  <!--eboot_format: DM_IMG_FORMAT_FAT(0), DM_IMG_FORMAT_YAFFS2(1)-->
+  <!--uncheckable: used to mark if the image can be unchecked when firmware upgrade-->
+  <!--uncheckable: true->can be unchecked; false->can not be unchecked-->
+  <image type_name="PRELOADER" brom_format="7" eboot_format="0" img_type="300" uncheckable = "false">
+    <scatter>PRELOADER</scatter>
+    <!-- section type_name in scatter-->
+    <prefix>preloader</prefix>
+    <!-- image type_name prefix in load-->
+  </image>
+  <image type_name="DSP_BL" brom_format="7" eboot_format="0" img_type="301" uncheckable = "false">
+    <scatter>DSP_BL</scatter>
+    <!-- section type_name in scatter-->
+    <prefix>DSP_BL</prefix>
+    <!-- image type_name prefix in load-->
+  </image>
+  <image type_name="PRO_INFO" brom_format="1" eboot_format="0" img_type="302" uncheckable = "false">
+    <scatter>PRO_INFO</scatter>
+    <!-- new img_type_name could be added by following Bootloaders-->
+    <prefix>PRO_INFO</prefix>
+  </image>
+  <image type_name="MBR" brom_format="1" eboot_format="0" img_type="303" uncheckable = "false">
+    <scatter>MBR</scatter>
+    <!-- new img_type_name could be added by following Bootloaders-->
+    <prefix>MBR</prefix>
+  </image>
+  <image type_name="EBR1" brom_format="1" eboot_format="0" img_type="304" uncheckable = "false">
+    <scatter>EBR1</scatter>
+    <!-- new img_type_name could be added by following Bootloaders-->
+    <prefix>EBR1</prefix>
+  </image>
+  <image type_name="EBR2" brom_format="1" eboot_format="0" img_type="305" uncheckable = "false">
+    <scatter>EBR2</scatter>
+    <!-- new img_type_name could be added by following Bootloaders-->
+    <prefix>EBR2</prefix>
+  </image>
+  <image type_name="UBOOT" brom_format="1" eboot_format="0" img_type="5" uncheckable = "false">
+    <scatter>UBOOT</scatter>
+	<prefix>LK</prefix>
+	<prefix>lk</prefix>
+    <prefix>uboot</prefix>
+    <prefix>u-boot</prefix>
+  </image>
+   <image type_name="LK" brom_format="1" eboot_format="0" img_type="5" uncheckable = "false">
+    <scatter>LK</scatter>
+	<prefix>LK</prefix>
+	<prefix>lk</prefix>
+  </image>
+  <image type_name="BOOTIMG" brom_format="1" eboot_format="0" img_type="1" uncheckable = "false">
+    <scatter>BOOTIMG</scatter>
+    <scatter>BOOT</scatter>
+    <prefix>boot</prefix>
+  </image>
+  <image type_name="RECOVERY" brom_format="1" eboot_format="0" img_type="4" uncheckable = "false">
+    <scatter>RECOVERY</scatter>
+    <prefix>recovery</prefix>
+  </image>
+  <image type_name="SEC_RO" brom_format="8" eboot_format="1" img_type="7" uncheckable = "false">
+    <scatter>SEC_RO</scatter>
+    <scatter>SECRO</scatter>
+    <scatter>secstatic</scatter>
+    <prefix>secro</prefix>
+  </image>
+  <image type_name="ANDROID" brom_format="8" eboot_format="1" img_type="2" uncheckable = "false">
+    <scatter>ANDROID</scatter>
+    <scatter>SYSTEM</scatter>
+    <scatter>system</scatter>
+    <prefix>system</prefix>
+  </image>
+  <image type_name="LOGO" brom_format="1" eboot_format="0" img_type="0" uncheckable = "false">
+    <scatter>LOGO</scatter>
+    <scatter>logo</scatter>
+    <prefix>logo</prefix>
+  </image>
+  <image type_name="CACHE" brom_format="8" eboot_format="1" img_type="306" uncheckable = "false">
+    <scatter>CACHE</scatter>
+    <prefix>cache</prefix>
+  </image>
+  <image type_name="USRDATA" brom_format="8" eboot_format="1" img_type="3" uncheckable = "false">
+    <scatter>USRDATA</scatter>
+    <scatter>USERDATA</scatter>
+    <scatter>data</scatter>
+    <prefix>userdata</prefix>
+  </image>
+  <image type_name="FAT" brom_format="8" eboot_format="1" img_type="307" uncheckable = "true">
+    <scatter>FAT</scatter>
+    <scatter>fat</scatter>
+    <prefix>fat</prefix>
+  </image>
+  <image type_name="PRELOAD" brom_format="8" eboot_format="1" img_type="100" uncheckable = "false">
+    <scatter>PRELOAD</scatter>
+    <scatter>preload</scatter>
+    <prefix>preload</prefix>
+  </image>
+  <image type_name="CUSTPACK2" brom_format="8" eboot_format="1" img_type="101" uncheckable = "false">
+    <scatter>CUSTPACK2</scatter>
+    <scatter>CUSTPACK2_YAFFS</scatter>
+    <prefix>custpack2</prefix>
+  </image>
+  <image type_name="CUSTPACK3" brom_format="1" eboot_format="0" img_type="102" uncheckable = "false">
+    <scatter>CUSTPACK3</scatter>
+    <scatter>CUSTPACK3_FAT</scatter>
+    <prefix>custpack3</prefix>
+  </image>
+  <image type_name="CUSTPACK4" brom_format="8" eboot_format="1" img_type="103" uncheckable = "false">
+    <scatter>CUSTPACK4</scatter>
+    <scatter>CUSTPACK4_YAFFS</scatter>
+    <prefix>custpack4</prefix>
+  </image>
+</image-map>

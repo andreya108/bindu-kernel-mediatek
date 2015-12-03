@@ -48,7 +48,6 @@ static const char *builtby="[  andreya108@4pda/xda  ]";
 
 void target_early_init(void)
 {
-
 }
 
 void target_init(void)
@@ -68,17 +67,18 @@ void target_fastboot_init(void)
 
 void on_init_action(void) {
 
-    int i=0;
+    int j,i=0;
 
     for (;builtby[i]!=0;i++);
 
-    upmu_set_rg_vibr_vosel(0x5);
-//    upmu_set_rg_vibr_vosel(0x7);
-    upmu_set_rg_vibr_en(0x1);
-//    udelay(100000); //0.1secs
-    udelay(2000*i); //0.05secs
-    upmu_set_rg_vibr_vosel(0x4);
-    upmu_set_rg_vibr_en(0x0);
+    for (j=0;j<3;j++) {
+        upmu_set_rg_vibr_vosel(0x5);
+        upmu_set_rg_vibr_en(0x1);
+        udelay(1000*i); //0.05secs
+        upmu_set_rg_vibr_vosel(0x4);
+        upmu_set_rg_vibr_en(0x0);
+        udelay(1000*i); //0.05secs
+    }
 }
 
 extern BOOTMODE g_boot_mode;
@@ -100,18 +100,18 @@ BOOL fastboot_trigger(void)
 #endif
 
   dprintf(INFO,"Wait 50ms for special keys\n");
-  
+
   while(get_timer(begin)<100)
-  {    
+  {
     if(mtk_detect_key(MT_CAMERA_KEY))
-    { 
+    {
    	  dprintf(INFO,"[FASTBOOT]Key Detect\n");
    	  g_boot_mode = FASTBOOT;
    	  rc = TRUE;
    	  break;
     }
   }
-        
-  return rc;	
+
+  return rc;
 }
 

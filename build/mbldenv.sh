@@ -6,7 +6,9 @@
 #TOOLCHAIN=linaro-4.9.4
 #TOOLCHAIN=linaro-old
 #TOOLCHAIN=gcc
-TOOLCHAIN=linaro-5.1
+#TOOLCHAIN=gcc4.9
+#TOOLCHAIN=linaro-5.1
+TOOLCHAIN=uber4.9
 
 TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
@@ -33,6 +35,11 @@ case "$TOOLCHAIN" in
   gcc)
 	echo "Building with GCC 4.7"
 	PATH=$PWD/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin:$PWD/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	;;
+  gcc4.9)
+	echo "Building with GCC 4.9"
+	PATH=~/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+    export CROSS_COMPILE=arm-linux-androideabi-
 	;;
   uber4.9)
 	echo "Building with UBER 4.9 arm-eabi"

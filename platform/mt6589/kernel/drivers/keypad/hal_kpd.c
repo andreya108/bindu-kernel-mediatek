@@ -35,7 +35,21 @@ static u16 kpd_keymap_state[KPD_NUM_MEMS] = {
 };
 
 static bool kpd_sb_enable = false;
-
+/*lenovo-sw jixj 2013.7.9 add begin*/
+#ifdef LENOVO_LONG_POWER_RESET
+extern int force_get_tbat(void);
+#define NO_TEMP_VOLT -20
+int is_batt_temp_pin(void)
+{
+    if(force_get_tbat() == NO_TEMP_VOLT) {
+        printk("is_batt_temp_pin NO_TEMP_VOLT");
+        return 0;
+    } else {
+        return 1;
+    }
+}
+#endif
+/*lenovo-sw jixj 2013.7.9 add end*/
 
 
 #ifdef MTK_SMARTBOOK_SUPPORT
@@ -54,7 +68,7 @@ static void sb_kpd_release_keys(struct input_dev *dev)
 void sb_kpd_enable(void)
 {
 	kpd_sb_enable = true;
-	kpd_print("sb_kpd_enable performed! \n");	
+	kpd_print("sb_kpd_enable performed! \n");
 	mt_reg_sync_writew(0x0, KP_PMIC);
 	sb_kpd_release_keys(kpd_input_dev);
 }
@@ -68,7 +82,7 @@ void sb_kpd_disable(void)
 #else
 void sb_kpd_enable(void)
 {
-	kpd_print("sb_kpd_enable empty function for HAL!\n");	
+	kpd_print("sb_kpd_enable empty function for HAL!\n");
 }
 
 void sb_kpd_disable(void)
@@ -105,16 +119,16 @@ void kpd_slide_qwerty_init(void){
 	if (handle)
 	{
 		handler = handle->handler;
-		if(strcmp(handler->name, "evdev")==0) 
+		if(strcmp(handler->name, "evdev")==0)
 		{
 			return -1;
-		}	
+		}
 	}
-	else 
+	else
 	{
 		list_for_each_entry_rcu(handle, &dev->h_list, d_node) {
 			handler = handle->handler;
-			if(strcmp(handler->name, "evdev")==0) 
+			if(strcmp(handler->name, "evdev")==0)
 			{
 				evdev_flag=true;
 				break;
@@ -122,8 +136,8 @@ void kpd_slide_qwerty_init(void){
 		}
 		if(evdev_flag==false)
 		{
-			return -1;	
-		}	
+			return -1;
+		}
 	}
 
 	power_op = powerOn_slidePin_interface();
@@ -132,12 +146,12 @@ void kpd_slide_qwerty_init(void){
 	} else {
 		kpd_print("Qwerty slide pin interface power on success\n");
 	}
-		
+
 	mt65xx_eint_set_sens(KPD_SLIDE_EINT, KPD_SLIDE_SENSITIVE);
 	mt65xx_eint_set_hw_debounce(KPD_SLIDE_EINT, KPD_SLIDE_DEBOUNCE);
 	mt65xx_eint_registration(KPD_SLIDE_EINT, true, KPD_SLIDE_POLARITY,
 	                         kpd_slide_eint_handler, false);
-	                         
+
 	power_op = powerOff_slidePin_interface();
 	if(!power_op) {
 		printk(KPD_SAY "Qwerty slide pin interface power off fail\n");
@@ -149,7 +163,7 @@ return;
 }
 /************************************************************/
 /**************************************/
-#ifdef CONFIG_MTK_LDVT	
+#ifdef CONFIG_MTK_LDVT
 void mtk_kpd_gpios_get(unsigned int ROW_REG[], unsigned int COL_REG[])
 {
 	int i;
@@ -232,7 +246,7 @@ void mtk_kpd_gpio_set(void)
 
 	kpd_print("Enter mtk_kpd_gpio_set! \n");
 	mtk_kpd_gpios_get(ROW_REG, COL_REG);
-	
+
 	for(i = 0; i < 8; i++)
 	{
 		if (COL_REG[i] != 0)
@@ -243,13 +257,13 @@ void mtk_kpd_gpio_set(void)
 			mt_set_gpio_pull_enable(COL_REG[i], 1);
 			mt_set_gpio_pull_select(COL_REG[i], 1);
 		}
-		
+
 		if(ROW_REG[i] != 0)
 		{
 			/* KROW: GPIO output + pull disable + pull down */
 			mt_set_gpio_mode(ROW_REG[i], 1);
 			mt_set_gpio_dir(ROW_REG[i], 1);
-			mt_set_gpio_pull_enable(ROW_REG[i], 0);	
+			mt_set_gpio_pull_enable(ROW_REG[i], 0);
 			mt_set_gpio_pull_select(ROW_REG[i], 0);
 		}
 	}
@@ -257,7 +271,7 @@ void mtk_kpd_gpio_set(void)
 #endif
 
 void kpd_ldvt_test_init(void){
-#ifdef CONFIG_MTK_LDVT	
+#ifdef CONFIG_MTK_LDVT
     		//set kpd enable and sel register
 		mt_reg_sync_writew(0x0, KP_SEL);
 		mt_reg_sync_writew(0x1, KP_EN);
@@ -276,7 +290,7 @@ static void mtk_kpd_get_gpio_col(unsigned int COL_REG[])
 		COL_REG[i] = 0;
 	}
 	kpd_print("Enter mtk_kpd_get_gpio_col! \n");
-	
+
 	#ifdef GPIO_KPD_KCOL0_PIN
 		kpd_print("checking GPIO_KPD_KCOL0_PIN! \n");
 		COL_REG[0] = GPIO_KPD_KCOL0_PIN;
@@ -326,7 +340,7 @@ void kpd_get_keymap_state(u16 state[])
 	state[3] = *(volatile u16 *)KP_MEM4;
 	state[4] = *(volatile u16 *)KP_MEM5;
 	printk(KPD_SAY "register = %x %x %x %x %x\n",state[0], state[1], state[2], state[3], state[4]);
-	
+
 }
 
 static void kpd_factory_mode_handler(void)
@@ -363,17 +377,17 @@ static void kpd_factory_mode_handler(void)
 				       hw_keycode);
 			}
 			BUG_ON(hw_keycode >= KPD_NUM_KEYS);
-			linux_keycode = kpd_keymap[hw_keycode];			
+			linux_keycode = kpd_keymap[hw_keycode];
 			if (unlikely(linux_keycode == 0)) {
 				kpd_print("Linux keycode = 0\n");
 				continue;
-			}		
+			}
 			input_report_key(kpd_input_dev, linux_keycode, pressed);
 			input_sync(kpd_input_dev);
 			kpd_print("factory_mode report Linux keycode = %u\n", linux_keycode);
 		}
 	}
-	
+
 	memcpy(kpd_keymap_state, new_state, sizeof(new_state));
 	kpd_print("save new keymap state\n");
 }
@@ -401,7 +415,7 @@ void kpd_auto_test_for_factorymode(void)
 	//mdelay(time);
 	//kpd_pwrkey_pmic_handler(0);
 	}
-	
+
 #ifdef KPD_PMIC_RSTKEY_MAP
 	if(upmu_get_homekey_deb()==1){
 	//kpd_print("home key release\n");
@@ -426,9 +440,25 @@ void long_press_reboot_function_setting(void)
 #ifdef KPD_PMIC_LPRST_TD
 		kpd_print("Enable normal mode LPRST\n");
 	#ifdef ONEKEY_REBOOT_NORMAL_MODE
+	/*lenovo-sw jixj 2013.6.26 modified begin*/
+	#ifndef LENOVO_LONG_POWER_RESET
 		upmu_set_rg_pwrkey_rst_en(0x01);
 		upmu_set_rg_homekey_rst_en(0x00);
 		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+	#else
+	if(is_batt_temp_pin()) {
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		//upmu_set_rg_fchr_pu_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x00);
+		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+	} else {
+		kpd_print("meta disable other mode LPRST\n");
+		upmu_set_rg_pwrkey_rst_en(0x00);
+		upmu_set_rg_homekey_rst_en(0x00);
+		//upmu_set_rg_fchr_pu_en(0x01);
+	}
+	#endif
+	/*lenovo-sw jixj 2013.6.26 modified end*/
 	#endif
 
 	#ifdef TWOKEY_REBOOT_NORMAL_MODE
@@ -441,15 +471,31 @@ void long_press_reboot_function_setting(void)
 		upmu_set_rg_pwrkey_rst_en(0x00);
 		upmu_set_rg_homekey_rst_en(0x00);
 #endif
-	} 
+	}
 	else {
 		kpd_print("Other Boot Mode long press reboot selection\n");
 #ifdef KPD_PMIC_LPRST_TD
 		kpd_print("Enable other mode LPRST\n");
 	#ifdef ONEKEY_REBOOT_OTHER_MODE
+	/*lenovo-sw jixj 2013.6.26 modified begin*/
+	#ifndef LENOVO_LONG_POWER_RESET
 		upmu_set_rg_pwrkey_rst_en(0x01);
 		upmu_set_rg_homekey_rst_en(0x00);
 		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+	#else
+	if(is_batt_temp_pin()) {
+		upmu_set_rg_pwrkey_rst_en(0x01);
+		//upmu_set_rg_fchr_pu_en(0x01);
+		upmu_set_rg_homekey_rst_en(0x00);
+		upmu_set_rg_pwrkey_rst_td(KPD_PMIC_LPRST_TD);
+	} else {
+		kpd_print("meta disable other mode LPRST\n");
+		upmu_set_rg_pwrkey_rst_en(0x00);
+		upmu_set_rg_homekey_rst_en(0x00);
+		//upmu_set_rg_fchr_pu_en(0x01);
+	}
+	#endif
+	/*lenovo-sw jixj 2013.6.26 modified end*/
 	#endif
 
 	#ifdef TWOKEY_REBOOT_OTHER_MODE
@@ -515,17 +561,17 @@ static void kpd_ipo_mode_handler(void)
 				       hw_keycode);
 			}
 			BUG_ON(hw_keycode >= KPD_NUM_KEYS);
-			linux_keycode = kpd_keymap[hw_keycode];			
+			linux_keycode = kpd_keymap[hw_keycode];
 			if (unlikely(linux_keycode == 0)) {
 				kpd_print("IPO mode Linux keycode = 0\n");
 				continue;
-			}		
+			}
 			input_report_key(kpd_input_dev, linux_keycode, pressed);
 			input_sync(kpd_input_dev);
 			kpd_print("IPO mode report Linux keycode = %u\n", linux_keycode);
 		}
 	}
-	
+
 	memcpy(kpd_keymap_state, new_state, sizeof(new_state));
 	kpd_print("IPO mode save new keymap state\n");
 }
@@ -588,8 +634,7 @@ void kpd_pmic_rstkey_hal(unsigned long pressed){
 #endif
 }
 
-
-void kpd_pmic_pwrkey_hal(unsigned long pressed){
+void kpd_pmic_pwrkey_hal(unsigned long pressed) {
 #if KPD_PWRKEY_USE_PMIC
 	if(!kpd_sb_enable){
 		input_report_key(kpd_input_dev, KPD_PWRKEY_MAP, pressed);
@@ -604,6 +649,7 @@ void kpd_pmic_pwrkey_hal(unsigned long pressed){
 	}
 #endif
 }
+
 /***********************************************************************/
 void kpd_pwrkey_handler_hal(unsigned long data){
 #if KPD_PWRKEY_USE_EINT

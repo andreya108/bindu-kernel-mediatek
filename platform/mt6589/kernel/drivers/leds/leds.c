@@ -882,8 +882,11 @@ int  mt_mt65xx_blink_set(struct led_classdev *led_cdev,
 		else if (!led_data->delay_on && !led_data->delay_off) { // disable blink
 			LEDS_DEBUG("[LEDS_MT6589] [mt_mt65xx_blink_set] (%s) -> disable blink!\n", led_data->cust.name);
 #ifdef LEDS_GPIO_SLEEP_WORKAROUND
-            if(led_data->cust.mode == MT65XX_LED_MODE_GPIO)
+            if(led_data->cust.mode == MT65XX_LED_MODE_GPIO) {
+                if (blink_set_brightness)
+                    blink_set_brightness(0);
                 blink_set_brightness = NULL;
+            }
 #endif
 
 		//if(led_data->cust.mode == MT65XX_LED_MODE_PWM &&

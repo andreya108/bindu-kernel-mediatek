@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<!-- A:configurable fragments. B:sparse image intact[EMMC-WRITTER must support this format analysis] -->
+	<!-- Do Not Use It Currently -->
+	<sparse-image-split>A</sparse-image-split>	
+	<!-- 0x00 OR 0xFF -->
+	<noDataAreaFillByte>0x00</noDataAreaFillByte>
+	<EXT_CSD>	
+		<set id="179" value="0x48" mask="0x87" />
+	</EXT_CSD>	
+
+</config>
