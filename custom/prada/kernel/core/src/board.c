@@ -77,10 +77,24 @@ static int mt_wifi_pm_late_cb = 0;
 /*=======================================================================*/
 extern kal_bool pmic_chrdet_status(void);
 
+extern void upmu_set_rg_vibr_vosel(U32);
+extern void upmu_set_rg_vibr_en(U32);
+
+void vibrate_once(int ms)
+{
+    printk("vibrate_once(%d)\n", ms);
+    upmu_set_rg_vibr_vosel(0x5);
+    upmu_set_rg_vibr_en(0x1);
+    udelay(ms*1000);
+    upmu_set_rg_vibr_vosel(0x4);
+    upmu_set_rg_vibr_en(0x0);
+}
+
 void mt_power_off(void)
 {
 	printk("mt_power_off\n");
 
+    vibrate_once(200);
 	/* pull PWRBB low */
 	rtc_bbpu_power_down();
 
@@ -115,7 +129,7 @@ void mt_bt_power_on(void)
     /*
      * Ignore rfkill0/state call. Controll BT power on/off through device /dev/stpbt.
      */
-#else 
+#else
     /* standalone product */
 #endif
 
@@ -334,7 +348,7 @@ static void mt_wifi_register_pm(pm_callback_t pm_cb, void *data)
     mt_wifi_pm_data = data;
 }
 
-#endif /* end of !defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) */ 
+#endif /* end of !defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) */
 
 int mt_wifi_resume(pm_message_t state)
 {
@@ -444,7 +458,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 
 #if defined(CFG_DEV_MSDC0)
 #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 0)
-    struct msdc_hw msdc0_hw = {	    
+    struct msdc_hw msdc0_hw = {
 		.clk_src        = MSDC_CLKSRC_200MHZ,
 	    .cmd_edge       = MSDC_SMPL_FALLING,
 	    .rdata_edge     = MSDC_SMPL_FALLING,
@@ -504,7 +518,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 #endif
 #if defined(CFG_DEV_MSDC1)
     #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 1)
-    struct msdc_hw msdc1_hw = {	    
+    struct msdc_hw msdc1_hw = {
         .clk_src        = MSDC_CLKSRC_200MHZ,
 	      .cmd_edge       = MSDC_SMPL_FALLING,
 	      .rdata_edge     = MSDC_SMPL_FALLING,
@@ -535,7 +549,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 	      .register_pm       = mtk_wcn_cmb_sdio_register_pm,
     };
     #else
-    
+
 struct msdc_hw msdc1_hw = {
     .clk_src        = MSDC_CLKSRC_200MHZ,
     .cmd_edge       = MSDC_SMPL_FALLING,
@@ -570,7 +584,7 @@ struct msdc_hw msdc1_hw = {
 #if defined(CFG_DEV_MSDC2)
     #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 2)
     /* MSDC2 settings for MT66xx combo connectivity chip */
-	struct msdc_hw msdc2_hw = {	    
+	struct msdc_hw msdc2_hw = {
 		.clk_src        = MSDC_CLKSRC_200MHZ,
 	    .cmd_edge       = MSDC_SMPL_FALLING,
 	    .rdata_edge     = MSDC_SMPL_FALLING,
@@ -666,12 +680,12 @@ struct msdc_hw msdc2_hw = {
 	    .disable_sdio_eirq = mtk_wcn_cmb_sdio_disable_eirq,
 	    .register_pm       = mtk_wcn_cmb_sdio_register_pm,
 	};
-	
+
 	#endif
 #endif
 #if defined(CFG_DEV_MSDC4)
     #if defined(CONFIG_MTK_WCN_CMB_SDIO_SLOT) && (CONFIG_MTK_WCN_CMB_SDIO_SLOT == 0)
-    struct msdc_hw msdc4_hw = {	    
+    struct msdc_hw msdc4_hw = {
 		.clk_src        = MSDC_CLKSRC_200MHZ,
 	    .cmd_edge       = MSDC_SMPL_FALLING,
 	    .rdata_edge     = MSDC_SMPL_FALLING,

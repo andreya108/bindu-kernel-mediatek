@@ -555,7 +555,8 @@ static void lcm_get_params(LCM_PARAMS *params)
         params->dsi.pll_select=1;
         params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4
-		params->dsi.fbk_div = 22;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
+		params->dsi.fbk_div = 18;   // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
+// original		params->dsi.fbk_div = 22;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
 
 }
 

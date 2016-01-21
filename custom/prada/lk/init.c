@@ -74,10 +74,10 @@ void on_init_action(void) {
     for (j=0;j<3;j++) {
         upmu_set_rg_vibr_vosel(0x5);
         upmu_set_rg_vibr_en(0x1);
-        udelay(1000*i); //0.05secs
+        udelay(2000*i); //0.05secs
         upmu_set_rg_vibr_vosel(0x4);
         upmu_set_rg_vibr_en(0x0);
-        udelay(1000*i); //0.05secs
+        udelay(2000*i); //0.05secs
     }
 }
 

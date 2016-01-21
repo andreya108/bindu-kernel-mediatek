@@ -9,6 +9,7 @@
 #TOOLCHAIN=gcc4.9
 #TOOLCHAIN=linaro-5.1
 TOOLCHAIN=uber4.9
+#TOOLCHAIN=uber5.3
 
 TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
@@ -44,6 +45,11 @@ case "$TOOLCHAIN" in
   uber4.9)
 	echo "Building with UBER 4.9 arm-eabi"
 	PATH=$PWD/prebuilts/UBERTC/arm-eabi-4.9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	export CROSS_COMPILE=arm-eabi-
+	;;
+  uber5.3)
+	echo "Building with UBER 5.3 arm-eabi"
+	PATH=$PWD/prebuilts/UBERTC/arm-eabi-5.3/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-eabi-
 	;;
   uber6.0)
