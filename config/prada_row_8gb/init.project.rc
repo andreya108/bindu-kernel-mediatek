@@ -9,6 +9,9 @@ on post-fs-data
 # Connectivity related device nodes & configuration (begin)
 #
 
+#lenovo-sw liaoxl add 10.31.2013, for lenovo fmradio app  do not support RDS
+    setprop persist.lenovo.fmradio.rds off
+
 #/dev/ttyMT2 for Connectivity BT/FM/GPS usage
     chmod 0660 /dev/ttyMT2
     chown system system /dev/ttyMT2
@@ -40,13 +43,13 @@ on post-fs-data
 #Camera
     chmod 0660 /dev/OV8825AF
     chown system camera /dev/OV8825AF
+#lenovo.sw wangsx3 20140515 add main backup sensor ov8865
+    chmod 0660 /dev/DW9718AF
+    chown system camera /dev/DW9718AF
 
 # BT
     chmod 0660 /dev/stpbt
     chown bluetooth radio /dev/stpbt
-
-#TP
-    chmod 0777 /dev/ft_rw_iic_drv
 
 # GPS
     chown gps gps /dev/stpgps
@@ -73,6 +76,9 @@ on post-fs-data
     chown bluetooth bluetooth /dev/ampc0
     chmod 0660 /dev/ampc0
 
+#lenovo-sw xuwen1 add 20140106 for slide_wakeup 
+    chown system system /sys/board_properties/tpd_suspend_status
+
 #
 # Connectivity related device nodes & configuration (end)
 
@@ -93,6 +99,11 @@ service fuse_usbotg /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/
 #
 # Connectivity related services (Begin)
 #
+# for proximity sensor cali usage merge from avene-w --by lenovo huangdra 20130424 
+service nvram_proximity /system/bin/nvram_proximity	
+	user root	
+	oneshot	
+#for proximity sensor cali usage merge from avene-w --by lenovo huangdra 20130424 
 service wmt_loader  /system/bin/logwrapper /system/bin/wmt_loader
     user root
     group root
@@ -114,8 +125,42 @@ service wlanLoader /system/bin/wlan_loader
     group root
     class main
     oneshot
+    
+#lenovo-sw, shanghai, add by chenlj2, for msensor, 2012-12-24
+service bmm056d /system/bin/bmm056d
+    class main
+#    oneshot
 
 #
 # Connectivity related services (End)
 #
 
+# lenovo nac service loader begin, liuyfc@lenovo.com
+    service nac_server /system/bin/nac_server
+    class main
+    user root
+
+## Lenovo-sw wuzb1 add 2013-08-15 begin, broadcast to application
+on property:persist.backgrounddata.enable=false
+    start backgrounddata
+
+on property:persist.backgrounddata.enable=true
+    start backgrounddata
+
+service backgrounddata /system/bin/sh -c "am broadcast -a com.lenovo.action.BACKGROUND_DATA"
+    class main
+    user system
+    disabled
+    oneshot
+## Lenovo-sw wuzb1 add 2013-08-15 end, broadcast to application
+
+# lenovo zip theme configuration file, xiexl1@lenovo.com
+service writeconfig /system/bin/writeconfig
+   class main
+   user root
+
+#lenovo-sw jixj 2013.6.26 added for customsn
+service custom_sn /system/bin/custom_sn
+   class main
+   oneshot
+#lenovo-sw jixj 2013.6.26 added forcustomsn end

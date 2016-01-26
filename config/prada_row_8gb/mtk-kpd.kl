@@ -29,8 +29,8 @@ key 103   DPAD_UP
 key 102   HOME
 key 105   DPAD_LEFT
 key 106   DPAD_RIGHT
-key 115   VOLUME_UP         WAKE_DROPPED
-key 114   VOLUME_DOWN       WAKE_DROPPED
+key 115   VOLUME_UP         WAKE
+key 114   VOLUME_DOWN       WAKE
 key 113   MUTE              WAKE_DROPPED
 key 116   POWER             WAKE
 key 212   CAMERA
@@ -94,5 +94,7 @@ key 163   MEDIA_NEXT          WAKE
 key 165   MEDIA_PREVIOUS      WAKE
 key 168   MEDIA_REWIND        WAKE
 key 159   MEDIA_FAST_FORWARD  WAKE
-key 744   FCOVER_1              
-key 745   FCOVER_2            WAKE
+#lenovo-sw xuwen1 add 20140106 for slide-wakeup
+key 254   SLIDE         WAKE
+
+key 358   INFO

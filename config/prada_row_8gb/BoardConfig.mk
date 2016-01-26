@@ -21,7 +21,7 @@ TARGET_NO_FACTORYIMAGE := true
 # temporarily open this two options
 HAVE_HTC_AUDIO_DRIVER := true
 #BOARD_USES_GENERIC_AUDIO := true
- 
+
 BOARD_USES_MTK_AUDIO := true
 
 BOARD_EGL_CFG := $(BOARD_CONFIG_DIR)/egl.cfg
