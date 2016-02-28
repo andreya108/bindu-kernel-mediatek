@@ -7,9 +7,9 @@
  * reproduction, modification, use or disclosure of MediaTek Software, and
  * information contained herein, in whole or in part, shall be strictly
  * prohibited.
- * 
+ *
  * MediaTek Inc. (C) 2010. All rights reserved.
- * 
+ *
  * BY OPENING THIS FILE, RECEIVER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
  * THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
  * RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO RECEIVER
@@ -154,8 +154,8 @@ setCallback(sp<IShotCallback> pShotCallback)
 bool
 IShot::
 sendCommand(
-    ECommand const  cmd, 
-    uint32_t const  arg1 /*= 0*/, 
+    ECommand const  cmd,
+    uint32_t const  arg1 /*= 0*/,
     uint32_t const  arg2 /*= 0*/
 )
 {
@@ -173,8 +173,8 @@ sendCommand(
  ******************************************************************************/
 ImpShot::
 ImpShot(
-    char const*const pszShotName, 
-    uint32_t const u4ShotMode, 
+    char const*const pszShotName,
+    uint32_t const u4ShotMode,
     int32_t const i4OpenId
 )
     : ms8ShotName(String8(pszShotName))
@@ -270,8 +270,8 @@ setJpegParam(void const* pParam, size_t const size)
 bool
 ImpShot::
 sendCommand(
-    uint32_t const  cmd, 
-    uint32_t const  arg1, 
+    uint32_t const  cmd,
+    uint32_t const  arg1,
     uint32_t const  arg2
 )
 {
@@ -310,27 +310,27 @@ sendCommand(
 *******************************************************************************/
 bool
 ImpShot::
-makeExifHeader(MUINT32 const u4CamMode, 
-    			   MUINT8* const puThumbBuf, 
-				   MUINT32 const u4ThumbSize, 
-				   MUINT8* puExifBuf, 
-				   MUINT32 &u4FinalExifSize, 
-				   MUINT32 u4ImgIndex, 
+makeExifHeader(MUINT32 const u4CamMode,
+    			   MUINT8* const puThumbBuf,
+				   MUINT32 const u4ThumbSize,
+				   MUINT8* puExifBuf,
+				   MUINT32 &u4FinalExifSize,
+				   MUINT32 u4ImgIndex,
 				   MUINT32 u4GroupId,
                    MUINT32 u4FocusValH,
                    MUINT32 u4FocusValL)
 {
     //
-    MY_LOGD("+ (u4CamMode, puThumbBuf, u4ThumbSize, puExifBuf) = (%d, %p, %d, %p)", 
-                            u4CamMode,  puThumbBuf, u4ThumbSize, puExifBuf); 
+    MY_LOGD("+ (u4CamMode, puThumbBuf, u4ThumbSize, puExifBuf) = (%d, %p, %d, %p)",
+                            u4CamMode,  puThumbBuf, u4ThumbSize, puExifBuf);
 
-    if (u4ThumbSize > 63 * 1024) 
+    if (u4ThumbSize > 63 * 1024)
     {
-        MY_LOGW("The thumbnail size is large than 63K, the exif header will be broken"); 
+        MY_LOGW("The thumbnail size is large than 63K, the exif header will be broken");
     }
     bool ret = true;
-    uint32_t u4App1HeaderSize = 0; 
-    uint32_t u4AppnHeaderSize = 0; 
+    uint32_t u4App1HeaderSize = 0;
+    uint32_t u4AppnHeaderSize = 0;
 
     uint32_t exifHeaderSize = 0;
     CamExif rCamExif;
@@ -338,66 +338,66 @@ makeExifHeader(MUINT32 const u4CamMode,
     CamDbgParam rDbgParam;
 
     // ExifParam (for Gps)
-    if (! mJpegParam.ms8GpsLatitude.isEmpty() && !mJpegParam.ms8GpsLongitude.isEmpty()) 
+    if (! mJpegParam.ms8GpsLatitude.isEmpty() && !mJpegParam.ms8GpsLongitude.isEmpty())
     {
-        rExifParam.u4GpsIsOn = 1; 
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLatitude), mJpegParam.ms8GpsLatitude.string(), mJpegParam.ms8GpsLatitude.length()); 
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLongitude), mJpegParam.ms8GpsLongitude.string(), mJpegParam.ms8GpsLongitude.length()); 
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSTimeStamp), mJpegParam.ms8GpsTimestamp.string(), mJpegParam.ms8GpsTimestamp.length()); 
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSProcessingMethod), mJpegParam.ms8GpsMethod.string(), mJpegParam.ms8GpsMethod.length()); 
-        rExifParam.u4GPSAltitude = ::atoi(mJpegParam.ms8GpsAltitude.string()); 
-    } 
-    // the bitstream already rotated. rotation should be 0 
-    rExifParam.u4Orientation = 0; 
-    rExifParam.u4ZoomRatio = mShotParam.mu4ZoomRatio; 
+        rExifParam.u4GpsIsOn = 1;
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLatitude), mJpegParam.ms8GpsLatitude.string(), sizeof(rExifParam.uGPSLatitude));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLongitude), mJpegParam.ms8GpsLongitude.string(), sizeof(rExifParam.uGPSLongitude));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSTimeStamp), mJpegParam.ms8GpsTimestamp.string(), sizeof(rExifParam.uGPSTimeStamp));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSProcessingMethod), mJpegParam.ms8GpsMethod.string(), sizeof(rExifParam.uGPSProcessingMethod));
+        rExifParam.u4GPSAltitude = ::atoi(mJpegParam.ms8GpsAltitude.string());
+    }
+    // the bitstream already rotated. rotation should be 0
+    rExifParam.u4Orientation = 0;
+    rExifParam.u4ZoomRatio = mShotParam.mu4ZoomRatio;
     //
-    camera_info rCameraInfo = MtkCamUtils::DevMetaInfo::queryCameraInfo(getOpenId()); 
-    rExifParam.u4Facing = rCameraInfo.facing; 
+    camera_info rCameraInfo = MtkCamUtils::DevMetaInfo::queryCameraInfo(getOpenId());
+    rExifParam.u4Facing = rCameraInfo.facing;
     //
     rExifParam.u4ImgIndex = u4ImgIndex;
     rExifParam.u4GroupId = u4GroupId;
     //
     rExifParam.u4FocusH = u4FocusValH;
     rExifParam.u4FocusL = u4FocusValL;
-    // 
+    //
     //! CamDbgParam (for camMode, shotMode)
-    rDbgParam.u4CamMode = u4CamMode; 
-    rDbgParam.u4ShotMode = getShotMode();    
+    rDbgParam.u4CamMode = u4CamMode;
+    rDbgParam.u4ShotMode = getShotMode();
     //
     rCamExif.init(rExifParam,  rDbgParam);
-    //    
-    Hal3ABase* p3AHal = Hal3ABase::createInstance(MtkCamUtils::DevMetaInfo::queryHalSensorDev(getOpenId())); 
-    SensorHal* pSensorHal = SensorHal::createInstance(); 
-    p3AHal->set3AEXIFInfo(&rCamExif); 
+    //
+    Hal3ABase* p3AHal = Hal3ABase::createInstance(MtkCamUtils::DevMetaInfo::queryHalSensorDev(getOpenId()));
+    SensorHal* pSensorHal = SensorHal::createInstance();
+    p3AHal->set3AEXIFInfo(&rCamExif);
     // the bitstream already rotated. it need to swap the width/height
-    if (90 == mShotParam.mi4Rotation || 270 == mShotParam.mi4Rotation) 
+    if (90 == mShotParam.mi4Rotation || 270 == mShotParam.mi4Rotation)
     {
         rCamExif.makeExifApp1(mShotParam.mi4PictureHeight,  mShotParam.mi4PictureWidth, u4ThumbSize, puExifBuf,  &u4App1HeaderSize);
     }
-    else 
+    else
     {
         rCamExif.makeExifApp1(mShotParam.mi4PictureWidth, mShotParam.mi4PictureHeight, u4ThumbSize, puExifBuf,  &u4App1HeaderSize);
     }
-    // copy thumbnail image after APP1 
-    MUINT8 *pdest = puExifBuf + u4App1HeaderSize; 
-    ::memcpy(pdest, puThumbBuf, u4ThumbSize) ; 
-    // 
-    // 3A Debug Info 
-    p3AHal->setDebugInfo(&rCamExif); 
+    // copy thumbnail image after APP1
+    MUINT8 *pdest = puExifBuf + u4App1HeaderSize;
+    ::memcpy(pdest, puThumbBuf, u4ThumbSize) ;
     //
-    // Sensor Debug Info 
-    pSensorHal->setDebugInfo(&rCamExif); 
-    pdest = puExifBuf + u4App1HeaderSize + u4ThumbSize; 
+    // 3A Debug Info
+    p3AHal->setDebugInfo(&rCamExif);
+    //
+    // Sensor Debug Info
+    pSensorHal->setDebugInfo(&rCamExif);
+    pdest = puExifBuf + u4App1HeaderSize + u4ThumbSize;
     //
     rCamExif.appendDebugExif(pdest, &u4AppnHeaderSize);
     rCamExif.uninit();
 
-    u4FinalExifSize = u4App1HeaderSize + u4ThumbSize + u4AppnHeaderSize; 
-    p3AHal->destroyInstance(); 
-    pSensorHal->destroyInstance(); 
+    u4FinalExifSize = u4App1HeaderSize + u4ThumbSize + u4AppnHeaderSize;
+    p3AHal->destroyInstance();
+    pSensorHal->destroyInstance();
 
-    MY_LOGD("- (app1Size, appnSize, exifSize) = (%d, %d, %d)", 
-                          u4App1HeaderSize, u4AppnHeaderSize, u4FinalExifSize); 
+    MY_LOGD("- (app1Size, appnSize, exifSize) = (%d, %d, %d)",
+                          u4App1HeaderSize, u4AppnHeaderSize, u4FinalExifSize);
     return ret;
 }
 

@@ -60,12 +60,12 @@ USERID        =  $(shell whoami)
 PRELOADER_WD  =  mediatek/preloader
 TRUST_TEE_WD  =  mediatek/trustzone/vendor/trustonic
 LK_WD         =  bootable/bootloader/lk
-MD32_WD       =  md32/md32 
+MD32_WD       =  md32/md32
 KERNEL_WD     =  kernel
 ANDROID_WD    =  .
 ALL_MODULES   =
 MAKE_DEBUG    =  --no-print-directory
-hide         := @ 
+hide         := @
 CMD_ARGU2    :=  $(filter-out -j%, $(CMD_ARGU))
 REMAKECMD    :=  make -f$(MTK_ROOT_BUILD)/makemtk.mk CMD_ARGU=$(CMD_ARGU) $(CMD_ARGU2) $(MAKE_DEBUG)
 CPUCORES     :=  $(shell cat /proc/cpuinfo | grep processor | wc -l)
@@ -106,12 +106,12 @@ else
 endif
 ANDROID_IMAGES   := $(LOGDIR)/$(PROJECT)/system.img \
                     $(LOGDIR)/$(PROJECT)/boot.img \
-                    $(LOGDIR)/$(PROJECT)/recovery.img \
                     $(LOGDIR)/$(PROJECT)/secro.img \
-                    $(LOGDIR)/$(PROJECT)/userdata.img
-ifeq (true,$(BUILD_TINY_ANDROID))
-  ANDROID_IMAGES := $(filter-out %recovery.img,$(ANDROID_IMAGES))
-endif
+                    $(LOGDIR)/$(PROJECT)/userdata.img \
+#                    $(LOGDIR)/$(PROJECT)/recovery.img
+#ifeq (true,$(BUILD_TINY_ANDROID))
+#  ANDROID_IMAGES := $(filter-out %recovery.img,$(ANDROID_IMAGES))
+#endif
 ifneq ($(ACTION),)
   ANDROID_TARGET_IMAGES :=$(filter %/$(patsubst %image,%.img,$(ACTION)),$(ANDROID_IMAGES))
   ifeq (${ACTION},otapackage)
@@ -409,7 +409,7 @@ endif
 ANDROID_NATIVE_TARGETS := \
          update-api \
          cts sdk win_sdk otapackage banyan_addon banyan_addon_x86 dist updatepackage \
-         snod bootimage systemimage recoveryimage secroimage target-files-package \
+         snod bootimage systemimage secroimage target-files-package \
          factoryimage userdataimage userdataimage-nodeps customimage dump-comp-build-info \
 	 dump-products bootimage-nodeps ramdisk-nodeps javaoptgen
 .PHONY: $(ANDROID_NATIVE_TARGETS)
@@ -538,7 +538,7 @@ remake:
 #### Remove old modem files under mediatek/custom/out/$project/modem ####
 clean-modem:
 	$(hide) rm -rf $(strip $(MTK_ROOT_CUSTOM_OUT))/modem
-ifeq ($(strip $(MTK_CIP_SUPPORT)), yes) 
+ifeq ($(strip $(MTK_CIP_SUPPORT)), yes)
 	$(hide) rm -rf $(strip $(LOGDIR)/$(PROJECT))/custom/etc/extmddb
 	$(hide) rm -rf $(strip $(LOGDIR)/$(PROJECT))/custom/etc/mddb
 else
@@ -891,7 +891,7 @@ ifneq ($(strip $(MTK_SKIP_KERNEL_IN_ANDROID)), yes)
 android: kernel
     endif
    endif
-endif 
+endif
 
 android: CHECK_IMAGE := $(ANDROID_TARGET_IMAGES)
 android:

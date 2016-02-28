@@ -1125,10 +1125,10 @@ makeExifHeader(MUINT32 const u4CamMode,
     if (! mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).isEmpty() && !mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).isEmpty())
     {
         rExifParam.u4GpsIsOn = 1;
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLatitude), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).string(), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).length());
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLongitude), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).string(), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).length());
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSTimeStamp), mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).string(), mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).length());
-        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSProcessingMethod), mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).string(), mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).length());
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLatitude), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).string(), sizeof(rExifParam.uGPSLatitude));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSLongitude), mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).string(), sizeof(rExifParam.uGPSLongitude));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSTimeStamp), mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).string(), sizeof(rExifParam.uGPSTimeStamp));
+        ::strncpy(reinterpret_cast<char*>(rExifParam.uGPSProcessingMethod), mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).string(), sizeof(rExifParam.uGPSProcessingMethod));
         rExifParam.u4GPSAltitude = ::atoi(mpParamsMgr->getStr(CameraParameters::KEY_GPS_ALTITUDE).string());
     }
 

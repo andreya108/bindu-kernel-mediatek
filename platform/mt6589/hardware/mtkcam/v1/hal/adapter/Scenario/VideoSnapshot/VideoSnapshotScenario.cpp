@@ -74,9 +74,9 @@ getInstance(void)
 //-----------------------------------------------------------------------------
 void
 VideoSnapshotScenario::
-destroyInstance(void) 
+destroyInstance(void)
 {
-    mpShotCallback = NULL; 
+    mpShotCallback = NULL;
 }
 //-----------------------------------------------------------------------------
 VideoSnapshotScenario::
@@ -196,39 +196,39 @@ init(
                 mImgiFormat = eImgFmt_BAYER10;
                 break;
             }
-        }            
+        }
     }
     else
     if(meSensorType == SENSOR_TYPE_YUV)
     {
         switch(sensorFormatInfo.u1Order)
         {
-            case SENSOR_OUTPUT_FORMAT_UYVY: 
+            case SENSOR_OUTPUT_FORMAT_UYVY:
             case SENSOR_OUTPUT_FORMAT_CbYCrY:
             {
                 mImgiFormat = eImgFmt_UYVY;
                 break;
             }
-            case SENSOR_OUTPUT_FORMAT_VYUY : 
+            case SENSOR_OUTPUT_FORMAT_VYUY :
             case SENSOR_OUTPUT_FORMAT_CrYCbY :
             {
                 mImgiFormat = eImgFmt_VYUY;
                 break;
             }
-            case SENSOR_OUTPUT_FORMAT_YVYU : 
-            case SENSOR_OUTPUT_FORMAT_YCrYCb : 
+            case SENSOR_OUTPUT_FORMAT_YVYU :
+            case SENSOR_OUTPUT_FORMAT_YCrYCb :
             {
                 mImgiFormat = eImgFmt_YVYU;
                 break;
             }
-            case SENSOR_OUTPUT_FORMAT_YUYV : 
+            case SENSOR_OUTPUT_FORMAT_YUYV :
             case SENSOR_OUTPUT_FORMAT_YCbYCr :
             default :
             {
                 mImgiFormat = eImgFmt_YUY2;
                 break;
             }
-        } 
+        }
     }
     else
     {
@@ -431,7 +431,7 @@ allocMem(MemTypeEnum type)
         }
         case MemType_JpgThumb:
         {
-            if( mRotate == 90 || 
+            if( mRotate == 90 ||
                 mRotate == 270)
             {
                 mIMemBufInfo[type].size = FmtUtils::queryImgBufferSize(
@@ -458,7 +458,7 @@ allocMem(MemTypeEnum type)
         }
         case MemType_YuvThumb:
         {
-            if( mRotate == 90 || 
+            if( mRotate == 90 ||
                 mRotate == 270)
             {
                 mIMemBufInfo[type].size = FmtUtils::queryImgBufferSize(
@@ -726,7 +726,7 @@ setImage(ImageInfo &img)
         mPreAllocYuvHeight = picHeight;
     }
     //
-    if( mRotate == 90 || 
+    if( mRotate == 90 ||
         mRotate == 270)
     {
         mJpgInfo[JpgType_Main].width = picHeight&(~0xF);
@@ -756,7 +756,7 @@ setImage(ImageInfo &img)
         mJpgInfo[JpgType_Thumb].width = thumbWidth&(~0xF);
         mJpgInfo[JpgType_Thumb].height = thumbHeight&(~0x7);
         //
-        if( mRotate == 90 || 
+        if( mRotate == 90 ||
             mRotate == 270)
         {
             mJpgInfo[JpgType_ThumbRotate].width = thumbHeight&(~0xF);
@@ -823,7 +823,7 @@ transMainThumb(MBOOL en)
             Config.DispoOut.Enable = MTRUE;
             //allocMem(MemType_YuvThumb);
             //
-            if( mRotate == 90 || 
+            if( mRotate == 90 ||
                 mRotate == 270)
             {
                 Config.DispoOut.Size.Width = mJpgInfo[JpgType_ThumbRotate].height;
@@ -831,7 +831,7 @@ transMainThumb(MBOOL en)
             }
             else
             {
-                
+
                 Config.DispoOut.Size.Width = mJpgInfo[JpgType_Thumb].width;
                 Config.DispoOut.Size.Height = mJpgInfo[JpgType_Thumb].height;
             }
@@ -949,7 +949,7 @@ rotateThumb(MBOOL en)
         //
         VssImgTrans::CONFIG_STRUCT Config;
         //imgi
-        if( mRotate == 90 || 
+        if( mRotate == 90 ||
             mRotate == 270)
         {
             Config.ImageIn.Size.Width = mJpgInfo[JpgType_ThumbRotate].height;
@@ -976,12 +976,12 @@ rotateThumb(MBOOL en)
         Config.ImageIn.Crop.W = Config.ImageIn.Size.Width;
         Config.ImageIn.Crop.H = Config.ImageIn.Size.Height;
         //dispo
-        Config.DispoOut.Enable = MFALSE;    
+        Config.DispoOut.Enable = MFALSE;
         //vido
         //allocMem(MemType_YuvThumbRotate);
         Config.VidoOut.Enable = MTRUE;
         //
-        if( mRotate == 90 || 
+        if( mRotate == 90 ||
             mRotate == 270)
         {
             Config.VidoOut.Size.Width = Config.ImageIn.Size.Height;
@@ -1081,7 +1081,7 @@ encodeJpg(
             mIMemBufInfo[dstMemType].phyAddr+mIMemBufInfo[dstMemType].size);
     //
     JpgEncHal* pJpgEncoder = new JpgEncHal();
-    // (1). Lock 
+    // (1). Lock
     while(1)
     {
         if(pJpgEncoder->lock())
@@ -1101,7 +1101,7 @@ encodeJpg(
     // (2). size, format, addr
     pJpgEncoder->setEncSize(
                     mJpgInfo[jpgType].width,
-                    mJpgInfo[jpgType].height, 
+                    mJpgInfo[jpgType].height,
                     JpgEncHal::kENC_YUY2_Format);
     pJpgEncoder->setSrcAddr(
                     (void*)(mIMemBufInfo[srcMemType].virtAddr),
@@ -1130,12 +1130,12 @@ encodeJpg(
                     mIMemBufInfo[srcMemType].memID,
                     mIMemBufInfo[srcMemType].memID);
     pJpgEncoder->setDstFD(mIMemBufInfo[dstMemType].memID);
-    // (8).  Start 
+    // (8).  Start
     if(pJpgEncoder->start(&mJpgInfo[jpgType].bitStrSize))
     {
-        MY_LOGD("Encode OK,size(%d)", mJpgInfo[jpgType].bitStrSize); 
+        MY_LOGD("Encode OK,size(%d)", mJpgInfo[jpgType].bitStrSize);
     }
-    else 
+    else
     {
         mJpgInfo[jpgType].bitStrSize = 0;
         MY_LOGE("Encode Fail");
@@ -1193,7 +1193,7 @@ encodeJpgThumb(void)
     //
     //allocMem(MemType_JpgThumb);
     //
-    if( mRotate == 90 || 
+    if( mRotate == 90 ||
         mRotate == 270)
     {
         thumbJpgType = JpgType_ThumbRotate;
@@ -1238,7 +1238,7 @@ integrateJpg(void)
     camera_info cameraInfo = MtkCamUtils::DevMetaInfo::queryCameraInfo(mSensorId);
     Hal3ABase* p3AHal = Hal3ABase::createInstance(MtkCamUtils::DevMetaInfo::queryHalSensorDev(mSensorId));
     //
-    if( mRotate == 90 || 
+    if( mRotate == 90 ||
         mRotate == 270)
     {
         thumbJpgType = JpgType_ThumbRotate;
@@ -1252,14 +1252,14 @@ integrateJpg(void)
     mJpgInfo[JpgType_Img].bitStrSize = 0;
     //
     if( !mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).isEmpty() &&
-        !mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).isEmpty()) 
+        !mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).isEmpty())
     {
-        jpgExifParam.u4GpsIsOn = 1; 
-        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSLatitude),           mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).string(),           mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).length()); 
-        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSLongitude),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).string(),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).length()); 
-        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSTimeStamp),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).string(),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).length()); 
-        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSProcessingMethod),   mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).string(),  mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).length()); 
-        jpgExifParam.u4GPSAltitude = ::atoi(mpParamsMgr->getStr(CameraParameters::KEY_GPS_ALTITUDE).string()); 
+        jpgExifParam.u4GpsIsOn = 1;
+        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSLatitude),           mpParamsMgr->getStr(CameraParameters::KEY_GPS_LATITUDE).string(),          sizeof(jpgExifParam.uGPSLatitude) );
+        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSLongitude),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_LONGITUDE).string(),         sizeof(jpgExifParam.uGPSLongitude) );
+        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSTimeStamp),          mpParamsMgr->getStr(CameraParameters::KEY_GPS_TIMESTAMP).string(),         sizeof(jpgExifParam.uGPSTimeStamp) );
+        ::strncpy(reinterpret_cast<char*>(jpgExifParam.uGPSProcessingMethod),   mpParamsMgr->getStr(CameraParameters::KEY_GPS_PROCESSING_METHOD).string(), sizeof(jpgExifParam.uGPSProcessingMethod) );
+        jpgExifParam.u4GPSAltitude = ::atoi(mpParamsMgr->getStr(CameraParameters::KEY_GPS_ALTITUDE).string());
     }
     else
     {
@@ -1361,14 +1361,14 @@ callbackJpg(void)
     if(mpShotCallback != NULL)
     {
         mpShotCallback->onCB_Shutter(true, 0);
-        mpShotCallback->onCB_RawImage(0, 0, NULL);   
+        mpShotCallback->onCB_RawImage(0, 0, NULL);
         mpShotCallback->onCB_CompressedImage(
                             0,
-                            mJpgInfo[JpgType_Img].bitStrSize, 
+                            mJpgInfo[JpgType_Img].bitStrSize,
                             (MUINT8*)(mIMemBufInfo[MemType_Jpg].virtAddr),
                             0,
-                            NULL,  
-                            0, 
+                            NULL,
+                            0,
                             MTRUE);
         //freeMem(MemType_Jpg);
     }
@@ -1453,7 +1453,7 @@ transImg(void)
                         transMainThumb(MFALSE);
                         if(mIsThumb)
                         {
-                            if( mRotate == 90 || 
+                            if( mRotate == 90 ||
                                 mRotate == 270)
                             {
                                 MY_LOGD("Start rotate thumbnail");
@@ -1490,7 +1490,7 @@ transImg(void)
     }
 }
 //-----------------------------------------------------------------------------
-MBOOL 
+MBOOL
 VideoSnapshotScenario::
 saveData(
     MUINT32     addr,
@@ -1499,8 +1499,8 @@ saveData(
 {
     char value[PROPERTY_VALUE_MAX] = {'\0'};
     property_get("camera.vss.dumpbuffer.enable", value, "0");
-    int32_t enable = atoi(value);    
-    if (enable == 0) 
+    int32_t enable = atoi(value);
+    if (enable == 0)
     {
         return MFALSE;
     }
@@ -1582,7 +1582,7 @@ readyToRun()
 
     //  thread policy & priority
     //  Notes:
-    //      Even if pthread_create() with SCHED_OTHER policy, a newly-created thread 
+    //      Even if pthread_create() with SCHED_OTHER policy, a newly-created thread
     //      may inherit the non-SCHED_OTHER policy & priority of the thread creator.
     //      And thus, we must set the expected policy & priority after a thread creation.
     int const policy    = SCHED_RR;

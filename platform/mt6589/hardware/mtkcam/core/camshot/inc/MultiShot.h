@@ -80,13 +80,13 @@ using namespace MtkCamUtils;
 namespace NSCamPipe
 {
     class ICamIOPipe;
-    class IPostProcPipe; 
+    class IPostProcPipe;
 };
 
-class ISImager; 
+class ISImager;
 
-class ResMgrDrv; 
-class PipeMgrDrv; 
+class ResMgrDrv;
+class PipeMgrDrv;
 
 /*******************************************************************************
 *
@@ -96,13 +96,13 @@ namespace NSCamShot {
 
 struct FocusValue
 {
-public: 
+public:
 	MUINT32 volatile u4ValH;
 	MUINT32 volatile u4ValL;
 
 public:
 	FocusValue(
-		MUINT32 _u4ValH = 0, 
+		MUINT32 _u4ValH = 0,
 		MUINT32 _u4ValL = 0
 	)
 		:u4ValH(_u4ValH)
@@ -136,17 +136,17 @@ public:     ////    Instantiation.
 
 public:     ////    Operations.
     virtual MBOOL   start(SensorParam const & rSensorParam, MUINT32 u4ShotCount=0xFFFFFFFF);
-    virtual MBOOL   startAsync(SensorParam const & rSensorParam);    
-    virtual MBOOL   startOne(SensorParam const  & rSensorParam); 
-    virtual MBOOL   startOne(ImgBufInfo const  & rImgBufInfo); 
+    virtual MBOOL   startAsync(SensorParam const & rSensorParam);
+    virtual MBOOL   startOne(SensorParam const  & rSensorParam);
+    virtual MBOOL   startOne(ImgBufInfo const  & rImgBufInfo);
     virtual MBOOL   stop();
 
 public:     ////    Settings.
-    virtual MBOOL   setShotParam(ShotParam const & rParam); 
-    virtual MBOOL   setJpegParam(JpegParam const & rParam); 
+    virtual MBOOL   setShotParam(ShotParam const & rParam);
+    virtual MBOOL   setJpegParam(JpegParam const & rParam);
 
-public:     ////    buffer setting. 
-    virtual MBOOL   registerImgBufInfo(ECamShotImgBufType, ImgBufInfo const &rImgBuf); 
+public:     ////    buffer setting.
+    virtual MBOOL   registerImgBufInfo(ECamShotImgBufType, ImgBufInfo const &rImgBuf);
 
 public:     ////    Info.
 
@@ -159,14 +159,14 @@ public: 	////	image thread handle.
 	virtual MBOOL        onCreateYuvImage();
 	virtual MBOOL        onCreateThumbnailImage();
 	virtual MBOOL        onCreateJpegImage();
-// [CS]-	  
+// [CS]-
 
 
-protected: 
-    MBOOL     createSensorRawImg(SensorParam const & rSensorParam, ImgBufInfo const & rRawImgBufInfo); 
-    MBOOL     createYuvRawImg(ImgBufInfo const & rSrcImgBufInfo, Rect const rSrcCropRect, MUINT32 const u4Img1Rot, MUINT32 const u4Img1Flip, ImgBufInfo const & rDstImgBufInfo1,  ImgBufInfo const &rDstImgBufInfo2); 
-    MBOOL     createYuvRawImg(ImgBufInfo const & rSrcImgBufInfo, Rect const rSrcCropRect, MUINT32 const u4Rot, MUINT32 const u4Flip, ImgBufInfo const & rDstImgBufInfo);     
-    MBOOL     createJpegImg(ImgBufInfo const & rSrcImgBufInfo, JpegParam const & rJpgParm, MUINT32 const u4Rot, MUINT32 const u4Flip, ImgBufInfo const & rJpgImgBufInfo, MUINT32 & u4JpegSize); 
+protected:
+    MBOOL     createSensorRawImg(SensorParam const & rSensorParam, ImgBufInfo const & rRawImgBufInfo);
+    MBOOL     createYuvRawImg(ImgBufInfo const & rSrcImgBufInfo, Rect const rSrcCropRect, MUINT32 const u4Img1Rot, MUINT32 const u4Img1Flip, ImgBufInfo const & rDstImgBufInfo1,  ImgBufInfo const &rDstImgBufInfo2);
+    MBOOL     createYuvRawImg(ImgBufInfo const & rSrcImgBufInfo, Rect const rSrcCropRect, MUINT32 const u4Rot, MUINT32 const u4Flip, ImgBufInfo const & rDstImgBufInfo);
+    MBOOL     createJpegImg(ImgBufInfo const & rSrcImgBufInfo, JpegParam const & rJpgParm, MUINT32 const u4Rot, MUINT32 const u4Flip, ImgBufInfo const & rJpgImgBufInfo, MUINT32 & u4JpegSize);
 // [CS]+
 	virtual MBOOL		 initImageCreateThread();
 	virtual MBOOL		 uninitImageCreateThread();
@@ -175,69 +175,69 @@ protected:
 	virtual MVOID		 returnJpegBuf();
 	virtual MBOOL		 convertImage(ImgBufInfo const & rSrcImgBufInfo, ImgBufInfo const & rDstImgBufInfo, int  rot);
 	virtual MBOOL		 createJpegImgSW(ImgBufInfo const & rSrcImgBufInfo, ImgBufInfo const & rDstImgBufInfo, MUINT32 & u4JpegSize);
-	virtual MBOOL		 YV12ToJpeg(ImgBufInfo const & rSrcImgBufInfo, ImgBufInfo const & rDstImgBufInfo, MUINT32 & u4JpegSize, int  rot); 
-	
-// [CS]-	  
+	virtual MBOOL		 YV12ToJpeg(ImgBufInfo const & rSrcImgBufInfo, ImgBufInfo const & rDstImgBufInfo, MUINT32 & u4JpegSize, int  rot);
 
-protected:    //// helper function 
-    MBOOL     allocMem(IMEM_BUF_INFO & rMemBuf); 
-    MBOOL     deallocMem(IMEM_BUF_INFO & rMemBuf); 
-    MBOOL     reallocMem(IMEM_BUF_INFO & rMemBuf, MUINT32 const u4Size); 
+// [CS]-
+
+protected:    //// helper function
+    MBOOL     allocMem(IMEM_BUF_INFO & rMemBuf);
+    MBOOL     deallocMem(IMEM_BUF_INFO & rMemBuf);
+    MBOOL     reallocMem(IMEM_BUF_INFO & rMemBuf, MUINT32 const u4Size);
     MBOOL     allocImgMem(char const* const pszName, EImageFormat const eFmt, MUINT32 const u4Width, MUINT32 const u4Height, IMEM_BUF_INFO & rMem);
-    // 
-    inline    MVOID     setImageBuf(EImageFormat const eFmt, MUINT32 const u4Width, MUINT32 const u4Height, ImgBufInfo & rBuf, IMEM_BUF_INFO & rMem); 
-    inline    MVOID     resetShotBuf(); 
-    inline    MVOID     freeShotMem(); 
     //
-    ImgBufInfo querySensorRawImgBufInfo(); 
-    ImgBufInfo queryYuvRawImgBufInfo(); 
-    ImgBufInfo queryJpegImgBufInfo(); 
-    ImgBufInfo queryPostViewImgInfo(); 
-    ImgBufInfo queryThumbImgBufInfo(); 
-    ImgBufInfo queryThumbYuvImgBufInfo(); 
-    ImgBufInfo queryThumbTempImgBufInfo(); 
-    inline    MVOID     getPictureDimension(MUINT32 & u4Width,  MUINT32 & u4Height); 
-    MUINT32    mapScenarioType(EImageFormat const eFmt);     	  
+    inline    MVOID     setImageBuf(EImageFormat const eFmt, MUINT32 const u4Width, MUINT32 const u4Height, ImgBufInfo & rBuf, IMEM_BUF_INFO & rMem);
+    inline    MVOID     resetShotBuf();
+    MVOID     freeShotMem();
+    //
+    ImgBufInfo querySensorRawImgBufInfo();
+    ImgBufInfo queryYuvRawImgBufInfo();
+    ImgBufInfo queryJpegImgBufInfo();
+    ImgBufInfo queryPostViewImgInfo();
+    ImgBufInfo queryThumbImgBufInfo();
+    ImgBufInfo queryThumbYuvImgBufInfo();
+    ImgBufInfo queryThumbTempImgBufInfo();
+    inline    MVOID     getPictureDimension(MUINT32 & u4Width,  MUINT32 & u4Height);
+    MUINT32    mapScenarioType(EImageFormat const eFmt);
     //
     MBOOL        lock(MUINT32 u4HWScenario, MUINT32 u4PipeType,  MUINT32 const u4TimeOutInMs);
     MBOOL        unlock(MUINT32 u4PipeType);
-    
+
 
 protected:      //// data members
-    ISImager *mpISImager; 
+    ISImager *mpISImager;
     ICamIOPipe    *mpCamIOPipe;
-    IMemDrv *mpMemDrv; 
-    // 
-    MUINT32   mu4DumpFlag; 
+    IMemDrv *mpMemDrv;
+    //
+    MUINT32   mu4DumpFlag;
 
     ////      parameters
-    SensorParam mSensorParam; 
-    ShotParam   mShotParam; 
-    JpegParam   mJpegParam;     
-    ////      buffer 
-    ImgBufInfo mRawImgBufInfo; 
-    ImgBufInfo mYuvImgBufInfo; 
-    ImgBufInfo mPostViewImgBufInfo; 
-    ImgBufInfo mJpegImgBufInfo; 
-    ImgBufInfo mThumbImgBufInfo; 
+    SensorParam mSensorParam;
+    ShotParam   mShotParam;
+    JpegParam   mJpegParam;
+    ////      buffer
+    ImgBufInfo mRawImgBufInfo;
+    ImgBufInfo mYuvImgBufInfo;
+    ImgBufInfo mPostViewImgBufInfo;
+    ImgBufInfo mJpegImgBufInfo;
+    ImgBufInfo mThumbImgBufInfo;
 	//[CS]+
-	vector<IMEM_BUF_INFO> 	mRawMem; 
-	vector<IMEM_BUF_INFO> 	mYuvMem; 
+	vector<IMEM_BUF_INFO> 	mRawMem;
+	vector<IMEM_BUF_INFO> 	mYuvMem;
     vector<IMEM_BUF_INFO> 	mPostViewMem;
-    vector<IMEM_BUF_INFO> 	mJpegMem; 
-    vector<IMEM_BUF_INFO> 	mThumbnailMem; 
-    
+    vector<IMEM_BUF_INFO> 	mJpegMem;
+    vector<IMEM_BUF_INFO> 	mThumbnailMem;
+
     ImgBufInfo mYuvImgBufInfoRead; 		 // used for jpeg_enc to read
     ImgBufInfo mYuvImgBufInfoWrite; 	 // used for pass2 to write
     ImgBufInfo mYuvImgBufInfoReady; 	 // ready for jpeg compressing
     ImgBufInfo mPostViewImgBufInfoRead;  // used for jpeg_enc to read
     ImgBufInfo mPostViewImgBufInfoWrite; // used for pass2 to write
     ImgBufInfo mPostViewImgBufInfoReady; // ready for thumbnail compressing
-    ImgBufInfo mJpegImgBufInfoWrite;	 // used for jpeg_enc to write 
+    ImgBufInfo mJpegImgBufInfoWrite;	 // used for jpeg_enc to write
     ImgBufInfo mJpegImgBufInfoReady; 	 // ready for callback
     ImgBufInfo mThumbImgBufInfoYuv;		 // used for Thumbnail yuv data
-    ImgBufInfo mThumbImgBufInfoWrite;    // used for thumbnail enc to write 
-    ImgBufInfo mThumbImgBufInfoReady;    // ready for callback 
+    ImgBufInfo mThumbImgBufInfoWrite;    // used for thumbnail enc to write
+    ImgBufInfo mThumbImgBufInfoReady;    // ready for callback
     ImgBufInfo mThumbImgBufInfoTemp;
 
 	FocusValue  	mFocusValRead;  	// sync with mYuvImgBufInfoRead and mJpegImgBufInfoWrite
@@ -253,36 +253,36 @@ protected:      //// data members
 	MBOOL volatile	   		mbIsLastShot;
 
 	MBOOL volatile	   		mbJpegSemPost;
-	MUINT32 volatile	   	mu4JpegSize; 
-	MUINT32 volatile	   	mu4ThumbnailSize; 
+	MUINT32 volatile	   	mu4JpegSize;
+	MUINT32 volatile	   	mu4ThumbnailSize;
 	Mutex               	mYuvReadyBufMtx;
     Mutex               	mJpegReadyBufMtx;
     sem_t 					semStartEnd;
     sem_t 					semJpeg;
     sem_t 					semThumbnail;
-	
-	
+
+
 	// Thread
     sp<IImageCreateThread>  mpImageCreateThread;
     sp<IImageCreateThread>  mpYuvImageCreateThread;
     sp<IImageCreateThread>  mpThumbnailImageCreateThread;
     sp<IImageCreateThread>  mpJpegImageCreateThread;
 	//[CS]-
-    PipeMgrDrv   *mpPipeMgrDrv; 
-    ResMgrDrv    *mpResMgrDrv; 
+    PipeMgrDrv   *mpPipeMgrDrv;
+    ResMgrDrv    *mpResMgrDrv;
 
 };
 
 class MultiShotNcc: public MultiShot
 {
-public: 
+public:
 	  ////    Constructor/Destructor.
 	                    MultiShotNcc(
 	                        EShotMode const eShotMode,
 	                        char const*const szCamShotName
 	                    );
 	 virtual 			~MultiShotNcc();
-	 
+
 public: ////    Operations.
     virtual MBOOL   	start(SensorParam const & rSensorParam, MUINT32 u4ShotCount=0xFFFFFFFF);
     virtual MBOOL   	stop();
@@ -296,14 +296,14 @@ public: ////    Operations.
 
 class MultiShotCc: public MultiShot
 {
-public: 
+public:
 	  ////    Constructor/Destructor.
 	                    MultiShotCc(
 	                        EShotMode const eShotMode,
 	                        char const*const szCamShotName
 	                    );
 	 virtual 			~MultiShotCc();
-	 
+
 public: ////    Operations.
     virtual MBOOL   	start(SensorParam const & rSensorParam, MUINT32 u4ShotCount=0xFFFFFFFF);
     virtual MBOOL   	stop();

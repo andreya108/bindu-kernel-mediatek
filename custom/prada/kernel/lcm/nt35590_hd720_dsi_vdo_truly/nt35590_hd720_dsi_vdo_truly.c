@@ -30,9 +30,11 @@
 
 static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
 
+#define DEFAULT_NEWLCM 1
 #define FBK_DIV_MAX 40
 #define FBK_DIV_MIN 10
-static unsigned int fbk_div = 21;
+static unsigned int fbk_div = 22;
+static unsigned int set_gamma = 1;
 
 // ---------------------------------------------------------------------------
 // //  Local Variables
@@ -43,30 +45,24 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 #include "nt35590_hd720_dsi_vdo_truly_stocklcm.c.inc"
 #include "nt35590_hd720_dsi_vdo_truly_newlcm.c.inc"
 
-/*static void lcm_get_params_stocklcm(LCM_PARAMS *params);
-static void lcm_get_params_newlcm(LCM_PARAMS *params);
-static void lcm_init_stocklcm(void);
-static void lcm_init_newlcm(void);
-static void lcm_suspend_stocklcm(void);
-static void lcm_suspend_newlcm(void);
-static void lcm_resume_stocklcm(void);
-static void lcm_resume_newlcm(void);
-static unsigned int lcm_compare_id_stocklcm(void);
-static unsigned int lcm_compare_id_newlcm(void);
-static unsigned int lcm_esd_check_stocklcm(void);
-static unsigned int lcm_esd_check_newlcm(void);
-static void lcm_esd_recover_stocklcm(void);
-static void lcm_esd_recover_newlcm(void);
-#if (LCM_DSI_CMD_MODE)
-static void lcm_update_stocklcm(void);
-static void lcm_update_newlcm(void);
-#endif*/
 static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util);
 
 LCM_DRIVER nt35590_hd720_dsi_vdo_truly_lcm_drv =
 {
     .name			= "nt35590_hd720_dsi_vdo_truly",
 	.set_util_funcs = lcm_set_util_funcs,
+#if DEFAULT_NEWLCM
+	.get_params     = lcm_get_params_newlcm,
+	.init           = lcm_init_newlcm,
+	.suspend        = lcm_suspend_newlcm,
+	.resume         = lcm_resume_newlcm,
+	.compare_id     = lcm_compare_id_newlcm,
+	.esd_check      = lcm_esd_check_newlcm,
+	.esd_recover    = lcm_esd_recover_newlcm,
+# if (LCM_DSI_CMD_MODE)
+    .update         = lcm_update_newlcm,
+# endif
+#else
 	.get_params     = lcm_get_params_stocklcm,
 	.init           = lcm_init_stocklcm,
 	.suspend        = lcm_suspend_stocklcm,
@@ -74,8 +70,9 @@ LCM_DRIVER nt35590_hd720_dsi_vdo_truly_lcm_drv =
 	.compare_id     = lcm_compare_id_stocklcm,
 	.esd_check      = lcm_esd_check_stocklcm,
 	.esd_recover    = lcm_esd_recover_stocklcm,
-#if (LCM_DSI_CMD_MODE)
+# if (LCM_DSI_CMD_MODE)
     .update         = lcm_update_stocklcm,
+# endif
 #endif
 };
 
@@ -91,6 +88,14 @@ static int __init fbk_div_setup(char *str)
     return 0;
 }
 early_param("lcm.fbk_div",fbk_div_setup);
+
+static int __init no_gamma_setup(char *str)
+{
+    printk("OPT %s: lcm.no_gamma\n", __func__);
+    set_gamma = 0;
+    return 0;
+}
+early_param("lcm.no_gamma",no_gamma_setup);
 
 static int __init newlcm_setup(char *str)
 {
@@ -110,6 +115,23 @@ static int __init newlcm_setup(char *str)
 }
 early_param("newlcm",newlcm_setup);
 
+static int __init stocklcm_setup(char *str)
+{
+    printk("OPT %s: stocklcm\n", __func__);
+
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.get_params     = lcm_get_params_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.init           = lcm_init_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.suspend        = lcm_suspend_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.resume         = lcm_resume_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.compare_id     = lcm_compare_id_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.esd_check      = lcm_esd_check_stocklcm;
+	nt35590_hd720_dsi_vdo_truly_lcm_drv.esd_recover    = lcm_esd_recover_stocklcm;
+#if (LCM_DSI_CMD_MODE)
+    nt35590_hd720_dsi_vdo_truly_lcm_drv.update         = lcm_update_stocklcm;
+#endif
+    return 0;
+}
+early_param("stocklcm",stocklcm_setup);
 #endif
 
 // ---------------------------------------------------------------------------

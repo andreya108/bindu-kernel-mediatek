@@ -25,6 +25,8 @@ export ANDROID_JAVA_HOME
 #export KBUILD_BUILD_TIMESTAMP="$KV `date +'%F %R'`"
 export KBUILD_BUILD_USER=bindu-kernel
 export KBUILD_BUILD_HOST=`./mkversion host`
+export LOCAL_NO_LENOVO_RES=true
+export TARGET_ARCH_VARIANT=armv7-a-neon
 
 export EXTRAVERSION=`./mkversion`
 
@@ -41,10 +43,11 @@ case "$TOOLCHAIN" in
 	echo "Building with GCC 4.9"
 	PATH=~/android-ndk-r10e/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
     export CROSS_COMPILE=arm-linux-androideabi-
+    export TARGET_GCC_VERSION_EXP=4.9
 	;;
   uber4.9)
-	echo "Building with UBER 4.9 arm-eabi"
-	PATH=$PWD/prebuilts/UBERTC/arm-eabi-4.9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
+	echo "Building with UBER 4.9"
+	PATH=$PWD/prebuilts/UBERTC/arm-eabi-4.9/bin:$PWD/prebuilts/UBERTC/arm-linux-androideabi-4.9/bin:$PWD/prebuilts/misc/linux-x86/make:$PATH
 	export CROSS_COMPILE=arm-eabi-
 	;;
   uber5.3)
