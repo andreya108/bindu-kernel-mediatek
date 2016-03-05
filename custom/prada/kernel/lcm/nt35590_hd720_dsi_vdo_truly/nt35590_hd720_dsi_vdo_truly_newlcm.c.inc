@@ -1651,6 +1651,12 @@ static void lcm_get_params_newlcm(LCM_PARAMS *params)
 		params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4
 		params->dsi.fbk_div = fbk_div;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
+
+        // from driver
+        params->dsi.pll_select = 1;
+        params->dsi.compatibility_for_nvk = 1;
+        params->dbi.te_edge_polarity = 1;
+        params->dbi.te_mode = 1;
 }
 
 static void lcm_init_newlcm(void)
