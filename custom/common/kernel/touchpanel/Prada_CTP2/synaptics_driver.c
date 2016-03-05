@@ -1496,7 +1496,7 @@ void time_set_0(struct timeval *te)
 
 int not_ghost(unsigned long t, char *msg)
 {
-    int rc = t > ghost_threshold;
+    int rc = t >= ghost_threshold;
     if (!rc)
     {
         TPD_DMESG("<GHOST:%ld> [%s] %ld\n", ghost_threshold, msg, t);
