@@ -36,6 +36,8 @@
 
 extern int tpd_v_magnify_x;
 extern int tpd_v_magnify_y;
+//liangzhiqiang add for hx8526 wakeup
+int lct_tp_early_suspend = 1;
 extern UINT32 DISP_GetScreenHeight(void);
 extern UINT32 DISP_GetScreenWidth(void);
 
@@ -414,6 +416,11 @@ static int tpd_probe(struct platform_device *pdev) {
     #ifdef CONFIG_HAS_EARLYSUSPEND
     MTK_TS_early_suspend_handler.suspend = g_tpd_drv->suspend;
     MTK_TS_early_suspend_handler.resume = g_tpd_drv->resume;
+	//liangzhiqiang add for tp wakeup
+	if(lct_tp_early_suspend == 0)
+	{
+		MTK_TS_early_suspend_handler.level = EARLY_SUSPEND_LEVEL_DISABLE_FB+10;
+	}
     register_early_suspend(&MTK_TS_early_suspend_handler);
     #endif		  
 #endif	  

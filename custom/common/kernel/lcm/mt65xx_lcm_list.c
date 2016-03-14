@@ -186,6 +186,10 @@ LCM_DRIVER* lcm_driver_list[] =
 	&otm8018b_dsi_vdo_txd_fwvga_lcm_drv,
 #endif
 
+#if defined(OTM1282A_HD720_DSI_VDO)
+	&otm1282a_hd720_dsi_vdo_lcm_drv,
+#endif
+
 #if defined(R63311_FHD_DSI_VDO)
 	&r63311_fhd_dsi_vedio_lcm_drv,
 #endif
