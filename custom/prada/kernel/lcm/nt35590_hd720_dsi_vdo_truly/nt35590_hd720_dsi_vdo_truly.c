@@ -33,7 +33,7 @@ static unsigned int lcm_esd_test = FALSE;      ///only for ESD test
 #define DEFAULT_NEWLCM 1
 #define FBK_DIV_MAX 40
 #define FBK_DIV_MIN 10
-static unsigned int fbk_div = 22;
+static unsigned int fbk_div = 0;
 static unsigned int set_gamma = 1;
 
 // ---------------------------------------------------------------------------

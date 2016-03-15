@@ -148,9 +148,11 @@ extern int g_HW_stop_charging;
 extern int bat_volt_check_point;
 extern int gForceADCsolution;
 extern kal_bool batteryBufferFirst;
+#if defined(MTK_FAN5405_SUPPORT) || defined(MTK_BQ24196_SUPPORT)
 /*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
 extern int battery_cali_start_status ;
 /*Lenovo-sw end chenlj2 add 2011-06-02,add a enum for current */
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //// Define
@@ -222,7 +224,7 @@ BATTERY_PROFILE_STRUC_P fgauge_get_profile(kal_uint32 temperature)
     {
         case TEMPERATURE_T0:
             return &battery_profile_t0[0];
-            break;    
+            break;
         case TEMPERATURE_T1:
             return &battery_profile_t1[0];
             break;
@@ -325,26 +327,26 @@ void get_hw_chip_diff_trim_value(void)
 {
     kal_int32 reg_val_1 = 0;
     kal_int32 reg_val_2 = 0;
-    
+
     #if 1
     reg_val_1 = upmu_get_reg_value(0x01C4);
     reg_val_1 = (reg_val_1 & 0xE000) >> 13;
-    
+
     reg_val_2 = upmu_get_reg_value(0x01C6);
     reg_val_2 = (reg_val_2 & 0x0003);
 
     chip_diff_trim_value_4_0 = reg_val_1 | (reg_val_2 << 3);
-    
-    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] Reg[0x%x]=0x%x, Reg[0x%x]=0x%x, chip_diff_trim_value_4_0=%d\n", 
-        0x01C4, upmu_get_reg_value(0x01C4), 0x01C6, upmu_get_reg_value(0x01C6), chip_diff_trim_value_4_0);   
-    
+
+    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] Reg[0x%x]=0x%x, Reg[0x%x]=0x%x, chip_diff_trim_value_4_0=%d\n",
+        0x01C4, upmu_get_reg_value(0x01C4), 0x01C6, upmu_get_reg_value(0x01C6), chip_diff_trim_value_4_0);
+
     #else
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] need check reg number\n");
     #endif
 
-    switch(chip_diff_trim_value_4_0){       
-        case 0:    
-            chip_diff_trim_value = 1000; 
+    switch(chip_diff_trim_value_4_0){
+        case 0:
+            chip_diff_trim_value = 1000;
             printk("chip_diff_trim_value = 1000; \n");
             break;
         case 1:    chip_diff_trim_value = 1005; break;
@@ -362,27 +364,27 @@ void get_hw_chip_diff_trim_value(void)
         case 13:   chip_diff_trim_value = 1065; break;
         case 14:   chip_diff_trim_value = 1070; break;
         case 15:   chip_diff_trim_value = 1075; break;
-        case 31:   chip_diff_trim_value = 995; break; 
-        case 30:   chip_diff_trim_value = 990; break; 
-        case 29:   chip_diff_trim_value = 985; break; 
-        case 28:   chip_diff_trim_value = 980; break; 
-        case 27:   chip_diff_trim_value = 975; break; 
-        case 26:   chip_diff_trim_value = 970; break; 
-        case 25:   chip_diff_trim_value = 965; break; 
-        case 24:   chip_diff_trim_value = 960; break; 
-        case 23:   chip_diff_trim_value = 955; break; 
-        case 22:   chip_diff_trim_value = 950; break; 
-        case 21:   chip_diff_trim_value = 945; break; 
-        case 20:   chip_diff_trim_value = 940; break; 
-        case 19:   chip_diff_trim_value = 935; break; 
-        case 18:   chip_diff_trim_value = 930; break; 
-        case 17:   chip_diff_trim_value = 925; break; 
+        case 31:   chip_diff_trim_value = 995; break;
+        case 30:   chip_diff_trim_value = 990; break;
+        case 29:   chip_diff_trim_value = 985; break;
+        case 28:   chip_diff_trim_value = 980; break;
+        case 27:   chip_diff_trim_value = 975; break;
+        case 26:   chip_diff_trim_value = 970; break;
+        case 25:   chip_diff_trim_value = 965; break;
+        case 24:   chip_diff_trim_value = 960; break;
+        case 23:   chip_diff_trim_value = 955; break;
+        case 22:   chip_diff_trim_value = 950; break;
+        case 21:   chip_diff_trim_value = 945; break;
+        case 20:   chip_diff_trim_value = 940; break;
+        case 19:   chip_diff_trim_value = 935; break;
+        case 18:   chip_diff_trim_value = 930; break;
+        case 17:   chip_diff_trim_value = 925; break;
         default:
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] Invalid value(%d)\n", chip_diff_trim_value_4_0);
             break;
     }
 
-    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] %d,%d\n", 
+    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[Chip_Trim] %d,%d\n",
         chip_diff_trim_value_4_0, chip_diff_trim_value);
 }
 
@@ -395,7 +397,7 @@ kal_int32 use_chip_trim_value(kal_int32 not_trim_val)
     if (Enable_FGADC_LOG == 1) {
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[use_chip_trim_value] %d -> %d\n", not_trim_val, ret_val);
     }
-    
+
     return ret_val;
 }
 
@@ -438,10 +440,10 @@ kal_uint32 fg_get_data_ready_status(void)
     if (Enable_FGADC_LOG == 1) {
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fg_get_data_ready_status] Reg[0x%x]=0x%x\r\n", FGADC_CON0, temp_val);
     }
-    
+
     temp_val = (temp_val & (PMIC_FG_LATCHDATA_ST_MASK << PMIC_FG_LATCHDATA_ST_SHIFT)) >> PMIC_FG_LATCHDATA_ST_SHIFT;
 
-    return temp_val;    
+    return temp_val;
 }
 
 kal_uint32 fg_get_sw_clear_status(void)
@@ -451,13 +453,13 @@ kal_uint32 fg_get_sw_clear_status(void)
 
     ret=pmic_read_interface(FGADC_CON0, &temp_val, 0xFFFF, 0x0);
 
-    if (Enable_FGADC_LOG == 1) {    
+    if (Enable_FGADC_LOG == 1) {
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fg_get_sw_clear_status] Reg[0x%x]=0x%x\r\n", FGADC_CON0, temp_val);
     }
-    
+
     temp_val = (temp_val & (PMIC_FG_SW_CLEAR_MASK << PMIC_FG_SW_CLEAR_SHIFT)) >> PMIC_FG_SW_CLEAR_SHIFT;
 
-    return temp_val;    
+    return temp_val;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -500,7 +502,7 @@ void update_fg_dbg_tool_value(void)
 
     g_fg_dbg_d1 = gFG_DOD1;
 
-    g_fg_dbg_percentage = bat_volt_check_point;    
+    g_fg_dbg_percentage = bat_volt_check_point;
 
     g_fg_dbg_percentage_fg = gFG_capacity_by_c;
 
@@ -531,7 +533,7 @@ kal_int32 fgauge_read_temperature(void)
 {
     int bat_temperature_volt=0;
     int bat_temperature=0;
-        
+
     bat_temperature_volt = get_tbat_volt(5);
     bat_temperature = BattVoltToTemp(bat_temperature_volt);
     gFG_bat_temperature = bat_temperature;
@@ -559,19 +561,19 @@ kal_int32 fgauge_read_temperature(void)
 *******************************************************************************/
 void dump_nter(void)
 {
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_nter] upmu_get_fg_nter_29_16 = 0x%x\r\n", 
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_nter] upmu_get_fg_nter_29_16 = 0x%x\r\n",
         upmu_get_fg_nter_29_16());
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_nter] upmu_get_fg_nter_15_00 = 0x%x\r\n", 
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_nter] upmu_get_fg_nter_15_00 = 0x%x\r\n",
         upmu_get_fg_nter_15_00());
 }
 
 void dump_car(void)
-{    
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_35_32 = 0x%x\r\n", 
+{
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_35_32 = 0x%x\r\n",
         upmu_get_fg_car_35_32());
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_31_16 = 0x%x\r\n", 
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_31_16 = 0x%x\r\n",
         upmu_get_fg_car_31_16());
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_15_00 = 0x%x\r\n", 
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[dump_car] upmu_get_fg_car_15_00 = 0x%x\r\n",
         upmu_get_fg_car_15_00());
 }
 
@@ -596,132 +598,7 @@ kal_int32 fgauge_read_columb(void)
     //(2)    Keep i2c read when status = 1 (0x06)
     m=0;
     while ( fg_get_data_ready_status() == 0 )
-    {        
-        m++;
-        if(m>1000)
-        {
-            if (Enable_FGADC_LOG == 1){
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fgauge_read_columb] fg_get_data_ready_status timeout 1 !\r\n");
-            }
-            break;
-        }
-    }
-    //(3)    Read FG_CURRENT_OUT[28:14]
-    //(4)    Read FG_CURRENT_OUT[35]
-    uvalue32_CAR =  ( upmu_get_fg_car_15_00() ) >> 14;
-    uvalue32_CAR |= ( (upmu_get_fg_car_31_16())&0x3FFF ) << 2;
-    //uvalue32_CAR = uvalue32_CAR & 0xFFFF;
-    gFG_columb_HW_reg = uvalue32_CAR;
-    uvalue32_CAR_MSB = (upmu_get_fg_car_35_32() & 0x0F)>>3;
-    if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : FG_CAR = 0x%x\r\n", uvalue32_CAR);
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : uvalue32_CAR_MSB = 0x%x\r\n", uvalue32_CAR_MSB);
-    }
-    //(5)    (Read other data)
-    //(6)    Clear status to 0
-    ret=pmic_config_interface(FGADC_CON0, 0x0800, 0xFF00, 0x0);
-    //(7)    Keep i2c read when status = 0 (0x08)
-    //while ( fg_get_sw_clear_status() != 0 ) 
-    m=0;
-    while ( fg_get_data_ready_status() != 0 )
-    {         
-        m++;
-        if(m>1000)
-        {
-            if (Enable_FGADC_LOG == 1){
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fgauge_read_columb] fg_get_data_ready_status timeout 2 !\r\n");
-            }
-            break;
-        }
-    }    
-    //(8)    Recover original settings
-    ret=pmic_config_interface(FGADC_CON0, 0x0000, 0xFF00, 0x0);    
-
-//calculate the real world data    
-    dvalue_CAR = (kal_int32) uvalue32_CAR;    
-
-    if(uvalue32_CAR == 0)
     {
-        Temp_Value = 0;
-    }
-    else if(uvalue32_CAR == 65535) // 0xffff
-    {
-        Temp_Value = 0;
-    }
-    else if(uvalue32_CAR_MSB == 0x1)
-    {
-        //dis-charging
-        Temp_Value = dvalue_CAR - 65535; // keep negative value        
-    }
-    else
-    {
-        //charging
-        Temp_Value = (int) dvalue_CAR;
-    }    
-    Temp_Value = ( ((Temp_Value*35986)/10) + (5) )/10; //[28:14]'s LSB=359.86 uAh
-    dvalue_CAR = Temp_Value / 1000; //mAh
-
-    if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR = %d\r\n", dvalue_CAR);
-    }
-    
-    #if (OSR_SELECT_7 == 1)
-        dvalue_CAR = dvalue_CAR * 8;
-        if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR update to %d\r\n", dvalue_CAR);
-        }
-    #endif        
-    
-//Auto adjust value
-    if(R_FG_VALUE != 20)
-    {
-        if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori CAR=%d, ", R_FG_VALUE, dvalue_CAR);            
-        }
-        dvalue_CAR = (dvalue_CAR*20)/R_FG_VALUE;
-        if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new CAR=%d\n", dvalue_CAR);            
-        }        
-    }
-
-    dvalue_CAR = ((dvalue_CAR*CAR_TUNE_VALUE)/100);
-
-    dvalue_CAR = use_chip_trim_value(dvalue_CAR);
-
-    if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : final dvalue_CAR = %d\r\n", dvalue_CAR);
-    }
-
-    if (Enable_FGADC_LOG == 1){
-        dump_nter();
-        dump_car();
-    }    
-
-    return dvalue_CAR;
-}
-
-kal_int32 fgauge_read_columb_reset(void)
-{
-    kal_uint32 uvalue32_CAR = 0;
-    kal_uint32 uvalue32_CAR_MSB = 0;
-    kal_int32 dvalue_CAR = 0;
-    int m = 0;
-    int Temp_Value = 0;
-    kal_uint32 ret = 0;
-
-// HW Init
-    //(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2
-    //(2)    i2c_write (0x61, 0x15, 0x00); // Enable FGADC clock for digital
-    //(3)    i2c_write (0x61, 0x69, 0x28); // Set current mode, auto-calibration mode and 32KHz clock source
-    //(4)    i2c_write (0x61, 0x69, 0x29); // Enable FGADC
-
-//Read HW Raw Data
-    //(1)    Set READ command
-    ret=pmic_config_interface(FGADC_CON0, 0x7300, 0xFF00, 0x0);
-    //(2)    Keep i2c read when status = 1 (0x06)
-    m=0;
-    while ( fg_get_data_ready_status() == 0 )
-    {        
         m++;
         if(m>1000)
         {
@@ -749,7 +626,7 @@ kal_int32 fgauge_read_columb_reset(void)
     //while ( fg_get_sw_clear_status() != 0 )
     m=0;
     while ( fg_get_data_ready_status() != 0 )
-    {         
+    {
         m++;
         if(m>1000)
         {
@@ -758,12 +635,12 @@ kal_int32 fgauge_read_columb_reset(void)
             }
             break;
         }
-    }    
+    }
     //(8)    Recover original settings
     ret=pmic_config_interface(FGADC_CON0, 0x0000, 0xFF00, 0x0);
 
-//calculate the real world data    
-    dvalue_CAR = (kal_int32) uvalue32_CAR;    
+//calculate the real world data
+    dvalue_CAR = (kal_int32) uvalue32_CAR;
 
     if(uvalue32_CAR == 0)
     {
@@ -772,41 +649,41 @@ kal_int32 fgauge_read_columb_reset(void)
     else if(uvalue32_CAR == 65535) // 0xffff
     {
         Temp_Value = 0;
-    }    
-    else if(uvalue32_CAR_MSB == 0x1)    
+    }
+    else if(uvalue32_CAR_MSB == 0x1)
     {
         //dis-charging
-        Temp_Value = dvalue_CAR - 65535; // keep negative value        
+        Temp_Value = dvalue_CAR - 65535; // keep negative value
     }
     else
     {
         //charging
         Temp_Value = (int) dvalue_CAR;
-    }    
+    }
     Temp_Value = ( ((Temp_Value*35986)/10) + (5) )/10; //[28:14]'s LSB=359.86 uAh
     dvalue_CAR = Temp_Value / 1000; //mAh
 
     if (Enable_FGADC_LOG == 1) {
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR = %d\r\n", dvalue_CAR);
     }
-    
+
     #if (OSR_SELECT_7 == 1)
         dvalue_CAR = dvalue_CAR * 8;
         if (Enable_FGADC_LOG == 1) {
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR update to %d\r\n", dvalue_CAR);
         }
-    #endif        
-    
+    #endif
+
 //Auto adjust value
     if(R_FG_VALUE != 20)
     {
         if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori CAR=%d, ", R_FG_VALUE, dvalue_CAR);            
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori CAR=%d, ", R_FG_VALUE, dvalue_CAR);
         }
         dvalue_CAR = (dvalue_CAR*20)/R_FG_VALUE;
         if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new CAR=%d\n", dvalue_CAR);            
-        }        
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new CAR=%d\n", dvalue_CAR);
+        }
     }
 
     dvalue_CAR = ((dvalue_CAR*CAR_TUNE_VALUE)/100);
@@ -820,7 +697,132 @@ kal_int32 fgauge_read_columb_reset(void)
     if (Enable_FGADC_LOG == 1){
         dump_nter();
         dump_car();
-    }    
+    }
+
+    return dvalue_CAR;
+}
+
+kal_int32 fgauge_read_columb_reset(void)
+{
+    kal_uint32 uvalue32_CAR = 0;
+    kal_uint32 uvalue32_CAR_MSB = 0;
+    kal_int32 dvalue_CAR = 0;
+    int m = 0;
+    int Temp_Value = 0;
+    kal_uint32 ret = 0;
+
+// HW Init
+    //(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2
+    //(2)    i2c_write (0x61, 0x15, 0x00); // Enable FGADC clock for digital
+    //(3)    i2c_write (0x61, 0x69, 0x28); // Set current mode, auto-calibration mode and 32KHz clock source
+    //(4)    i2c_write (0x61, 0x69, 0x29); // Enable FGADC
+
+//Read HW Raw Data
+    //(1)    Set READ command
+    ret=pmic_config_interface(FGADC_CON0, 0x7300, 0xFF00, 0x0);
+    //(2)    Keep i2c read when status = 1 (0x06)
+    m=0;
+    while ( fg_get_data_ready_status() == 0 )
+    {
+        m++;
+        if(m>1000)
+        {
+            if (Enable_FGADC_LOG == 1){
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fgauge_read_columb] fg_get_data_ready_status timeout 1 !\r\n");
+            }
+            break;
+        }
+    }
+    //(3)    Read FG_CURRENT_OUT[28:14]
+    //(4)    Read FG_CURRENT_OUT[35]
+    uvalue32_CAR =  ( upmu_get_fg_car_15_00() ) >> 14;
+    uvalue32_CAR |= ( (upmu_get_fg_car_31_16())&0x3FFF ) << 2;
+    //uvalue32_CAR = uvalue32_CAR & 0xFFFF;
+    gFG_columb_HW_reg = uvalue32_CAR;
+    uvalue32_CAR_MSB = (upmu_get_fg_car_35_32() & 0x0F)>>3;
+    if (Enable_FGADC_LOG == 1) {
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : FG_CAR = 0x%x\r\n", uvalue32_CAR);
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : uvalue32_CAR_MSB = 0x%x\r\n", uvalue32_CAR_MSB);
+    }
+    //(5)    (Read other data)
+    //(6)    Clear status to 0
+    ret=pmic_config_interface(FGADC_CON0, 0x0800, 0xFF00, 0x0);
+    //(7)    Keep i2c read when status = 0 (0x08)
+    //while ( fg_get_sw_clear_status() != 0 )
+    m=0;
+    while ( fg_get_data_ready_status() != 0 )
+    {
+        m++;
+        if(m>1000)
+        {
+            if (Enable_FGADC_LOG == 1){
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fgauge_read_columb] fg_get_data_ready_status timeout 2 !\r\n");
+            }
+            break;
+        }
+    }
+    //(8)    Recover original settings
+    ret=pmic_config_interface(FGADC_CON0, 0x0000, 0xFF00, 0x0);
+
+//calculate the real world data
+    dvalue_CAR = (kal_int32) uvalue32_CAR;
+
+    if(uvalue32_CAR == 0)
+    {
+        Temp_Value = 0;
+    }
+    else if(uvalue32_CAR == 65535) // 0xffff
+    {
+        Temp_Value = 0;
+    }
+    else if(uvalue32_CAR_MSB == 0x1)
+    {
+        //dis-charging
+        Temp_Value = dvalue_CAR - 65535; // keep negative value
+    }
+    else
+    {
+        //charging
+        Temp_Value = (int) dvalue_CAR;
+    }
+    Temp_Value = ( ((Temp_Value*35986)/10) + (5) )/10; //[28:14]'s LSB=359.86 uAh
+    dvalue_CAR = Temp_Value / 1000; //mAh
+
+    if (Enable_FGADC_LOG == 1) {
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR = %d\r\n", dvalue_CAR);
+    }
+
+    #if (OSR_SELECT_7 == 1)
+        dvalue_CAR = dvalue_CAR * 8;
+        if (Enable_FGADC_LOG == 1) {
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : dvalue_CAR update to %d\r\n", dvalue_CAR);
+        }
+    #endif
+
+//Auto adjust value
+    if(R_FG_VALUE != 20)
+    {
+        if (Enable_FGADC_LOG == 1) {
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori CAR=%d, ", R_FG_VALUE, dvalue_CAR);
+        }
+        dvalue_CAR = (dvalue_CAR*20)/R_FG_VALUE;
+        if (Enable_FGADC_LOG == 1) {
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new CAR=%d\n", dvalue_CAR);
+        }
+    }
+
+    dvalue_CAR = ((dvalue_CAR*CAR_TUNE_VALUE)/100);
+
+    dvalue_CAR = use_chip_trim_value(dvalue_CAR);
+
+    if (Enable_FGADC_LOG == 1) {
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] fgauge_read_columb : final dvalue_CAR = %d\r\n", dvalue_CAR);
+    }
+
+    if (Enable_FGADC_LOG == 1){
+        dump_nter();
+        dump_car();
+    }
 
     return dvalue_CAR;
 }
@@ -846,14 +848,14 @@ kal_int32 fgauge_read_columb_reset(void)
 kal_int32 fgauge_read_current(void)
 {
     kal_uint16 uvalue16 = 0;
-    kal_int32 dvalue = 0; 
+    kal_int32 dvalue = 0;
     int m = 0;
     int Temp_Value = 0;
     kal_int32 Current_Compensate_Value=0;
     kal_uint32 ret = 0;
 
 // HW Init
-    //(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2    
+    //(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2
     //(2)    i2c_write (0x61, 0x15, 0x00); // Enable FGADC clock for digital
     //(3)    i2c_write (0x61, 0x69, 0x28); // Set current mode, auto-calibration mode and 32KHz clock source
     //(4)    i2c_write (0x61, 0x69, 0x29); // Enable FGADC
@@ -864,7 +866,7 @@ kal_int32 fgauge_read_current(void)
     //(2)     Keep i2c read when status = 1 (0x06)
     m=0;
     while ( fg_get_data_ready_status() == 0 )
-    {        
+    {
         m++;
         if(m>1000)
         {
@@ -887,7 +889,7 @@ kal_int32 fgauge_read_current(void)
 	//while ( fg_get_sw_clear_status() != 0 )
     m=0;
     while ( fg_get_data_ready_status() != 0 )
-    {         
+    {
         m++;
         if(m>1000)
         {
@@ -896,11 +898,11 @@ kal_int32 fgauge_read_current(void)
             }
             break;
         }
-    }    
+    }
     //(8)    Recover original settings
     ret=pmic_config_interface(FGADC_CON0, 0x0000, 0xFF00, 0x0);
 
-//calculate the real world data    
+//calculate the real world data
     dvalue = (kal_uint32) uvalue16;
     if( dvalue == 0 )
     {
@@ -917,12 +919,12 @@ kal_int32 fgauge_read_current(void)
     {
         Temp_Value = (int) dvalue;
         gFG_Is_Charging = KAL_TRUE;
-    }    
-    dvalue = (kal_uint32) ((Temp_Value * UNIT_FGCURRENT) / 100000);       
+    }
+    dvalue = (kal_uint32) ((Temp_Value * UNIT_FGCURRENT) / 100000);
 
     current_get_ori = dvalue;
 
-    if (Enable_FGADC_LOG == 1) 
+    if (Enable_FGADC_LOG == 1)
     {
         if( gFG_Is_Charging == KAL_TRUE )
         {
@@ -938,15 +940,15 @@ kal_int32 fgauge_read_current(void)
     if(R_FG_VALUE != 20)
     {
         if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);            
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] Auto adjust value deu to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);
         }
         dvalue = (dvalue*20)/R_FG_VALUE;
         if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new current=%d\n", dvalue);            
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "new current=%d\n", dvalue);
         }
     }
 
-// K current 
+// K current
     if(R_FG_BOARD_SLOPE != R_FG_BOARD_BASE)
     {
         dvalue = ( (dvalue*R_FG_BOARD_BASE) + (R_FG_BOARD_SLOPE/2) ) / R_FG_BOARD_SLOPE;
@@ -963,15 +965,15 @@ kal_int32 fgauge_read_current(void)
     }
 
     if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "ori current=%d\n", dvalue);            
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "ori current=%d\n", dvalue);
     }
-    
+
     dvalue = ((dvalue*CAR_TUNE_VALUE)/100);
 
     dvalue = use_chip_trim_value(dvalue);
 
     if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);            
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);
     }
 
     return dvalue;
@@ -994,15 +996,15 @@ kal_int32 fgauge_read_current(void)
 *
 *******************************************************************************/
 kal_int32 fgauge_read_voltage(void)
-{    
+{
     int vol_battery;
-        
+
     vol_battery = get_bat_sense_volt(15);
-    
+
     if(gFG_voltage_pre == -500)
     {
         gFG_voltage_pre = vol_battery; // for init
-        
+
         return vol_battery;
     }
 
@@ -1033,14 +1035,14 @@ kal_int32 fgauge_compensate_battery_voltage(kal_int32 ori_voltage)
     ret_compensate_value = (gFG_current * (gFG_resistance_bat + R_FG_VALUE)) / 1000;
     ret_compensate_value = (ret_compensate_value+(10/2)) / 10;
 
-    if (gFG_Is_Charging == KAL_TRUE) 
+    if (gFG_Is_Charging == KAL_TRUE)
     {
         ret_compensate_value = ret_compensate_value - (ret_compensate_value*2);
     }
 
     gFG_compensate_value = ret_compensate_value;
 
-    //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[CompensateVoltage] Ori_voltage:%d, compensate_value:%d, gFG_resistance_bat:%d, gFG_current:%d\r\n", 
+    //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[CompensateVoltage] Ori_voltage:%d, compensate_value:%d, gFG_resistance_bat:%d, gFG_current:%d\r\n",
     //    ori_voltage, ret_compensate_value, gFG_resistance_bat, gFG_current);
 
     return ret_compensate_value;
@@ -1053,13 +1055,13 @@ kal_int32 fgauge_compensate_battery_voltage_recursion(kal_int32 ori_voltage, kal
     kal_int32 temp_voltage_2 = temp_voltage_1;
     int i = 0;
 
-    for(i=0 ; i < recursion_time ; i++) 
+    for(i=0 ; i < recursion_time ; i++)
     {
         gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2); // Ohm
-        ret_compensate_value = (gFG_current * (gFG_resistance_bat + R_FG_VALUE)) / 1000;        
+        ret_compensate_value = (gFG_current * (gFG_resistance_bat + R_FG_VALUE)) / 1000;
         ret_compensate_value = (ret_compensate_value+(10/2)) / 10;
-        
-        if (gFG_Is_Charging == KAL_TRUE) 
+
+        if (gFG_Is_Charging == KAL_TRUE)
         {
             ret_compensate_value = ret_compensate_value - (ret_compensate_value*2);
         }
@@ -1067,16 +1069,16 @@ kal_int32 fgauge_compensate_battery_voltage_recursion(kal_int32 ori_voltage, kal
 
         if (Enable_FGADC_LOG == 1)
         {
-            xlog_printk(ANDROID_LOG_VERBOSE, "Power/Battery", "[fgauge_compensate_battery_voltage_recursion] %d,%d,%d,%d\r\n", 
+            xlog_printk(ANDROID_LOG_VERBOSE, "Power/Battery", "[fgauge_compensate_battery_voltage_recursion] %d,%d,%d,%d\r\n",
                 temp_voltage_1, temp_voltage_2, gFG_resistance_bat, ret_compensate_value);
         }
     }
-    
+
     gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2); // Ohm
-    ret_compensate_value = (gFG_current * (gFG_resistance_bat + R_FG_VALUE + FG_METER_RESISTANCE)) / 1000;    
-    ret_compensate_value = (ret_compensate_value+(10/2)) / 10; 
-    
-    if (gFG_Is_Charging == KAL_TRUE) 
+    ret_compensate_value = (gFG_current * (gFG_resistance_bat + R_FG_VALUE + FG_METER_RESISTANCE)) / 1000;
+    ret_compensate_value = (ret_compensate_value+(10/2)) / 10;
+
+    if (gFG_Is_Charging == KAL_TRUE)
     {
         ret_compensate_value = ret_compensate_value - (ret_compensate_value*2);
     }
@@ -1085,7 +1087,7 @@ kal_int32 fgauge_compensate_battery_voltage_recursion(kal_int32 ori_voltage, kal
 
     if (Enable_FGADC_LOG == 1)
     {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_compensate_battery_voltage_recursion] %d,%d,%d,%d\r\n", 
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_compensate_battery_voltage_recursion] %d,%d,%d,%d\r\n",
             temp_voltage_1, temp_voltage_2, gFG_resistance_bat, ret_compensate_value);
     }
 
@@ -1121,7 +1123,7 @@ void fgauge_construct_battery_profile(kal_int32 temperature, BATTERY_PROFILE_STR
         high_profile_p   = fgauge_get_profile(TEMPERATURE_T1);
         low_temperature  = (-10);
         high_temperature = TEMPERATURE_T1;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -1133,7 +1135,7 @@ void fgauge_construct_battery_profile(kal_int32 temperature, BATTERY_PROFILE_STR
         high_profile_p   = fgauge_get_profile(TEMPERATURE_T2);
         low_temperature  = TEMPERATURE_T1;
         high_temperature = TEMPERATURE_T2;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -1145,7 +1147,7 @@ void fgauge_construct_battery_profile(kal_int32 temperature, BATTERY_PROFILE_STR
         high_profile_p   = fgauge_get_profile(TEMPERATURE_T3);
         low_temperature  = TEMPERATURE_T2;
         high_temperature = TEMPERATURE_T3;
-        
+
         if(temperature > high_temperature)
         {
             temperature = high_temperature;
@@ -1159,15 +1161,15 @@ void fgauge_construct_battery_profile(kal_int32 temperature, BATTERY_PROFILE_STR
         if( ((high_profile_p + i)->voltage) > ((low_profile_p + i)->voltage) )
         {
             temp_v_1 = (high_profile_p + i)->voltage;
-            temp_v_2 = (low_profile_p + i)->voltage;    
+            temp_v_2 = (low_profile_p + i)->voltage;
 
             (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
         else
@@ -1178,34 +1180,34 @@ void fgauge_construct_battery_profile(kal_int32 temperature, BATTERY_PROFILE_STR
             (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (high_temperature - temperature) * 
+                    (high_temperature - temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
-    
+
         (temp_profile_p + i)->percentage = (high_profile_p + i)->percentage;
-#if 0        
+#if 0
         (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
 #endif
     }
 
-    
+
     // Dumpt new battery profile
     for (i = 0; i < saddles ; i++)
     {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "<DOD,Voltage> at %d = <%d,%d>\r\n",
             temperature, (temp_profile_p+i)->percentage, (temp_profile_p+i)->voltage);
     }
-    
+
 }
 
 void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P temp_profile_p)
@@ -1222,7 +1224,7 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         high_profile_p   = fgauge_get_profile_r_table(TEMPERATURE_T1);
         low_temperature  = (-10);
         high_temperature = TEMPERATURE_T1;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -1234,7 +1236,7 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         high_profile_p   = fgauge_get_profile_r_table(TEMPERATURE_T2);
         low_temperature  = TEMPERATURE_T1;
         high_temperature = TEMPERATURE_T2;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -1246,7 +1248,7 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         high_profile_p   = fgauge_get_profile_r_table(TEMPERATURE_T3);
         low_temperature  = TEMPERATURE_T2;
         high_temperature = TEMPERATURE_T3;
-        
+
         if(temperature > high_temperature)
         {
             temperature = high_temperature;
@@ -1261,15 +1263,15 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         if( ((high_profile_p + i)->voltage) > ((low_profile_p + i)->voltage) )
         {
             temp_v_1 = (high_profile_p + i)->voltage;
-            temp_v_2 = (low_profile_p + i)->voltage;    
+            temp_v_2 = (low_profile_p + i)->voltage;
 
             (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
         else
@@ -1280,23 +1282,23 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
             (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (high_temperature - temperature) * 
+                    (high_temperature - temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
 
-#if 0    
+#if 0
         //(temp_profile_p + i)->resistance = (high_profile_p + i)->resistance;
-        
+
         (temp_profile_p + i)->voltage = temp_v_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_v_1 - temp_v_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
 #endif
     }
@@ -1307,15 +1309,15 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         if( ((high_profile_p + i)->resistance) > ((low_profile_p + i)->resistance) )
         {
             temp_r_1 = (high_profile_p + i)->resistance;
-            temp_r_2 = (low_profile_p + i)->resistance;    
+            temp_r_2 = (low_profile_p + i)->resistance;
 
             (temp_profile_p + i)->resistance = temp_r_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_r_1 - temp_r_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
         else
@@ -1326,23 +1328,23 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
             (temp_profile_p + i)->resistance = temp_r_2 +
             (
                 (
-                    (high_temperature - temperature) * 
+                    (high_temperature - temperature) *
                     (temp_r_1 - temp_r_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
         }
 
-#if 0    
+#if 0
         //(temp_profile_p + i)->voltage = (high_profile_p + i)->voltage;
-        
+
         (temp_profile_p + i)->resistance = temp_r_2 +
             (
                 (
-                    (temperature - low_temperature) * 
+                    (temperature - low_temperature) *
                     (temp_r_1 - temp_r_2)
-                ) / 
-                (high_temperature - low_temperature)                
+                ) /
+                (high_temperature - low_temperature)
             );
 #endif
     }
@@ -1353,7 +1355,7 @@ void fgauge_construct_r_table_profile(kal_int32 temperature, R_PROFILE_STRUC_P t
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "<Rbat,VBAT> at %d = <%d,%d>\r\n",
             temperature, (temp_profile_p+i)->resistance, (temp_profile_p+i)->voltage);
     }
-    
+
 }
 
 
@@ -1384,7 +1386,7 @@ kal_int32 fgauge_get_dod0(kal_int32 voltage, kal_int32 temperature, kal_bool bOc
     BATTERY_PROFILE_STRUC_P profile_p;
     R_PROFILE_STRUC_P profile_p_r_table;
 
-/* R-Table (First Time) */    
+/* R-Table (First Time) */
     // Re-constructure r-table profile according to current temperature
     profile_p_r_table = fgauge_get_profile_r_table(TEMPERATURE_T);
     if (profile_p_r_table == NULL)
@@ -1409,7 +1411,7 @@ kal_int32 fgauge_get_dod0(kal_int32 voltage, kal_int32 temperature, kal_bool bOc
     // Compasate battery voltage from current battery voltage
     jj=0;
     if (bOcv == KAL_FALSE)
-    { 
+    {
         while( gFG_current == 0 )
         {
             gFG_current = fgauge_read_current();
@@ -1421,13 +1423,13 @@ kal_int32 fgauge_get_dod0(kal_int32 voltage, kal_int32 temperature, kal_bool bOc
         voltage = voltage + fgauge_compensate_battery_voltage_recursion(voltage,5); //mV
         xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC] compensate_battery_voltage, voltage=%d\r\n", voltage);
     }
-    
+
     // If battery voltage is less then mimimum profile voltage, then return 100
     // If battery voltage is greater then maximum profile voltage, then return 0
     if (voltage > (profile_p+0)->voltage)
     {
         return 0;
-    }    
+    }
     if (voltage < (profile_p+saddles-1)->voltage)
     {
         return 100;
@@ -1437,20 +1439,20 @@ kal_int32 fgauge_get_dod0(kal_int32 voltage, kal_int32 temperature, kal_bool bOc
     for (i = 0; i < saddles - 1; i++)
     {
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "Try <%d,%d> on %d\r\n", (profile_p+i)->voltage, (profile_p+i)->percentage, voltage);
-    
+
         if ((voltage <= (profile_p+i)->voltage) && (voltage >= (profile_p+i+1)->voltage))
         {
             dod0 = (profile_p+i)->percentage +
                 (
                     (
-                        ( ((profile_p+i)->voltage) - voltage ) * 
-                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) ) 
+                        ( ((profile_p+i)->voltage) - voltage ) *
+                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) )
                     ) /
                     ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
                 );
 
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "DOD=%d\r\n", dod0);
-            
+
             break;
         }
     }
@@ -1493,25 +1495,29 @@ void fg_qmax_update_for_aging(void)
 
             // tuning
             gFG_BATT_CAPACITY_aging = (gFG_BATT_CAPACITY_aging * 100) / AGING_TUNING_VALUE;
-			/*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
+#if defined(MTK_FAN5405_SUPPORT) || defined(MTK_BQ24196_SUPPORT)
+            /*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
                     battery_cali_start_status = 2;
 		      printk("chenlj2-fg_qmax_update_for_aging 1 cali_status=%d\n",battery_cali_start_status);
 			  /*Lenovo-sw end chenlj2 add 2011-06-02,add a enum for current */
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] need update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n", 
+#endif
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] need update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n",
                 gFG_columb, gFG_DOD0, gFG_BATT_CAPACITY_aging);
 
 /*lenovo-sw weiweij added 20130506*/
 			//set_rtc_spare_qmax_value(gFG_BATT_CAPACITY_aging);
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug set_rtc_spare_qmax_value=%d\n", gFG_BATT_CAPACITY_aging);	
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug set_rtc_spare_qmax_value=%d\n", gFG_BATT_CAPACITY_aging);
 /*lenovo-sw weiweij added 20130506 end*/
         }
         else
         {
+#if defined(MTK_FAN5405_SUPPORT) || defined(MTK_BQ24196_SUPPORT)
 		       /*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
                     //battery_cali_start_status = 0;
 		     printk("chenlj2-fg_qmax_update_for_aging 2 cali_status=%d\n",battery_cali_start_status);
 			 /*Lenovo-sw end chenlj2 add 2011-06-02,add a enum for current */
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] no update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n", 
+#endif
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] no update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n",
                 gFG_columb, gFG_DOD0, gFG_BATT_CAPACITY_aging);
         }
     }
@@ -1533,7 +1539,7 @@ kal_int32 fgauge_update_dod(void)
     {
         gFG_DOD0=100;
         if (Enable_FGADC_LOG == 1){
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_DOD0 set to 100, gFG_columb=%d\r\n", 
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_DOD0 set to 100, gFG_columb=%d\r\n",
                 gFG_columb);
         }
     }
@@ -1541,36 +1547,36 @@ kal_int32 fgauge_update_dod(void)
     {
         gFG_DOD0=0;
         if (Enable_FGADC_LOG == 1){
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_DOD0 set to 0, gFG_columb=%d\r\n", 
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_DOD0 set to 0, gFG_columb=%d\r\n",
                 gFG_columb);
         }
     }
     else
     {
-    }    
+    }
 
     gFG_temp = fgauge_read_temperature();
-    
+
     if(g_update_qmax_flag == 1)
     {
         gFG_BATT_CAPACITY = fgauge_get_Q_max(gFG_temp);
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_BATT_CAPACITY=%d, gFG_BATT_CAPACITY_aging=%d, gFG_BATT_CAPACITY_init_high_current=%d\r\n", 
-            gFG_BATT_CAPACITY, gFG_BATT_CAPACITY_aging, gFG_BATT_CAPACITY_init_high_current);        
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] gFG_BATT_CAPACITY=%d, gFG_BATT_CAPACITY_aging=%d, gFG_BATT_CAPACITY_init_high_current=%d\r\n",
+            gFG_BATT_CAPACITY, gFG_BATT_CAPACITY_aging, gFG_BATT_CAPACITY_init_high_current);
         g_update_qmax_flag = 0;
     }
-    
-    FG_dod_1 =  gFG_DOD0 - ((gFG_columb*100)/gFG_BATT_CAPACITY_aging);    
-    
+
+    FG_dod_1 =  gFG_DOD0 - ((gFG_columb*100)/gFG_BATT_CAPACITY_aging);
+
     if (Enable_FGADC_LOG == 1){
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1=%d, adjust_coulomb_counter=%d, gFG_columb=%d, gFG_DOD0=%d, gFG_temp=%d, gFG_BATT_CAPACITY=%d\r\n", 
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1=%d, adjust_coulomb_counter=%d, gFG_columb=%d, gFG_DOD0=%d, gFG_temp=%d, gFG_BATT_CAPACITY=%d\r\n",
             FG_dod_1, adjust_coulomb_counter, gFG_columb, gFG_DOD0, gFG_temp, gFG_BATT_CAPACITY);
     }
 
     if(FG_dod_1 > 100)
     {
         FG_dod_1=100;
-        if (Enable_FGADC_LOG == 1){    
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1 set to 100, gFG_columb=%d\r\n", 
+        if (Enable_FGADC_LOG == 1){
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1 set to 100, gFG_columb=%d\r\n",
                 gFG_columb);
         }
     }
@@ -1578,7 +1584,7 @@ kal_int32 fgauge_update_dod(void)
     {
         FG_dod_1=0;
         if (Enable_FGADC_LOG == 1){
-            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1 set to 0, gFG_columb=%d\r\n", 
+            xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_update_dod] FG_dod_1 set to 0, gFG_columb=%d\r\n",
                 gFG_columb);
         }
     }
@@ -1611,16 +1617,16 @@ kal_int32 fgauge_read_capacity(kal_int32 type)
     kal_int32 voltage;
     kal_int32 temperature;
     kal_int32 dvalue = 0;
-    
+
     kal_int32 C_0mA=0;
     kal_int32 C_400mA=0;
-    kal_int32 dvalue_new=0;    
+    kal_int32 dvalue_new=0;
 
     if (type == 0) // for initialization
     {
         // Use voltage to calculate capacity
         voltage = fgauge_read_voltage(); // in unit of mV
-        temperature = fgauge_read_temperature();                               
+        temperature = fgauge_read_temperature();
         dvalue = fgauge_get_dod0(voltage, temperature, KAL_FALSE); // need compensate vbat
     }
     else
@@ -1642,7 +1648,7 @@ kal_int32 fgauge_read_capacity(kal_int32 type)
         dvalue = 100 - dvalue_new;
     }
     if (Enable_FGADC_LOG == 1){
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity] %d,%d,%d,%d,%d,D1=%d,D0=%d\r\n", 
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity] %d,%d,%d,%d,%d,D1=%d,D0=%d\r\n",
             gFG_temp, C_0mA, C_400mA, dvalue, dvalue_new, gFG_DOD1, gFG_DOD0);
     }
     //----------------------------------------------------------------------------
@@ -1652,7 +1658,7 @@ kal_int32 fgauge_read_capacity(kal_int32 type)
     dvalue_new = dvalue;
     dvalue = ( (dvalue_new * gFG_BATT_CAPACITY_init_high_current * 100) / gFG_BATT_CAPACITY_aging ) / 100;
     if (Enable_FGADC_LOG >= 1){
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity] dvalue=%d, dvalue_new=%d, gFG_BATT_CAPACITY_init_high_current=%d, gFG_BATT_CAPACITY_aging=%d\r\n", 
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity] dvalue=%d, dvalue_new=%d, gFG_BATT_CAPACITY_init_high_current=%d, gFG_BATT_CAPACITY_aging=%d\r\n",
             dvalue, dvalue_new, gFG_BATT_CAPACITY_init_high_current, gFG_BATT_CAPACITY_aging);
     }
     //----------------------------------------------------------------------------
@@ -1687,7 +1693,7 @@ kal_int32 fgauge_read_capacity(kal_int32 type)
 *
 *******************************************************************************/
 kal_int32 fgauge_read_capacity_by_v(void)
-{    
+{
     int i = 0, saddles = 0;
     BATTERY_PROFILE_STRUC_P profile_p;
     kal_int32 ret_percent = 0;
@@ -1705,7 +1711,7 @@ kal_int32 fgauge_read_capacity_by_v(void)
     {
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] 100:%d,%d\r\n", gFG_voltage, (profile_p+0)->voltage);
         return 100; // battery capacity, not dod
-    }    
+    }
     if (gFG_voltage < (profile_p+saddles-1)->voltage)
     {
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] 0:%d,%d\r\n", gFG_voltage, (profile_p+saddles-1)->voltage);
@@ -1719,15 +1725,15 @@ kal_int32 fgauge_read_capacity_by_v(void)
             ret_percent = (profile_p+i)->percentage +
                 (
                     (
-                        ( ((profile_p+i)->voltage) - gFG_voltage ) * 
-                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) ) 
+                        ( ((profile_p+i)->voltage) - gFG_voltage ) *
+                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) )
                     ) /
                     ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
-                );         
-            
+                );
+
             break;
         }
-        
+
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] gFG_voltage=%d\r\n", gFG_voltage);
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] (profile_p+i)->percentag=%d\r\n", (profile_p+i)->percentage);
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] ((profile_p+i+1)->percentage)=%d\r\n", ((profile_p+i+1)->percentage));
@@ -1740,7 +1746,7 @@ kal_int32 fgauge_read_capacity_by_v(void)
 }
 
 kal_int32 fgauge_read_r_bat_by_v(kal_int32 voltage)
-{    
+{
     int i = 0, saddles = 0;
     R_PROFILE_STRUC_P profile_p;
     kal_int32 ret_r = 0;
@@ -1756,11 +1762,11 @@ kal_int32 fgauge_read_r_bat_by_v(kal_int32 voltage)
 
     if (voltage > (profile_p+0)->voltage)
     {
-        return (profile_p+0)->resistance; 
-    }    
+        return (profile_p+0)->resistance;
+    }
     if (voltage < (profile_p+saddles-1)->voltage)
     {
-        return (profile_p+saddles-1)->resistance; 
+        return (profile_p+saddles-1)->resistance;
     }
 
     for (i = 0; i < saddles - 1; i++)
@@ -1770,8 +1776,8 @@ kal_int32 fgauge_read_r_bat_by_v(kal_int32 voltage)
             ret_r = (profile_p+i)->resistance +
                 (
                     (
-                        ( ((profile_p+i)->voltage) - voltage ) * 
-                        ( ((profile_p+i+1)->resistance) - ((profile_p + i)->resistance) ) 
+                        ( ((profile_p+i)->voltage) - voltage ) *
+                        ( ((profile_p+i+1)->resistance) - ((profile_p + i)->resistance) )
                     ) /
                     ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
                 );
@@ -1783,7 +1789,7 @@ kal_int32 fgauge_read_r_bat_by_v(kal_int32 voltage)
 }
 
 kal_int32 fgauge_read_v_by_capacity(int bat_capacity)
-{    
+{
     int i = 0, saddles = 0;
     BATTERY_PROFILE_STRUC_P profile_p;
     kal_int32 ret_volt = 0;
@@ -1798,11 +1804,11 @@ kal_int32 fgauge_read_v_by_capacity(int bat_capacity)
     saddles = fgauge_get_saddles();
 
     if (bat_capacity < (profile_p+0)->percentage)
-    {        
-        return 3700;         
-    }    
+    {
+        return 3700;
+    }
     if (bat_capacity > (profile_p+saddles-1)->percentage)
-    {        
+    {
         return 3700;
     }
 
@@ -1813,21 +1819,21 @@ kal_int32 fgauge_read_v_by_capacity(int bat_capacity)
             ret_volt = (profile_p+i)->voltage -
                 (
                     (
-                        ( bat_capacity - ((profile_p+i)->percentage) ) * 
-                        ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) ) 
+                        ( bat_capacity - ((profile_p+i)->percentage) ) *
+                        ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
                     ) /
                     ( ((profile_p+i+1)->percentage) - ((profile_p+i)->percentage) )
-                );         
+                );
 
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ret_volt=%d\r\n", ret_volt);
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] (profile_p+i)->percentag=%d\r\n", (profile_p+i)->percentage);
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i+1)->percentage)=%d\r\n", ((profile_p+i+1)->percentage));
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i)->voltage)=%d\r\n", ((profile_p+i)->voltage));
             xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i+1)->voltage) =%d\r\n", ((profile_p+i+1)->voltage));
-            
+
             break;
-        }        
-    }    
+        }
+    }
 
     return ret_volt;
 }
@@ -1864,7 +1870,7 @@ int d5_count_time_rate=1;
 extern int get_charger_type(void);
 
 kal_int32 fgauge_read_d_by_v(kal_int32 volt_bat)
-{    
+{
     int i = 0, saddles = 0;
     BATTERY_PROFILE_STRUC_P profile_p;
     kal_int32 ret_d = 0;
@@ -1880,11 +1886,11 @@ kal_int32 fgauge_read_d_by_v(kal_int32 volt_bat)
 
     if (volt_bat > (profile_p+0)->voltage)
     {
-        return 0; 
-    }    
+        return 0;
+    }
     if (volt_bat < (profile_p+saddles-1)->voltage)
     {
-        return 100; 
+        return 100;
     }
 
     for (i = 0; i < saddles - 1; i++)
@@ -1894,15 +1900,15 @@ kal_int32 fgauge_read_d_by_v(kal_int32 volt_bat)
             ret_d = (profile_p+i)->percentage +
                 (
                     (
-                        ( ((profile_p+i)->voltage) - volt_bat ) * 
-                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) ) 
+                        ( ((profile_p+i)->voltage) - volt_bat ) *
+                        ( ((profile_p+i+1)->percentage) - ((profile_p + i)->percentage) )
                     ) /
                     ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
-                );         
-            
+                );
+
             break;
         }
-        
+
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] gFG_voltage=%d\r\n", gFG_voltage);
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] (profile_p+i)->percentag=%d\r\n", (profile_p+i)->percentage);
         //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_capacity_by_v] ((profile_p+i+1)->percentage)=%d\r\n", ((profile_p+i+1)->percentage));
@@ -1914,7 +1920,7 @@ kal_int32 fgauge_read_d_by_v(kal_int32 volt_bat)
 }
 
 kal_int32 fgauge_read_v_by_d(int d_val)
-{    
+{
     int i = 0, saddles = 0;
     BATTERY_PROFILE_STRUC_P profile_p;
     kal_int32 ret_volt = 0;
@@ -1929,11 +1935,11 @@ kal_int32 fgauge_read_v_by_d(int d_val)
     saddles = fgauge_get_saddles();
 
     if (d_val < (profile_p+0)->percentage)
-    {        
-        return 3700;         
-    }    
+    {
+        return 3700;
+    }
     if (d_val > (profile_p+saddles-1)->percentage)
-    {        
+    {
         return 3700;
     }
 
@@ -1944,21 +1950,21 @@ kal_int32 fgauge_read_v_by_d(int d_val)
             ret_volt = (profile_p+i)->voltage -
                 (
                     (
-                        ( d_val - ((profile_p+i)->percentage) ) * 
-                        ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) ) 
+                        ( d_val - ((profile_p+i)->percentage) ) *
+                        ( ((profile_p+i)->voltage) - ((profile_p+i+1)->voltage) )
                     ) /
                     ( ((profile_p+i+1)->percentage) - ((profile_p+i)->percentage) )
-                );         
+                );
 
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ret_volt=%d\r\n", ret_volt);
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] (profile_p+i)->percentag=%d\r\n", (profile_p+i)->percentage);
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i+1)->percentage)=%d\r\n", ((profile_p+i+1)->percentage));
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i)->voltage)=%d\r\n", ((profile_p+i)->voltage));
             //xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[fgauge_read_v_by_capacity] ((profile_p+i+1)->voltage) =%d\r\n", ((profile_p+i+1)->voltage));
-            
+
             break;
-        }        
-    }    
+        }
+    }
 
     return ret_volt;
 }
@@ -1970,28 +1976,28 @@ kal_int32 mtk_imp_tracking(kal_int32 ori_voltage, kal_int32 ori_current, kal_int
     kal_int32 temp_voltage_2 = temp_voltage_1;
     int i = 0;
 
-    for(i=0 ; i < recursion_time ; i++) 
+    for(i=0 ; i < recursion_time ; i++)
     {
-        gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2); 
+        gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2);
         ret_compensate_value = ( (ori_current) * (gFG_resistance_bat + R_FG_VALUE)) / 1000;
-        ret_compensate_value = (ret_compensate_value+(10/2)) / 10; 
+        ret_compensate_value = (ret_compensate_value+(10/2)) / 10;
         temp_voltage_2 = temp_voltage_1 + ret_compensate_value;
 
         if (Enable_FGADC_LOG == 1) {
-            xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[mtk_imp_tracking] temp_voltage_2=%d,temp_voltage_1=%d,ret_compensate_value=%d,gFG_resistance_bat=%d\n", 
+            xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[mtk_imp_tracking] temp_voltage_2=%d,temp_voltage_1=%d,ret_compensate_value=%d,gFG_resistance_bat=%d\n",
                 temp_voltage_2,temp_voltage_1,ret_compensate_value,gFG_resistance_bat);
         }
     }
-    
-    gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2); 
-    ret_compensate_value = ( (ori_current) * (gFG_resistance_bat + R_FG_VALUE + FG_METER_RESISTANCE)) / 1000;    
-    ret_compensate_value = (ret_compensate_value+(10/2)) / 10; 
+
+    gFG_resistance_bat = fgauge_read_r_bat_by_v(temp_voltage_2);
+    ret_compensate_value = ( (ori_current) * (gFG_resistance_bat + R_FG_VALUE + FG_METER_RESISTANCE)) / 1000;
+    ret_compensate_value = (ret_compensate_value+(10/2)) / 10;
 
     gFG_compensate_value = ret_compensate_value;
 
     if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[mtk_imp_tracking] temp_voltage_2=%d,temp_voltage_1=%d,ret_compensate_value=%d,gFG_resistance_bat=%d\n", 
-            temp_voltage_2,temp_voltage_1,ret_compensate_value,gFG_resistance_bat);    
+        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[mtk_imp_tracking] temp_voltage_2=%d,temp_voltage_1=%d,ret_compensate_value=%d,gFG_resistance_bat=%d\n",
+            temp_voltage_2,temp_voltage_1,ret_compensate_value,gFG_resistance_bat);
     }
 
     return ret_compensate_value;
@@ -2003,20 +2009,20 @@ int get_hw_ocv(void)
 {
     kal_int32 adc_result_reg=0;
     kal_int32 adc_result=0;
-    kal_int32 r_val_temp=4;    
+    kal_int32 r_val_temp=4;
 
 #if defined(SWCHR_POWER_PATH)
     adc_result_reg = upmu_get_rg_adc_out_wakeup_swchr_trim();
     adc_result = (adc_result_reg*r_val_temp*1200)/1024;
-	if ( Enable_FGADC_LOG == 1 ) {	
-		xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (swchr) : adc_result_reg=%d, adc_result=%d\n", 
+	if ( Enable_FGADC_LOG == 1 ) {
+		xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (swchr) : adc_result_reg=%d, adc_result=%d\n",
 			adc_result_reg, adc_result);
 	}
 #else
     adc_result_reg = upmu_get_rg_adc_out_wakeup_pchr_trim();
-    adc_result = (adc_result_reg*r_val_temp*1200)/1024;    
-	if ( Enable_FGADC_LOG == 1 ) {		
-		xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (pchr) : adc_result_reg=%d, adc_result=%d\n", 
+    adc_result = (adc_result_reg*r_val_temp*1200)/1024;
+	if ( Enable_FGADC_LOG == 1 ) {
+		xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (pchr) : adc_result_reg=%d, adc_result=%d\n",
 			adc_result_reg, adc_result);
 	}
 #endif
@@ -2029,7 +2035,7 @@ void oam_init(void)
 {
     oam_v_ocv_1 = get_hw_ocv();
     oam_v_ocv_2 = get_hw_ocv();
-    
+
     oam_r_1 = gFG_resistance_bat;
     oam_r_2 = gFG_resistance_bat;
     oam_d0 = gFG_DOD0;
@@ -2041,7 +2047,7 @@ void oam_init(void)
         oam_init_i=1;
     }
 
-    xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_init] %d,%d,%d,%d,%d,%d\n", 
+    xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_init] %d,%d,%d,%d,%d,%d\n",
         oam_v_ocv_1, oam_v_ocv_2, oam_r_1, oam_r_2, oam_d0, oam_i_ori);
 }
 
@@ -2050,7 +2056,7 @@ void oam_run(void)
     int vol_bat=0;
     int vol_bat_hw_ocv=0;
     int d_hw_ocv=0;
-    
+
     vol_bat = get_bat_sense_volt(15);
 
     vol_bat_hw_ocv = get_hw_ocv();
@@ -2065,21 +2071,21 @@ void oam_run(void)
     oam_d_1 = oam_d0 + (oam_car_1*100/10)/gFG_BATT_CAPACITY_aging;
     if(oam_d_1 < 0)   oam_d_1 = 0;
     if(oam_d_1 > 100) oam_d_1 = 100;
-    
+
     oam_d_2 = oam_d0 + (oam_car_2*100/10)/gFG_BATT_CAPACITY_aging;
     if(oam_d_2 < 0)   oam_d_2 = 0;
     if(oam_d_2 > 100) oam_d_2 = 100;
-    
+
     oam_v_ocv_1 = vol_bat + mtk_imp_tracking(vol_bat, oam_i_2, 5);
-    
-    oam_d_3 = fgauge_read_d_by_v(oam_v_ocv_1);        
+
+    oam_d_3 = fgauge_read_d_by_v(oam_v_ocv_1);
     if(oam_d_3 < 0)   oam_d_3 = 0;
     if(oam_d_3 > 100) oam_d_3 = 100;
 
     oam_r_1 = fgauge_read_r_bat_by_v(oam_v_ocv_1);
 
     oam_v_ocv_2 = fgauge_read_v_by_d(oam_d_2);
-    oam_r_2 = fgauge_read_r_bat_by_v(oam_v_ocv_2);    
+    oam_r_2 = fgauge_read_r_bat_by_v(oam_v_ocv_2);
 
     oam_d_4 = (oam_d_2+oam_d_3)/2;
 
@@ -2092,19 +2098,19 @@ void oam_run(void)
 
     if( gFG_Is_Charging == KAL_FALSE )
     {
-        d5_count_time = 60;         
+        d5_count_time = 60;
     }
     else
     {
-        switch(get_charger_type()){               
+        switch(get_charger_type()){
             case 1:    d5_count_time_rate = (((gFG_BATT_CAPACITY_aging*60*60/100/(450-50))*10)+5)/10;
-                       break; 
+                       break;
             case 2:    d5_count_time_rate = (((gFG_BATT_CAPACITY_aging*60*60/100/(650-50))*10)+5)/10;
-                       break; 
+                       break;
             case 3:    d5_count_time_rate = (((gFG_BATT_CAPACITY_aging*60*60/100/(450-50))*10)+5)/10;
-                       break; 
+                       break;
             case 4:    d5_count_time_rate = (((gFG_BATT_CAPACITY_aging*60*60/100/(650-50))*10)+5)/10;
-                       break;                       
+                       break;
             default:
                 xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[get_charger_type] Invalid value\n");
                 break;
@@ -2125,7 +2131,7 @@ void oam_run(void)
                 oam_d_5 = oam_d_5 + 1;
             }
             else
-            {                
+            {
                 if(oam_d_4 > oam_d_5)
                 {
                     oam_d_5 = oam_d_5 + 1;
@@ -2133,13 +2139,13 @@ void oam_run(void)
             }
         }
         else
-        {            
+        {
             if( oam_d_5 > oam_d_3 )
             {
                 oam_d_5 = oam_d_5 - 1;
             }
             else
-            {                
+            {
                 if(oam_d_4 < oam_d_5)
                 {
                     oam_d_5 = oam_d_5 - 1;
@@ -2154,10 +2160,10 @@ void oam_run(void)
     {
         d5_count = d5_count + 10;
     }
-    
+
     if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_run] %d,%d,%d,%d,%d,%d,%d\n", 
-            d5_count, d5_count_time, oam_d_3_pre, oam_d_3, oam_d_4_pre, oam_d_4, oam_d_5);    
+        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_run] %d,%d,%d,%d,%d,%d,%d\n",
+            d5_count, d5_count_time, oam_d_3_pre, oam_d_3, oam_d_4_pre, oam_d_4, oam_d_5);
     }
 
     if(oam_run_i == 0)
@@ -2166,11 +2172,11 @@ void oam_run(void)
             xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_run] oam_i_1,oam_i_2,oam_car_1,oam_car_2,oam_d_1,oam_d_2,oam_v_ocv_1,oam_d_3,oam_r_1,oam_v_ocv_2,oam_r_2,vol_bat,vol_bat_hw_ocv,d_hw_ocv\n");
         }
         oam_run_i=1;
-    }    
+    }
 
     if (Enable_FGADC_LOG == 1) {
-        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_run] %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-            oam_i_1,oam_i_2,oam_car_1,oam_car_2,oam_d_1,oam_d_2,oam_v_ocv_1,oam_d_3,oam_r_1,oam_v_ocv_2,oam_r_2,vol_bat,vol_bat_hw_ocv,d_hw_ocv);    
+        xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_run] %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+            oam_i_1,oam_i_2,oam_car_1,oam_car_2,oam_d_1,oam_d_2,oam_v_ocv_1,oam_d_3,oam_r_1,oam_v_ocv_2,oam_r_2,vol_bat,vol_bat_hw_ocv,d_hw_ocv);
     }
 
     if (Enable_FGADC_LOG == 1) {
@@ -2191,17 +2197,17 @@ void oam_run(void)
             (100-oam_d_5),            // 10
             gFG_capacity_by_c_init,   // 7
             (100-d_hw_ocv)            // 8
-            );          
+            );
     }
 
     if (Enable_FGADC_LOG == 1) {
         xlog_printk(ANDROID_LOG_INFO, "Power/FGOAM", "[oam_total_s_err] %d,%d,%d,%d,%d,%d,%d\n",
-            (gFG_capacity_by_c - gFG_capacity_by_v), 
+            (gFG_capacity_by_c - gFG_capacity_by_v),
             (gFG_capacity_by_c - gfg_percent_check_point),
-            (gFG_capacity_by_c - (100-oam_d_1)), 
-            (gFG_capacity_by_c - (100-oam_d_2)), 
-            (gFG_capacity_by_c - (100-oam_d_3)), 
-            (gFG_capacity_by_c - (100-oam_d_4)), 
+            (gFG_capacity_by_c - (100-oam_d_1)),
+            (gFG_capacity_by_c - (100-oam_d_2)),
+            (gFG_capacity_by_c - (100-oam_d_3)),
+            (gFG_capacity_by_c - (100-oam_d_4)),
             (gFG_capacity_by_c - (100-oam_d_5))
             );
     }
@@ -2241,26 +2247,26 @@ extern int get_rtc_spare_fg_value(void);
 void fgauge_Normal_Mode_Work(void)
 {
     int i=0;
-   
-//1. Get Raw Data  
-    
+
+//1. Get Raw Data
+
     gFG_voltage = fgauge_read_voltage();
 		gFG_current = fgauge_read_current();
     gFG_voltage_init = gFG_voltage;
-    gFG_voltage = gFG_voltage + fgauge_compensate_battery_voltage_recursion(gFG_voltage,5); //mV  
+    gFG_voltage = gFG_voltage + fgauge_compensate_battery_voltage_recursion(gFG_voltage,5); //mV
     gFG_voltage = gFG_voltage + OCV_BOARD_COMPESATE;
 
     gFG_current = fgauge_read_current();
-    gFG_columb = fgauge_read_columb();        
+    gFG_columb = fgauge_read_columb();
 
 //1.1 Average FG_voltage
     /**************** Averaging : START ****************/
     if(gFG_booting_counter_I_FLAG != 0)
     {
         if (!gFGvbatBufferFirst)
-        {                        
+        {
             for (i=0; i<FG_VBAT_AVERAGE_SIZE; i++) {
-                FGvbatVoltageBuffer[i] = gFG_voltage;            
+                FGvbatVoltageBuffer[i] = gFG_voltage;
             }
 
             FGbatteryVoltageSum = gFG_voltage * FG_VBAT_AVERAGE_SIZE;
@@ -2284,7 +2290,7 @@ void fgauge_Normal_Mode_Work(void)
             FGbatteryVoltageSum -= FGvbatVoltageBuffer[FGbatteryIndex];
             FGbatteryVoltageSum += gFG_voltage;
             FGvbatVoltageBuffer[FGbatteryIndex] = gFG_voltage;
-            
+
             gFG_voltage_AVG = FGbatteryVoltageSum / FG_VBAT_AVERAGE_SIZE;
             gFG_voltage = gFG_voltage_AVG;
 
@@ -2296,7 +2302,7 @@ void fgauge_Normal_Mode_Work(void)
             {
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FG_BUFFER] ");
                 for (i=0; i<FG_VBAT_AVERAGE_SIZE; i++) {
-                    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "%d,", FGvbatVoltageBuffer[i]);            
+                    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "%d,", FGvbatVoltageBuffer[i]);
                 }
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "\r\n");
             }
@@ -2306,9 +2312,9 @@ void fgauge_Normal_Mode_Work(void)
             if (Enable_FGADC_LOG == 1){
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FG] Over MinErrorOffset:V=%d,Avg_V=%d, ", gFG_voltage, gFG_voltage_AVG);
             }
-            
+
             gFG_voltage = gFG_voltage_AVG;
-            
+
             if (Enable_FGADC_LOG == 1){
                 xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "Avg_V need write back to V : V=%d,Avg_V=%d.\r\n", gFG_voltage, gFG_voltage_AVG);
             }
@@ -2317,16 +2323,16 @@ void fgauge_Normal_Mode_Work(void)
     /**************** Averaging : END ****************/
     gFG_voltageVBAT = gFG_voltage;
 
-//2. Calculate battery capacity by VBAT    
+//2. Calculate battery capacity by VBAT
     gFG_capacity_by_v = fgauge_read_capacity_by_v();
 
-	if(gFG_booting_counter_I_FLAG == 1) { 
+	if(gFG_booting_counter_I_FLAG == 1) {
 		gFG_capacity_by_v_init = gFG_capacity_by_v;
 		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] after gFG_voltage=%d\n", gFG_voltage);
 	}
 //3. Calculate battery capacity by Coulomb Counter
     gFG_capacity_by_c = fgauge_read_capacity(1);
-    gEstBatCapacity = gFG_capacity_by_c;    
+    gEstBatCapacity = gFG_capacity_by_c;
 
 //4. update DOD0 after booting Xs
     if(gFG_booting_counter_I_FLAG == 1)
@@ -2334,18 +2340,18 @@ void fgauge_Normal_Mode_Work(void)
         gFG_booting_counter_I_FLAG = 2;
 
         //use get_hw_ocv-----------------------------------------------------------------
-        gFG_voltage = get_hw_ocv();        
+        gFG_voltage = get_hw_ocv();
         gFG_capacity_by_v = fgauge_read_capacity_by_v();
-				xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] get_hw_ocv=%d, HW_SOC=%d, SW_SOC = %d\n", 
+				xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] get_hw_ocv=%d, HW_SOC=%d, SW_SOC = %d\n",
 				gFG_voltage, gFG_capacity_by_v, gFG_capacity_by_v_init);
-				// compare with hw_ocv & sw_ocv, check if less than or equal to 25mV tolerance 
+				// compare with hw_ocv & sw_ocv, check if less than or equal to 25mV tolerance
 /*lenovo-sw weiweij modified 20130314*/
 #if 0
 				if (abs(gFG_voltageVBAT - gFG_voltage) > 25) {
 						gFG_capacity_by_v = gFG_capacity_by_v_init;
 				}
 #else
-		if(upmu_is_chr_det()==KAL_TRUE) 
+		if(upmu_is_chr_det()==KAL_TRUE)
 		{
 			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_Is_Charging = %d, use gFG_capacity_by_v_init(%d)\n", gFG_Is_Charging, gFG_capacity_by_v_init);
 			if (abs(gFG_capacity_by_v_init - gFG_capacity_by_v) > 5) {
@@ -2354,103 +2360,103 @@ void fgauge_Normal_Mode_Work(void)
 		}
 
 /*lenovo-sw weiweij added for hw_ocv check error in watch dog reboot mode*/
-		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug g_boot_reason(%d)\n", g_boot_reason);		
+		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug g_boot_reason(%d)\n", g_boot_reason);
 		if(g_boot_reason==BR_WDT_BY_PASS_PWK)
 		{
-			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug g_boot_reason(%d), use sw soc (%d)\n", g_boot_reason, gFG_capacity_by_v_init);	
+			xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug g_boot_reason(%d), use sw soc (%d)\n", g_boot_reason, gFG_capacity_by_v_init);
 			gFG_capacity_by_v = gFG_capacity_by_v_init;
 		}
-/*lenovo-sw weiweij added for hw_ocv check error in watch dog reboot mode end*/		
+/*lenovo-sw weiweij added for hw_ocv check error in watch dog reboot mode end*/
 #endif
 
-				xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] SW_VBAT=%d, HW_VBAT=%d, gFG_capacity_by_v = %d\n", 
+				xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] SW_VBAT=%d, HW_VBAT=%d, gFG_capacity_by_v = %d\n",
 				gFG_voltageVBAT, gFG_voltage, gFG_capacity_by_v);
         //-------------------------------------------------------------------------------
         g_rtc_fg_soc = get_rtc_spare_fg_value();
         if(g_rtc_fg_soc >= gFG_capacity_by_v)
         {
-            if( ( g_rtc_fg_soc != 0                     ) &&                    
+            if( ( g_rtc_fg_soc != 0                     ) &&
                 ( (g_rtc_fg_soc-gFG_capacity_by_v) < 30 ) &&
                 (( gFG_capacity_by_v > 5 || upmu_is_chr_det() == KAL_TRUE ) ||
                 (g_boot_reason == BR_WDT_BY_PASS_PWK))
                 )
             {
-                gFG_capacity_by_v = g_rtc_fg_soc;            
+                gFG_capacity_by_v = g_rtc_fg_soc;
             }
         }
         else
         {
-            if( ( g_rtc_fg_soc != 0                     ) &&                    
+            if( ( g_rtc_fg_soc != 0                     ) &&
                 ( (gFG_capacity_by_v-g_rtc_fg_soc) < 30 ) &&
                 (( gFG_capacity_by_v > 5 || upmu_is_chr_det() == KAL_TRUE ) ||
-                (g_boot_reason == BR_WDT_BY_PASS_PWK)) 
+                (g_boot_reason == BR_WDT_BY_PASS_PWK))
                 )
             {
-                gFG_capacity_by_v = g_rtc_fg_soc;            
+                gFG_capacity_by_v = g_rtc_fg_soc;
             }
-        }        
+        }
 
-	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] g_rtc_fg_soc=%d, gFG_capacity_by_v=%d\n", 
+	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] g_rtc_fg_soc=%d, gFG_capacity_by_v=%d\n",
                 g_rtc_fg_soc, gFG_capacity_by_v);
-        
-	if ((gFG_capacity_by_v == 0 && upmu_is_chr_det() == KAL_TRUE) || 
+
+	if ((gFG_capacity_by_v == 0 && upmu_is_chr_det() == KAL_TRUE) ||
 			(g_boot_mode == LOW_POWER_OFF_CHARGING_BOOT && gFG_capacity_by_v_init <= 1)) {
 		gFG_capacity_by_v = 1;
-		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_capacity_by_v=%d\n", 
+		xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_capacity_by_v=%d\n",
 			gFG_capacity_by_v);
 	}
-	gFG_capacity = gFG_capacity_by_v;	
+	gFG_capacity = gFG_capacity_by_v;
         gFG_capacity_by_c_init = gFG_capacity;
         gFG_capacity_by_c = gFG_capacity;
         gFG_pre_temp = gFG_temp;
-        
+
         gFG_DOD0 = 100 - gFG_capacity;
         gFG_DOD1=gFG_DOD0;
 
         bat_volt_check_point = gFG_capacity;
-        gfg_percent_check_point = bat_volt_check_point;        
+        gfg_percent_check_point = bat_volt_check_point;
 
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] update DOD0 after booting %d s\r\n", (MAX_BOOTING_TIME_FGCURRENT));
 
-        //OAM (only auxadc mode)        
-        oam_init();    
+        //OAM (only auxadc mode)
+        oam_init();
 
         #if defined(CHANGE_TRACKING_POINT)
         gFG_15_vlot = fgauge_read_v_by_capacity( (100-g_tracking_point) );
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_15_vlot = %dmV\r\n", gFG_15_vlot);        
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_15_vlot = %dmV\r\n", gFG_15_vlot);
         #else
         //gFG_15_vlot = fgauge_read_v_by_capacity(86); //14%
         gFG_15_vlot = fgauge_read_v_by_capacity( (100-g_tracking_point) );
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_15_vlot = %dmV\r\n", gFG_15_vlot);        
-        if( (gFG_15_vlot > 3800) || (gFG_15_vlot < 3600) ) 
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_15_vlot = %dmV\r\n", gFG_15_vlot);
+        if( (gFG_15_vlot > 3800) || (gFG_15_vlot < 3600) )
         {
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] gFG_15_vlot(%d) over range, reset to 3700\r\n", gFG_15_vlot);
             gFG_15_vlot = 3700;
         }
-        #endif        
+        #endif
 
         //double check
-/*lenovo-sw weiweij modified 20130427*/ 
+/*lenovo-sw weiweij modified 20130427*/
         //if(gFG_current_auto_detect_R_fg_total <= CURRENT_DETECT_R_FG)
         if(gFG_current_auto_detect_R_fg_total <= CURRENT_DETECT_R_FG*gFG_current_auto_detect_R_fg_count)
-/*lenovo-sw weiweij modified 20130427 end*/ 
+/*lenovo-sw weiweij modified 20130427 end*/
         {
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "gFG_current_auto_detect_R_fg_total=0, need double check [2]\n");
 
-/*lenovo-sw weiweij added 20130427*/         
+/*lenovo-sw weiweij added 20130427*/
 			msleep(1000);
-/*lenovo-sw weiweij added 20130427 end*/  
-            
+/*lenovo-sw weiweij added 20130427 end*/
+
             gFG_current_auto_detect_R_fg_count = 0;
-            
+
             for(i=0;i<10;i++)
             {
                 gFG_current_auto_detect_R_fg_total+= fgauge_read_current();
-                gFG_current_auto_detect_R_fg_count++;            
+                gFG_current_auto_detect_R_fg_count++;
             }
         }
 
-/*lenovo-sw weiweij added 20130427*/    
+/*lenovo-sw weiweij added 20130427*/
 		//third check
 		if(gFG_current_auto_detect_R_fg_total <= CURRENT_DETECT_R_FG*gFG_current_auto_detect_R_fg_count)
 		{
@@ -2466,32 +2472,32 @@ void fgauge_Normal_Mode_Work(void)
 			gFG_current_auto_detect_R_fg_count++;
 			}
 		}
-/*lenovo-sw weiweij added 20130427 end*/   
+/*lenovo-sw weiweij added 20130427 end*/
 
         gFG_current_auto_detect_R_fg_result = gFG_current_auto_detect_R_fg_total / gFG_current_auto_detect_R_fg_count;
         if(gFG_current_auto_detect_R_fg_result <= CURRENT_DETECT_R_FG)
         {
-            gForceADCsolution=1;            
-            
-            batteryBufferFirst = KAL_FALSE; // for init array values when measuring by AUXADC 
-            
-            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect NO Rfg, use AUXADC report. (%d=%d/%d)(%d)\r\n", 
+            gForceADCsolution=1;
+
+            batteryBufferFirst = KAL_FALSE; // for init array values when measuring by AUXADC
+
+            xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect NO Rfg, use AUXADC report. (%d=%d/%d)(%d)\r\n",
                 gFG_current_auto_detect_R_fg_result, gFG_current_auto_detect_R_fg_total,
-                gFG_current_auto_detect_R_fg_count, gForceADCsolution);            
+                gFG_current_auto_detect_R_fg_count, gForceADCsolution);
         }
         else
         {
             if(gForceADCsolution == 0)
             {
                 gForceADCsolution=0;
-        
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect Rfg, use FG report. (%d=%d/%d)(%d)\r\n", 
+
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect Rfg, use FG report. (%d=%d/%d)(%d)\r\n",
                 gFG_current_auto_detect_R_fg_result, gFG_current_auto_detect_R_fg_total,
                 gFG_current_auto_detect_R_fg_count, gForceADCsolution);
         }
             else
             {
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect Rfg, but use AUXADC report. due to gForceADCsolution=%d \r\n", 
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Detect Rfg, but use AUXADC report. due to gForceADCsolution=%d \r\n",
                     gForceADCsolution);
             }
         }
@@ -2511,7 +2517,7 @@ kal_int32 fgauge_get_Q_max(kal_int16 temperature)
         low_Q_max = Q_MAX_NEG_10;
         high_temperature = TEMPERATURE_T1;
         high_Q_max = Q_MAX_POS_0;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -2523,7 +2529,7 @@ kal_int32 fgauge_get_Q_max(kal_int16 temperature)
         low_Q_max = Q_MAX_POS_0;
         high_temperature = TEMPERATURE_T2;
         high_Q_max = Q_MAX_POS_25;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -2535,7 +2541,7 @@ kal_int32 fgauge_get_Q_max(kal_int16 temperature)
         low_Q_max = Q_MAX_POS_25;
         high_temperature = TEMPERATURE_T3;
         high_Q_max = Q_MAX_POS_50;
-        
+
         if(temperature > high_temperature)
         {
             temperature = high_temperature;
@@ -2545,10 +2551,10 @@ kal_int32 fgauge_get_Q_max(kal_int16 temperature)
     ret_Q_max = low_Q_max +
     (
         (
-            (temperature - low_temperature) * 
+            (temperature - low_temperature) *
             (high_Q_max - low_Q_max)
-        ) / 
-        (high_temperature - low_temperature)                
+        ) /
+        (high_temperature - low_temperature)
     );
 
     if (Enable_FGADC_LOG == 1){
@@ -2570,7 +2576,7 @@ kal_int32 fgauge_get_Q_max_high_current(kal_int16 temperature)
         low_Q_max = Q_MAX_NEG_10_H_CURRENT;
         high_temperature = TEMPERATURE_T1;
         high_Q_max = Q_MAX_POS_0_H_CURRENT;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -2582,7 +2588,7 @@ kal_int32 fgauge_get_Q_max_high_current(kal_int16 temperature)
         low_Q_max = Q_MAX_POS_0_H_CURRENT;
         high_temperature = TEMPERATURE_T2;
         high_Q_max = Q_MAX_POS_25_H_CURRENT;
-        
+
         if(temperature < low_temperature)
         {
             temperature = low_temperature;
@@ -2594,7 +2600,7 @@ kal_int32 fgauge_get_Q_max_high_current(kal_int16 temperature)
         low_Q_max = Q_MAX_POS_25_H_CURRENT;
         high_temperature = TEMPERATURE_T3;
         high_Q_max = Q_MAX_POS_50_H_CURRENT;
-        
+
         if(temperature > high_temperature)
         {
             temperature = high_temperature;
@@ -2604,10 +2610,10 @@ kal_int32 fgauge_get_Q_max_high_current(kal_int16 temperature)
     ret_Q_max = low_Q_max +
     (
         (
-            (temperature - low_temperature) * 
+            (temperature - low_temperature) *
             (high_Q_max - low_Q_max)
-        ) / 
-        (high_temperature - low_temperature)                
+        ) /
+        (high_temperature - low_temperature)
     );
 
     if (Enable_FGADC_LOG == 1){
@@ -2633,17 +2639,17 @@ kal_int32 fgauge_get_Q_max_high_current(kal_int16 temperature)
 *
 *******************************************************************************/
 void fgauge_initialization(void)
-{    
+{
     int i = 0;
     kal_uint32 ret=0;
 
     get_hw_chip_diff_trim_value();
 
-    gFG_BATT_CAPACITY_init_high_current = Q_MAX_POS_25_H_CURRENT;  
-/*lenovo-sw weiweij modified*/  
+    gFG_BATT_CAPACITY_init_high_current = Q_MAX_POS_25_H_CURRENT;
+/*lenovo-sw weiweij modified*/
 #if 0//defined(LENOVO_PROJECT_SNOOPY)||(LENOVO_PROJECT_SNOOPY_CU)||(LENOVO_PROJECT_SNOOPYTD)
 	gFG_BATT_CAPACITY_aging = get_rtc_spare_qmax_value();
-	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug gFG_BATT_CAPACITY_aging(1)=%d\n", gFG_BATT_CAPACITY_aging);	
+	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug gFG_BATT_CAPACITY_aging(1)=%d\n", gFG_BATT_CAPACITY_aging);
 	if((gFG_BATT_CAPACITY_aging<=1000)||(gFG_BATT_CAPACITY_aging>=2500))
 	{
 		gFG_BATT_CAPACITY_aging = Q_MAX_POS_25;
@@ -2651,14 +2657,14 @@ void fgauge_initialization(void)
 #else
     gFG_BATT_CAPACITY_aging = Q_MAX_POS_25;
 #endif
-	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug gFG_BATT_CAPACITY_aging(2)=%d\n", gFG_BATT_CAPACITY_aging);	
-/*lenovo-sw weiweij modified end*/  
+	xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "ww_debug gFG_BATT_CAPACITY_aging(2)=%d\n", gFG_BATT_CAPACITY_aging);
+/*lenovo-sw weiweij modified end*/
 
 // 1. HW initialization
 //FGADC clock is 32768Hz from RTC
     //Enable FGADC in current mode at 32768Hz with auto-calibration
-    #if 0    
-    //write @ RG_VA2_EN (bank0, 0x0C8[0]) = 0x1    
+    #if 0
+    //write @ RG_VA2_EN (bank0, 0x0C8[0]) = 0x1
     //write @ RG_FGADC_CK_PDN (bank1, 0x015[4]) = 0x0
     //write @ FG_VMODE (bank1, 0x069[1]) = 0x0
     //write @ FG_CLKSRC (bank1, 0x069[7]) = 0x0
@@ -2677,12 +2683,12 @@ void fgauge_initialization(void)
     //reset HW FG
     ret=pmic_config_interface(FGADC_CON0, 0x7100, 0xFF00, 0x0);
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "******** [fgauge_initialization] reset HW FG!\n" );
-    
+
 // 2. SW algorithm initialization
-    //gFG_voltage = fgauge_read_voltage();            
+    //gFG_voltage = fgauge_read_voltage();
     gFG_voltage = get_hw_ocv();
 
-    gFG_current = fgauge_read_current();   
+    gFG_current = fgauge_read_current();
     i=0;
     while( gFG_current == 0 )
     {
@@ -2694,7 +2700,7 @@ void fgauge_initialization(void)
 
     gFG_columb = fgauge_read_columb();
     gFG_temp = fgauge_read_temperature();
-    gFG_capacity = fgauge_read_capacity(0);         
+    gFG_capacity = fgauge_read_capacity(0);
 
     gFG_columb_init = gFG_columb;
     gFG_capacity_by_c_init = gFG_capacity;
@@ -2706,14 +2712,14 @@ void fgauge_initialization(void)
 
     gFG_BATT_CAPACITY = fgauge_get_Q_max(gFG_temp);
 
-    //FGADC_dump_register();        
-    
+    //FGADC_dump_register();
+
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "******** [fgauge_initialization] Done!\n" );
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-//// External API 
+//// External API
 ///////////////////////////////////////////////////////////////////////////////////////////
 kal_int32 FGADC_Get_BatteryCapacity_CoulombMothod(void)
 {
@@ -2734,7 +2740,7 @@ kal_int32 FGADC_Get_FG_Voltage(void)
 extern int g_Calibration_FG;
 
 void FGADC_Reset_SW_Parameter(void)
-{    
+{
     //volatile kal_uint16 Temp_Reg = 0;
     volatile kal_uint16 val_car = 1;
     kal_uint32 ret = 0;
@@ -2743,10 +2749,10 @@ void FGADC_Reset_SW_Parameter(void)
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] FGADC_Reset_SW_Parameter : Todo \r\n");
 #else
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] FGADC_Reset_SW_Parameter : Start \r\n");
-    gFG_SW_CoulombCounter = 0;    
+    gFG_SW_CoulombCounter = 0;
     while(val_car != 0x0)
-    {        
-        ret=pmic_config_interface(FGADC_CON0, 0x7100, 0xFF00, 0x0);        
+    {
+        ret=pmic_config_interface(FGADC_CON0, 0x7100, 0xFF00, 0x0);
         gFG_columb = fgauge_read_columb_reset();
         val_car = gFG_columb;
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "#");
@@ -2755,14 +2761,14 @@ void FGADC_Reset_SW_Parameter(void)
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] FGADC_Reset_SW_Parameter : Done \r\n");
 
     if(g_Calibration_FG==1)
-    {                        
+    {
         gFG_DOD0 = 0;
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] FG Calibration DOD0=%d and DOD1=%d \r\n", gFG_DOD0, gFG_DOD1);
     }
     else
     {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] Update DOD0(%d) by %d \r\n", gFG_DOD0, gFG_DOD1);
-        gFG_DOD0 = gFG_DOD1;        
+        gFG_DOD0 = gFG_DOD1;
     }
 #endif
 
@@ -2776,7 +2782,7 @@ kal_int32 g_last_time=0;
 
 kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_capacity_level)
 {
-    kal_int32 ret_val=-1;    
+    kal_int32 ret_val=-1;
 
 #if 1
     int check_fglog=0;
@@ -2787,7 +2793,7 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
     {
         return first_wakeup_time;
     }
-    
+
     check_fglog=Enable_FGADC_LOG;
     if(check_fglog==0)
     {
@@ -2803,12 +2809,12 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
     {
         g_car_instant = g_car_instant - (g_car_instant*2);
     }
-    
+
     if(first_use == 1)
     {
         //ret_val = 30*60; /* 30 mins */
-        ret_val = first_wakeup_time; 
-        g_last_time = ret_val;        
+        ret_val = first_wakeup_time;
+        g_last_time = ret_val;
         g_car_sleep = g_car_instant;
     }
     else
@@ -2816,7 +2822,7 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
         g_car_wakeup = g_car_instant;
 
         if(g_last_time==0)
-            g_last_time=1;    
+            g_last_time=1;
 
         if(g_car_sleep > g_car_wakeup)
         {
@@ -2839,7 +2845,7 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
                 Enable_FGADC_LOG=0;
             }
         }
-        
+
         if(I_sleep == 0)
         {
             new_time = first_wakeup_time;
@@ -2847,19 +2853,19 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
         else
         {
             new_time = ((gFG_BATT_CAPACITY*battery_capacity_level*3600)/100)/I_sleep;
-        }        
+        }
         ret_val = new_time;
 
         if(ret_val == 0)
             ret_val = first_wakeup_time;
 
-        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[get_dynamic_period] g_car_instant=%d, g_car_wakeup=%d, g_car_sleep=%d, I_sleep=%d, gFG_BATT_CAPACITY=%d, g_last_time=%d, new_time=%d\r\n", 
-            g_car_instant, g_car_wakeup, g_car_sleep, I_sleep, gFG_BATT_CAPACITY, g_last_time, new_time);        
-        
+        xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[get_dynamic_period] g_car_instant=%d, g_car_wakeup=%d, g_car_sleep=%d, I_sleep=%d, gFG_BATT_CAPACITY=%d, g_last_time=%d, new_time=%d\r\n",
+            g_car_instant, g_car_wakeup, g_car_sleep, I_sleep, gFG_BATT_CAPACITY, g_last_time, new_time);
+
         //update parameter
         g_car_sleep = g_car_wakeup;
         g_last_time = ret_val;
-    }    
+    }
 #else
     ret_val = first_wakeup_time;
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[get_dynamic_period] ret_val = %d\n", first_wakeup_time);
@@ -2869,40 +2875,40 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-//// Internal API 
+//// Internal API
 ///////////////////////////////////////////////////////////////////////////////////////////
 void fg_voltage_mode(void)
 {
     if( upmu_is_chr_det()==KAL_TRUE )
     {
         /* SOC only UP when charging */
-        if ( gFG_capacity_by_v > gfg_percent_check_point ) {                        
+        if ( gFG_capacity_by_v > gfg_percent_check_point ) {
             gfg_percent_check_point++;
         }
     }
     else
     {
         /* SOC only Done when dis-charging */
-        if ( gFG_capacity_by_v < gfg_percent_check_point ) {            
+        if ( gFG_capacity_by_v < gfg_percent_check_point ) {
             gfg_percent_check_point--;
         }
     }
-        
-    if (Enable_FGADC_LOG == 1) 
-    {    
-    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC_VoltageMothod] gFG_capacity_by_v=%ld,gfg_percent_check_point=%ld\r\n", 
+
+    if (Enable_FGADC_LOG == 1)
+    {
+    xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[FGADC_VoltageMothod] gFG_capacity_by_v=%ld,gfg_percent_check_point=%ld\r\n",
             gFG_capacity_by_v, gfg_percent_check_point);
     }
 
 }
 
 void FGADC_thread_kthread(void)
-{    
+{
     int i=0;
 
-    mutex_lock(&FGADC_mutex);                
+    mutex_lock(&FGADC_mutex);
 
-    fgauge_Normal_Mode_Work();        
+    fgauge_Normal_Mode_Work();
 
     if(volt_mode_update_timer >= volt_mode_update_time_out)
     {
@@ -2913,16 +2919,16 @@ void FGADC_thread_kthread(void)
     else
     {
         volt_mode_update_timer++;
-    }    
+    }
 
-    //if (Enable_FGADC_LOG >= 1) 
-    //{    
+    //if (Enable_FGADC_LOG >= 1)
+    //{
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
             gFG_Is_Charging,gFG_current,
-            gFG_SW_CoulombCounter,gFG_columb,gFG_voltage,gFG_capacity_by_v,gFG_capacity_by_c,gFG_capacity_by_c_init, 
+            gFG_SW_CoulombCounter,gFG_columb,gFG_voltage,gFG_capacity_by_v,gFG_capacity_by_c,gFG_capacity_by_c_init,
             gFG_BATT_CAPACITY,gFG_BATT_CAPACITY_aging,gFG_compensate_value,gFG_ori_voltage,OCV_BOARD_COMPESATE,R_FG_BOARD_SLOPE,
             gFG_voltage_init,MinErrorOffset,gFG_DOD0,gFG_DOD1,current_get_ori,
-            CAR_TUNE_VALUE,AGING_TUNING_VALUE);            
+            CAR_TUNE_VALUE,AGING_TUNING_VALUE);
     //}
     update_fg_dbg_tool_value();
 
@@ -2935,17 +2941,17 @@ void FGADC_thread_kthread(void)
         if(gFG_current_auto_detect_R_fg_total <= CURRENT_DETECT_R_FG)
         {
             xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "gFG_current_auto_detect_R_fg_total=0, need double check\n");
-            
+
             gFG_current_auto_detect_R_fg_count = 0;
-            
+
             for(i=0;i<10;i++)
             {
                 gFG_current_auto_detect_R_fg_total+= fgauge_read_current();
-                gFG_current_auto_detect_R_fg_count++;            
+                gFG_current_auto_detect_R_fg_count++;
             }
         }
     }
-    else 
+    else
     {
         if(gFG_booting_counter_I_FLAG == 0)
         {
@@ -2953,24 +2959,24 @@ void FGADC_thread_kthread(void)
             for(i=0;i<10;i++)
             {
                 gFG_current_auto_detect_R_fg_total+= fgauge_read_current();
-                gFG_current_auto_detect_R_fg_count++;            
+                gFG_current_auto_detect_R_fg_count++;
             }
             Enable_FGADC_LOG = 0;
         }
     }
 
-    //OAM (only auxadc mode)    
-    if(oam_init_i >= 1)        
+    //OAM (only auxadc mode)
+    if(oam_init_i >= 1)
         oam_run();
 
-    mutex_unlock(&FGADC_mutex);        
+    mutex_unlock(&FGADC_mutex);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //// Logging System
 ///////////////////////////////////////////////////////////////////////////////////////////
 static struct proc_dir_entry *proc_entry_fgadc;
-static char proc_fgadc_data[32];  
+static char proc_fgadc_data[32];
 
 ssize_t fgadc_log_write( struct file *filp, const char __user *buff,
                         unsigned long len, void *data )
@@ -2985,12 +2991,12 @@ ssize_t fgadc_log_write( struct file *filp, const char __user *buff,
         Enable_FGADC_LOG = 1;
     } else if (proc_fgadc_data[0] == '2') {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "enable FGADC driver log system:2\n");
-        Enable_FGADC_LOG = 2;    
+        Enable_FGADC_LOG = 2;
     } else {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "Disable FGADC driver log system\n");
         Enable_FGADC_LOG = 0;
     }
-    
+
     return len;
 }
 
@@ -2998,7 +3004,7 @@ int init_proc_log_fg(void)
 {
     int ret=0;
     proc_entry_fgadc = create_proc_entry( "fgadc_log", 0644, NULL );
-    
+
     if (proc_entry_fgadc == NULL) {
         ret = -ENOMEM;
           xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "init_proc_log_fg: Couldn't create proc entry\n");
@@ -3007,7 +3013,7 @@ int init_proc_log_fg(void)
         //proc_entry->owner = THIS_MODULE;
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "init_proc_log_fg loaded.\n");
     }
-  
+
     return ret;
 }
 
@@ -3042,7 +3048,7 @@ static DEVICE_ATTR(FG_Current, 0664, show_FG_Current, store_FG_Current);
 //// Create File For FG UI DEBUG
 ///////////////////////////////////////////////////////////////////////////////////////////
 static ssize_t show_FG_g_fg_dbg_bat_volt(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_volt : %d\n", g_fg_dbg_bat_volt);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_volt);
 }
@@ -3053,7 +3059,7 @@ static ssize_t store_FG_g_fg_dbg_bat_volt(struct device *dev,struct device_attri
 static DEVICE_ATTR(FG_g_fg_dbg_bat_volt, 0664, show_FG_g_fg_dbg_bat_volt, store_FG_g_fg_dbg_bat_volt);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_current(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_current : %d\n", g_fg_dbg_bat_current);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_current);
 }
@@ -3064,7 +3070,7 @@ static ssize_t store_FG_g_fg_dbg_bat_current(struct device *dev,struct device_at
 static DEVICE_ATTR(FG_g_fg_dbg_bat_current, 0664, show_FG_g_fg_dbg_bat_current, store_FG_g_fg_dbg_bat_current);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_zcv(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_zcv : %d\n", g_fg_dbg_bat_zcv);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_zcv);
 }
@@ -3075,7 +3081,7 @@ static ssize_t store_FG_g_fg_dbg_bat_zcv(struct device *dev,struct device_attrib
 static DEVICE_ATTR(FG_g_fg_dbg_bat_zcv, 0664, show_FG_g_fg_dbg_bat_zcv, store_FG_g_fg_dbg_bat_zcv);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_temp(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_temp : %d\n", g_fg_dbg_bat_temp);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_temp);
 }
@@ -3086,7 +3092,7 @@ static ssize_t store_FG_g_fg_dbg_bat_temp(struct device *dev,struct device_attri
 static DEVICE_ATTR(FG_g_fg_dbg_bat_temp, 0664, show_FG_g_fg_dbg_bat_temp, store_FG_g_fg_dbg_bat_temp);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_r(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_r : %d\n", g_fg_dbg_bat_r);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_r);
 }
@@ -3097,7 +3103,7 @@ static ssize_t store_FG_g_fg_dbg_bat_r(struct device *dev,struct device_attribut
 static DEVICE_ATTR(FG_g_fg_dbg_bat_r, 0664, show_FG_g_fg_dbg_bat_r, store_FG_g_fg_dbg_bat_r);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_car(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_car : %d\n", g_fg_dbg_bat_car);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_car);
 }
@@ -3108,7 +3114,7 @@ static ssize_t store_FG_g_fg_dbg_bat_car(struct device *dev,struct device_attrib
 static DEVICE_ATTR(FG_g_fg_dbg_bat_car, 0664, show_FG_g_fg_dbg_bat_car, store_FG_g_fg_dbg_bat_car);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_bat_qmax(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_bat_qmax : %d\n", g_fg_dbg_bat_qmax);
     return sprintf(buf, "%d\n", g_fg_dbg_bat_qmax);
 }
@@ -3119,7 +3125,7 @@ static ssize_t store_FG_g_fg_dbg_bat_qmax(struct device *dev,struct device_attri
 static DEVICE_ATTR(FG_g_fg_dbg_bat_qmax, 0664, show_FG_g_fg_dbg_bat_qmax, store_FG_g_fg_dbg_bat_qmax);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_d0(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_d0 : %d\n", g_fg_dbg_d0);
     return sprintf(buf, "%d\n", g_fg_dbg_d0);
 }
@@ -3130,7 +3136,7 @@ static ssize_t store_FG_g_fg_dbg_d0(struct device *dev,struct device_attribute *
 static DEVICE_ATTR(FG_g_fg_dbg_d0, 0664, show_FG_g_fg_dbg_d0, store_FG_g_fg_dbg_d0);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_d1(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_d1 : %d\n", g_fg_dbg_d1);
     return sprintf(buf, "%d\n", g_fg_dbg_d1);
 }
@@ -3141,7 +3147,7 @@ static ssize_t store_FG_g_fg_dbg_d1(struct device *dev,struct device_attribute *
 static DEVICE_ATTR(FG_g_fg_dbg_d1, 0664, show_FG_g_fg_dbg_d1, store_FG_g_fg_dbg_d1);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_percentage(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_percentage : %d\n", g_fg_dbg_percentage);
     return sprintf(buf, "%d\n", g_fg_dbg_percentage);
 }
@@ -3152,7 +3158,7 @@ static ssize_t store_FG_g_fg_dbg_percentage(struct device *dev,struct device_att
 static DEVICE_ATTR(FG_g_fg_dbg_percentage, 0664, show_FG_g_fg_dbg_percentage, store_FG_g_fg_dbg_percentage);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_percentage_fg(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_percentage_fg : %d\n", g_fg_dbg_percentage_fg);
     return sprintf(buf, "%d\n", g_fg_dbg_percentage_fg);
 }
@@ -3163,7 +3169,7 @@ static ssize_t store_FG_g_fg_dbg_percentage_fg(struct device *dev,struct device_
 static DEVICE_ATTR(FG_g_fg_dbg_percentage_fg, 0664, show_FG_g_fg_dbg_percentage_fg, store_FG_g_fg_dbg_percentage_fg);
 //-------------------------------------------------------------------------------------------
 static ssize_t show_FG_g_fg_dbg_percentage_voltmode(struct device *dev,struct device_attribute *attr, char *buf)
-{    
+{
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FG] g_fg_dbg_percentage_voltmode : %d\n", g_fg_dbg_percentage_voltmode);
     return sprintf(buf, "%d\n", g_fg_dbg_percentage_voltmode);
 }
@@ -3174,9 +3180,9 @@ static ssize_t store_FG_g_fg_dbg_percentage_voltmode(struct device *dev,struct d
 static DEVICE_ATTR(FG_g_fg_dbg_percentage_voltmode, 0664, show_FG_g_fg_dbg_percentage_voltmode, store_FG_g_fg_dbg_percentage_voltmode);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-//// platform_driver API 
+//// platform_driver API
 ///////////////////////////////////////////////////////////////////////////////////////////
-static int mt6320_fgadc_probe(struct platform_device *dev)    
+static int mt6320_fgadc_probe(struct platform_device *dev)
 {
     int ret_device_file = 0;
 
@@ -3211,19 +3217,19 @@ static int mt6320_fgadc_probe(struct platform_device *dev)
     return 0;
 }
 
-static int mt6320_fgadc_remove(struct platform_device *dev)    
+static int mt6320_fgadc_remove(struct platform_device *dev)
 {
     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] MT6320 FGADC driver remove!! \n" );
 
     return 0;
 }
 
-static void mt6320_fgadc_shutdown(struct platform_device *dev)    
+static void mt6320_fgadc_shutdown(struct platform_device *dev)
 {
-    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] MT6320 FGADC driver shutdown!! \n" );        
+    xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[FGADC] MT6320 FGADC driver shutdown!! \n" );
 }
 
-static int mt6320_fgadc_suspend(struct platform_device *dev, pm_message_t state)    
+static int mt6320_fgadc_suspend(struct platform_device *dev, pm_message_t state)
 {
 
 #if defined(CONFIG_POWER_EXT)
@@ -3267,13 +3273,13 @@ static struct platform_driver mt6320_fgadc_driver = {
 static int __init mt6320_fgadc_init(void)
 {
     int ret;
-    
+
     ret = platform_device_register(&MT6320_fgadc_device);
     if (ret) {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "****[mt6320_fgadc_driver] Unable to device register(%d)\n", ret);
         return ret;
     }
-    
+
     ret = platform_driver_register(&mt6320_fgadc_driver);
     if (ret) {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "****[mt6320_fgadc_driver] Unable to register driver (%d)\n", ret);

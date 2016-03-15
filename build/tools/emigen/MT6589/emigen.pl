@@ -1,4 +1,72 @@
 #!/usr/local/bin/perl
+#
+#*****************************************************************************
+#  Copyright Statement:
+#  --------------------
+#  This software is protected by Copyright and the information contained
+#  herein is confidential. The software may not be copied and the information
+#  contained herein may not be used or disclosed except with the written
+#  permission of MediaTek Inc. (C) 2008
+#
+#  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+#  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+#  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
+#  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+#  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+#  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+#  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+#  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
+#  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
+#  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
+#  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+#
+#  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+#  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+#  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+#  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
+#  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+#
+#  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+#  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
+#  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
+#  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
+#  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
+#
+#****************************************************************************/
+#*
+#* Filename:
+#* ---------
+#*   emigen_sp.pl
+#*
+#* Project:
+#* --------
+#*
+#*
+#* Description:
+#* ------------
+#*   This script will
+#*       1. parse custom_MemoryDevice.h to get memory device type and part number
+#*       2. read a excel file to get appropriate emi setting based on the part number
+#*       3. based on the emi settings, generate custom_EMI.c if not exist
+#*       4. based on the emi settings, generate custom_EMI.h if not exist
+#*
+#* Author:
+#* -------
+#*
+#*============================================================================
+#*             HISTORY
+#* Below this line, this part is controlled by PVCS VM. DO NOT MODIFY!!
+#*------------------------------------------------------------------------------
+#* $Revision$
+#* $Modtime$
+#* $Log$
+#*
+#*
+#*------------------------------------------------------------------------------
+#* Upper this line, this part is controlled by PVCS VM. DO NOT MODIFY!!
+#*============================================================================
+#****************************************************************************/
 
 #****************************************************************************
 # Included Modules
@@ -32,7 +100,7 @@ if ($os eq "windows")
     use strict;
     &gen_pm;
     require 'ForWindows.pm';
-    $Win32::OLE::Warn = 3; 
+    $Win32::OLE::Warn = 3;
     $start_num = 1;
 }
 elsif ($os eq "linux")
@@ -44,7 +112,7 @@ elsif ($os eq "linux")
 #   push(@INC, '.');
 #   push(@INC, './Spreadsheet');
     require 'ParseExcel.pm';
-    $start_num = 0; 
+    $start_num = 0;
 }
 else
 {
@@ -53,8 +121,8 @@ else
 #****************************************************************************
 # PLATFORM EMI support matrix
 #****************************************************************************
-my %BBtbl_LPSDRAM = 
-(       
+my %BBtbl_LPSDRAM =
+(
 	'MT6589'  => 1,
 );
 
@@ -100,10 +168,10 @@ my $MEMORY_DEVICE_TYPE;
 #                           VENDOR          => $vendor,
 my $part_info     = ();   # has different data structures for different $MEMORY_DEVICE_TYPE
 
-my $bank_num = 0;         #  0: No memory is attached        
-                          #  1: 1 is attached        
-                          #  2: 2 are attached      
-                  
+my $bank_num = 0;         #  0: No memory is attached
+                          #  1: 1 is attached
+                          #  2: 2 are attached
+
 # locations of output EMI settings
 # src\custom\<project>\DRV\bootloader\EMI
 my $CUSTOM_EMI_H = $CUSTOM_MEMORY_DEVICE_HDR;
@@ -185,25 +253,25 @@ my $MMD;
 my $MMD_String;
 my $fw_id_len;
 my $NAND_PAGE_SIZE;
-my $EMI_CONA_VAL;           
-my $DRAMC_DRVCTL0_VAL;      
-my $DRAMC_DRVCTL1_VAL;      
-my $DRAMC_DLE_VAL;          
-my $DRAMC_ACTIM_VAL;        
-my $DRAMC_GDDR3CTL1_VAL;    
-my $DRAMC_CONF1_VAL;        
-my $DRAMC_DDR2CTL_VAL;      
-my $DRAMC_TEST2_3_VAL;      
-my $DRAMC_CONF2_VAL;        
-my $DRAMC_PD_CTRL_VAL;      
-my $DRAMC_PADCTL3_VAL;      
-my $DRAMC_DQODLY_VAL;       
-my $DRAMC_ADDR_OUTPUT_DLY;  
-my $DRAMC_CLK_OUTPUT_DLY;   
-my $DRAMC_ACTIM1_VAL;   
-my $DRAMC_MISCTL0_VAL;   
-my $DRAM_RANK0_SIZE;   
-my $DRAM_RANK1_SIZE; 
+my $EMI_CONA_VAL;
+my $DRAMC_DRVCTL0_VAL;
+my $DRAMC_DRVCTL1_VAL;
+my $DRAMC_DLE_VAL;
+my $DRAMC_ACTIM_VAL;
+my $DRAMC_GDDR3CTL1_VAL;
+my $DRAMC_CONF1_VAL;
+my $DRAMC_DDR2CTL_VAL;
+my $DRAMC_TEST2_3_VAL;
+my $DRAMC_CONF2_VAL;
+my $DRAMC_PD_CTRL_VAL;
+my $DRAMC_PADCTL3_VAL;
+my $DRAMC_DQODLY_VAL;
+my $DRAMC_ADDR_OUTPUT_DLY;
+my $DRAMC_CLK_OUTPUT_DLY;
+my $DRAMC_ACTIM1_VAL;
+my $DRAMC_MISCTL0_VAL;
+my $DRAM_RANK0_SIZE;
+my $DRAM_RANK1_SIZE;
 my $Discrete_DDR = 0;
 my $MCP_DDR2 = 0;
 
@@ -237,19 +305,19 @@ while (<CUSTOM_MEMORY_DEVICE_HDR>)
     # matching the following lines
     # "#define MEMORY_DEVICE_TYPE          LPSDRAM"
     # "#define CS0_PART_NUMBER             EDK1432CABH60"
-    
+
     # error-checking
     if (/^#if|^#ifdef|^#ifndef|^#elif|^#else/)
     {
       &error_handler("$CUSTOM_MEMORY_DEVICE_HDR: Not allowed to set conditional keywords $_ in custom_MemoryDevice.h!", __FILE__, __LINE__)
           unless (/^#ifndef\s+__CUSTOM_MEMORYDEVICE__/);
     }
-    if (/^#define\s+(\w+)\[(\d+)\]\s+\(([-\w]*)\)/ || /^#define\s+(\w+)\[(\d+)\]\s+([-\w]*)/ || 
+    if (/^#define\s+(\w+)\[(\d+)\]\s+\(([-\w]*)\)/ || /^#define\s+(\w+)\[(\d+)\]\s+([-\w]*)/ ||
         /^#define\s+(MEMORY_DEVICE_TYPE)\s+\((\w*)\)/ || /^#define\s+(MEMORY_DEVICE_TYPE)\s+(\w*)/ ||
-        /^#define\s+(BOARD_ID)\s+\((\w*)\)/ || /^#define\s+(BOARD_ID)\s+(\w*)/) 
+        /^#define\s+(BOARD_ID)\s+\((\w*)\)/ || /^#define\s+(BOARD_ID)\s+(\w*)/)
     {
 #        print "\n $1, $2, $3\n" ;
-        
+
         if ($1 eq "BOARD_ID")
         {
             $CustBoard_ID = $2 ;
@@ -259,7 +327,7 @@ while (<CUSTOM_MEMORY_DEVICE_HDR>)
             #print "\nCS0 $2, $3\n" ;
             $CustCS_PART_NUMBER[$2] = $3 ;
             $CustCS_CustemChips = $CustCS_CustemChips + 1 ;
-            
+
             print "$CustCS_PART_NUMBER[$2]\n"
         }
     }
@@ -287,7 +355,7 @@ if ($CustCS_CustemChips == 0)
     die "\n[Error]CustCS_CustemChips($CustCS_CustemChips) = 0?\n" ;
 }
 
- 
+
 #****************************************************************************
 # read a excel file to get emi settings
 #****************************************************************************
@@ -304,7 +372,7 @@ if ($os eq "windows")
 else
 {
     my $parser = Spreadsheet::ParseExcel->new();
-    $Book = $parser->Parse($MEMORY_DEVICE_LIST_XLS); 
+    $Book = $parser->Parse($MEMORY_DEVICE_LIST_XLS);
 }
 # select worksheet
 my $Sheet;
@@ -316,10 +384,10 @@ my $total_part_number_iter = 0;
     while ($iter<$CustCS_CustemChips)
     {
         $eos_flag = 4;
-        $total_part_number_iter = &DeviceListParser_LPSDRAM($iter,$total_part_number_iter);     
+        $total_part_number_iter = &DeviceListParser_LPSDRAM($iter,$total_part_number_iter);
         $iter = $iter + 1 ;
     }
-    
+
     # if the value read from excel validate
     $iter = 0 ;
     my $EMMC_NAND_MCP = "00" ;
@@ -329,7 +397,7 @@ my $total_part_number_iter = 0;
     while ($iter < $TotalCustemChips)
     {
         # only one kind of MMD is allowed
-        my $iter_mmd = $iter + 1; 
+        my $iter_mmd = $iter + 1;
         while ($iter_mmd < $TotalCustemChips)
 	{
              if (( $MMD[$iter] ne $MMD[$iter_mmd]))
@@ -338,14 +406,14 @@ my $total_part_number_iter = 0;
 	     }
 	     $iter_mmd ++;
 	}
-	
+
         # only one Discrete is allowed
-        if ($DEV_TYPE1[$iter] eq "00")      
+        if ($DEV_TYPE1[$iter] eq "00")
         {
             # if all discrete dram are DDR2, it is allowed
             if ($DEV_TYPE2[$iter] eq "02")
             {
-                my $iter_dis_dram; 
+                my $iter_dis_dram;
                 $iter_dis_dram = 0;
                 while ($iter_dis_dram < $TotalCustemChips)
                 {
@@ -363,18 +431,18 @@ my $total_part_number_iter = 0;
                     }
                     else
                     {
-#comment to avoid build error for the same vendor ID		  
-#=head		   
+#comment to avoid build error for the same vendor ID
+#=head
                        # check the MODE_REG5(DRAM vendor_ID) are unique
 		       # if have unique MODE5 in the list, send the build error
                        if ( $DDR2_MODE_REG5[$iter] eq $DDR2_MODE_REG5[$iter_dis_dram])
                        {
-                            
+
                             die "[Error] MODE_REG5(DRAM vendor_ID) should not be the same in the Combo list, MODE_REG5($Total_PART_NUMBER[$iter])==MODE_REG5($Total_PART_NUMBER[$iter_dis_dram])\n" ;
                        }
 
 #=cut
-                    
+
                     }
 
                     $iter_dis_dram++;
@@ -387,7 +455,7 @@ my $total_part_number_iter = 0;
                 if ($Discrete_DDR == 0)
                 {
                     $Discrete_DDR = $Discrete_DDR + 1 ;
-                    if ($TotalCustemChips > 1) 
+                    if ($TotalCustemChips > 1)
                     {
                         print "[Error]At most one discrete DRAM is allowed in the Combo MCP list\n" ;
                         die "[Error]Combo discrete DRAM only support LPDDR2\n" ;
@@ -406,7 +474,7 @@ my $total_part_number_iter = 0;
                 $MCP_DDR2 = $MCP_DDR2 + 1 ;
 	    }
 	}
-        
+
     unless($ENV{PROJECT} eq "mt6589_evb1"){
         # nand emmc can't used together.
         if ($EMMC_NAND_MCP == "00")
@@ -419,7 +487,7 @@ my $total_part_number_iter = 0;
         }
     }
         # NAND can't use different page size.
-        if ($DEV_TYPE1[$iter] == "01") 
+        if ($DEV_TYPE1[$iter] == "01")
         {
             if ($Page_size == "0")
             {
@@ -433,7 +501,7 @@ my $total_part_number_iter = 0;
                 }
             }
         }
-        
+
         # Nand or eMMC's + FW ID must unique
         my $iter2 ;
         $iter2 = $iter + 1 ;
@@ -458,7 +526,7 @@ my $total_part_number_iter = 0;
             }
             $iter2 = $iter2 + 1 ;
         }
-                
+
         $iter = $iter + 1 ;
     }
 
@@ -550,7 +618,7 @@ sub trim($)
 sub error_handler
 {
 	   my ($error_msg, $file, $line_no) = @_;
-	   
+
 	   my $final_error_msg = "[Error]EMIGEN ERROR: $error_msg at $file line $line_no\n";
 	   print $final_error_msg;
 	   die $final_error_msg;
@@ -563,6 +631,40 @@ sub error_handler
 sub copyright_file_header
 {
     my $template = <<"__TEMPLATE";
+/*****************************************************************************
+*  Copyright Statement:
+*  --------------------
+*  This software is protected by Copyright and the information contained
+*  herein is confidential. The software may not be copied and the information
+*  contained herein may not be used or disclosed except with the written
+*  permission of MediaTek Inc. (C) 2008
+*
+*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+*  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
+*  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
+*  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
+*  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF
+*  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR NONINFRINGEMENT.
+*  NEITHER DOES MEDIATEK PROVIDE ANY WARRANTY WHATSOEVER WITH RESPECT TO THE
+*  SOFTWARE OF ANY THIRD PARTY WHICH MAY BE USED BY, INCORPORATED IN, OR
+*  SUPPLIED WITH THE MEDIATEK SOFTWARE, AND BUYER AGREES TO LOOK ONLY TO SUCH
+*  THIRD PARTY FOR ANY WARRANTY CLAIM RELATING THERETO. MEDIATEK SHALL ALSO
+*  NOT BE RESPONSIBLE FOR ANY MEDIATEK SOFTWARE RELEASES MADE TO BUYER'S
+*  SPECIFICATION OR TO CONFORM TO A PARTICULAR STANDARD OR OPEN FORUM.
+*
+*  BUYER'S SOLE AND EXCLUSIVE REMEDY AND MEDIATEK'S ENTIRE AND CUMULATIVE
+*  LIABILITY WITH RESPECT TO THE MEDIATEK SOFTWARE RELEASED HEREUNDER WILL BE,
+*  AT MEDIATEK'S OPTION, TO REVISE OR REPLACE THE MEDIATEK SOFTWARE AT ISSUE,
+*  OR REFUND ANY SOFTWARE LICENSE FEES OR SERVICE CHARGE PAID BY BUYER TO
+*  MEDIATEK FOR SUCH MEDIATEK SOFTWARE AT ISSUE.
+*
+*  THE TRANSACTION CONTEMPLATED HEREUNDER SHALL BE CONSTRUED IN ACCORDANCE
+*  WITH THE LAWS OF THE STATE OF CALIFORNIA, USA, EXCLUDING ITS CONFLICT OF
+*  LAWS PRINCIPLES.  ANY DISPUTES, CONTROVERSIES OR CLAIMS ARISING THEREOF AND
+*  RELATED THERETO SHALL BE SETTLED BY ARBITRATION IN SAN FRANCISCO, CA, UNDER
+*  THE RULES OF THE INTERNATIONAL CHAMBER OF COMMERCE (ICC).
+*
+*****************************************************************************/
 __TEMPLATE
 
    return $template;
@@ -570,7 +672,7 @@ __TEMPLATE
 
 #****************************************************************************
 # subroutine:  description_file_header
-# return:      file header -- description 
+# return:      file header -- description
 # input:       $filename:     filename
 # input:       $description:  one line description
 # input:       $author:       optional
@@ -610,7 +712,7 @@ sub description_file_header
  * \$Log\$
  *
  *------------------------------------------------------------------------------
- * WARNING!!!  WARNING!!!   WARNING!!!  WARNING!!!  WARNING!!!  WARNING!!! 
+ * WARNING!!!  WARNING!!!   WARNING!!!  WARNING!!!  WARNING!!!  WARNING!!!
  * This file is generated by EMI Auto-gen Tool.
  * Please do not modify the content directly!
  * It could be overwritten!
@@ -626,7 +728,7 @@ __TEMPLATE
 
 #****************************************************************************
 # subroutine:  HeaderBody_for_lpsdram
-# return:      content for custom_EMI.h 
+# return:      content for custom_EMI.h
 #****************************************************************************
 sub custom_EMI_h_file_body
 {
@@ -660,7 +762,7 @@ typedef struct
     int   DRAMC_ACTIM_VAL;        //@0x4000
     int   DRAMC_GDDR3CTL1_VAL;    //@0x40F4
     int   DRAMC_CONF1_VAL;        //@0x4004
-    int   DRAMC_DDR2CTL_VAL;      //@0x407C 
+    int   DRAMC_DDR2CTL_VAL;      //@0x407C
     int   DRAMC_TEST2_3_VAL;      //@0x4044
     int   DRAMC_CONF2_VAL;        //@0x4008
     int   DRAMC_PD_CTRL_VAL;      //@0x41DC
@@ -670,7 +772,7 @@ typedef struct
     int   DRAMC_CLK_OUTPUT_DLY;   // for E1 DDR2 only
     int   DRAMC_ACTIM1_VAL;    // for E1 DDR2 only
     int   DRAMC_MISCTL0_VAL;   // for E1 DDR2 only
-    
+
     int   MMD;
     int   reserved[8] ;          // reserved
 
@@ -700,7 +802,7 @@ typedef struct
     };
 } EMI_SETTINGS;
 
-int mt_get_dram_type (void); 
+int mt_get_dram_type (void);
 /* 0: invalid */
 /* 1: mDDR1 */
 /* 2: mDDR2 */
@@ -714,7 +816,7 @@ __TEMPLATE
 
 #****************************************************************************
 # subroutine:  custom_EMI_c_file_body
-# return:      
+# return:
 #****************************************************************************
 sub custom_EMI_c_file_body
 {
@@ -760,14 +862,14 @@ sub custom_EMI_c_file_body
             }
         }
     }
-# if we have discrete dram, we put them in the end	
+# if we have discrete dram, we put them in the end
     if ($ddr != -1)
     {
         $EMI_SETTINGS_string = $EMI_SETTINGS_string . $EMI_SETTINGS[$ddr] ;
     }
 =cut
-	
-	
+
+
 	my $template = <<"__TEMPLATE";
 #include "mt_emi.h"
 
@@ -787,7 +889,7 @@ __TEMPLATE
 #****************************************************************************
 # subroutine:  DeviceListParser_LPSDRAM
 # input:       the number in array
-# return:      string contain 1 set of EMI setting for input 
+# return:      string contain 1 set of EMI setting for input
 #****************************************************************************
 sub DeviceListParser_LPSDRAM
 {
@@ -796,30 +898,30 @@ sub DeviceListParser_LPSDRAM
     my ($PartNum) ;
     my ($iter);
     my ($num_part_found);
-        
-                              
+
+
     $num_part_found = 0 ;
     $CustCS_id = $_[0]; # CustCS_CustemChips_iter
-    $id = $_[1] ; # total_part_number_iter 
-    
+    $id = $_[1] ; # total_part_number_iter
+
     $PartNum = $CustCS_PART_NUMBER[$CustCS_id] ;
     print "\nCustCS ID num is $CustCS_id, part number:$CustCS_PART_NUMBER[$CustCS_id]\n" ;
-    
+
 
     my $row        = $start_num + 0 ;                    # scan from row 2 when $MEMORY_DEVICE_TYPE eq 'LPSDRAM'
     my $col        = $COLUMN_PART_NUMBER ;               # scan column 2 for Part Number
     my $rows_part_found;                                 # stores the part numbers found in MDL
-    
-    
+
+
     $Sheet = get_sheet("mt6589") ;
-    
+
     # find cell address of the specified Nand ID
     my $scan_idx = &xls_cell_value($Sheet, $row, $col) ;
     while (defined ($scan_idx) && ($eos_flag > 0))
     {
         ++$row ;
         $scan_idx = &xls_cell_value($Sheet, $row, $col) ;
-        
+
         unless (defined $scan_idx)
         {
             print "[$row][scan_idx]No Value, $eos_flag\n" if $DebugPrint == 1 ;
@@ -832,24 +934,26 @@ sub DeviceListParser_LPSDRAM
             $eos_flag -- ;
             next ;
         }
-        
+
 
         $eos_flag   = 4 ;
 
         # remove leading and tailing spaces
         $scan_idx =~ s/^\s+// if $DebugPrint == 1 ;
         $scan_idx =~ s/\s+$// if $DebugPrint == 1 ;
-		
+
 		$scan_idx =~ s/^\s+// ;
 		$scan_idx =~ s/\s+$// ;
-		
-		#print "$scan_idx ?= $PartNum\n" ;
-		
-        if ($scan_idx eq $PartNum) # scan column 2 for Part Number
 
+        #print "$scan_idx ?= $PartNum\n" ;
+
+        if ($scan_idx eq $PartNum) # scan column 2 for Part Number
         {
             my $boardid ;
             $boardid = &xls_cell_value($Sheet, $row, $COLUMN_BOARD_ID) ;
+
+            print "Found $scan_idx: $boardid ? $CustBoard_ID\n" ;
+
             if ($CustBoard_ID eq $boardid)
             {
                 $rows_part_found[$num_part_found] = $row;
@@ -866,7 +970,7 @@ sub DeviceListParser_LPSDRAM
     {
         die "\n[Error]unsupported part number $PartNum\n" ;
     }
-    
+
     $iter = 0;
     while ($iter<$num_part_found)
     {
@@ -971,7 +1075,7 @@ sub DeviceListParser_LPSDRAM
             $DDR1_MODE_REG[$id]              = &xls_cell_value($Sheet, $_, $platform_scan_idx++) ;
             $DDR1_EXT_MODE_REG[$id]          = &xls_cell_value($Sheet, $_, $platform_scan_idx++) ;
         }
-#3 DDR3    
+#3 DDR3
         elsif ($DDR1_2_3[$id] eq "DDR3")
         {
             $DDR3_MODE_REG0[$id]              = &xls_cell_value($Sheet, $_, $platform_scan_idx++) ;
@@ -1026,14 +1130,14 @@ sub DeviceListParser_LPSDRAM
         $hex_val = hex($EMI_CONA_VAL[$id]);
         if ($DENSITY[$id] =~ /\+/)
         {
-            if (!($hex_val & 0x20000)) 
+            if (!($hex_val & 0x20000))
             {
                 die "[ERROR] Wrong CONA value with dual rank:$DENSITY[$id],$EMI_CONA_VAL[$id]"
             }
         }
         else
         {
-            if ($hex_val & 0x20000) 
+            if ($hex_val & 0x20000)
             {
                 die "[ERROR] Wrong CONA value with single rank:$DENSITY[$id],$EMI_CONA_VAL[$id]";
             }
@@ -1097,15 +1201,15 @@ sub DeviceListParser_LPSDRAM
 
         print "NAND_EMMC_ID:$NAND_EMMC_ID[$id]\n";
         # To parse NAND_EMMC_ID, we only support 12 bytes ID
-        if (length($NAND_EMMC_ID[$id]) % 2) 
+        if (length($NAND_EMMC_ID[$id]) % 2)
         {
-            die "[Error] The wrong NAND_EMMC_ID: $NAND_EMMC_ID[$id] !!"; 
+            die "[Error] The wrong NAND_EMMC_ID: $NAND_EMMC_ID[$id] !!";
         }
         $ID_String[$id] = "{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}" ;
         $FW_ID_String[$id] = "{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}" ;
         $Sub_version[$id] = "0x1";
-        $ID_Length[$id] = (length($NAND_EMMC_ID[$id])-2)/2; 
-        $FW_ID_Length[$id] = (length($FW_ID[$id])-2)/2; 
+        $ID_Length[$id] = (length($NAND_EMMC_ID[$id])-2)/2;
+        $FW_ID_Length[$id] = (length($FW_ID[$id])-2)/2;
 	$nand_emmc_id_len = $ID_Length[$id];
         print $ID_Length[$id].$FW_ID_Length[$id];
         if ($ID_Length[$id]> 0)
@@ -1124,7 +1228,7 @@ sub DeviceListParser_LPSDRAM
             {
                 for($i = 0; $i <($MAX_NAND_EMMC_ID_LEN - $ID_Length[$id]); $i++)
                 {
-                    $ID_String[$id].= ",0x0" 
+                    $ID_String[$id].= ",0x0"
                 }
             }
             $ID_String[$id] .= "}";
@@ -1151,7 +1255,7 @@ sub DeviceListParser_LPSDRAM
             {
                 for($i = 0; $i <($MAX_FW_ID_LEN - $FW_ID_Length[$id]); $i++)
                 {
-                    $FW_ID_String[$id].= ",0x0" 
+                    $FW_ID_String[$id].= ",0x0"
                 }
             }
             $FW_ID_String[$id] .= "}";
@@ -1176,7 +1280,7 @@ sub DeviceListParser_LPSDRAM
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_ACTIM_VAL[$id] . ",\t\t/* DRAMC_ACTIM_VAL */\n\t\t" ;
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_GDDR3CTL1_VAL[$id] . ",\t\t/* DRAMC_GDDR3CTL1_VAL */\n\t\t" ;
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_CONF1_VAL[$id] . ",\t\t/* DRAMC_CONF1_VAL */\n\t\t" ;
-        $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_DDR2CTL_VAL[$id] . ",\t\t/* DRAMC_DDR2CTL_VAL */\n\t\t" ;    
+        $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_DDR2CTL_VAL[$id] . ",\t\t/* DRAMC_DDR2CTL_VAL */\n\t\t" ;
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_TEST2_3_VAL[$id] . ",\t\t/* DRAMC_TEST2_3_VAL */\n\t\t" ;
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_CONF2_VAL[$id] . ",\t\t/* DRAMC_CONF2_VAL */\n\t\t" ;
         $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DRAMC_PD_CTRL_VAL[$id] . ",\t\t/* DRAMC_PD_CTRL_VAL */\n\t\t" ;
@@ -1194,7 +1298,7 @@ sub DeviceListParser_LPSDRAM
 #union
 #1 DDR2
         if ($DDR1_2_3[$id] eq "DDR2")
-        {    
+        {
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR2_MODE_REG1[$id] . ",\t\t/* DDR2_MODE_REG1 */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR2_MODE_REG2[$id] . ",\t\t/* DDR2_MODE_REG2 */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR2_MODE_REG3[$id] . ",\t\t/* DDR2_MODE_REG3 */\n\t\t" ;
@@ -1208,14 +1312,14 @@ sub DeviceListParser_LPSDRAM
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR1_MODE_REG[$id] . ",\t\t/* DDR1_MODE_REG */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR1_EXT_MODE_REG[$id] . "\t\t/* DDR1_EXT_MODE_REG */\n\t}" ;
         }
-#3 DDR3    
+#3 DDR3
         elsif ($DDR1_2_3[$id] eq "DDR3")
         {
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR3_MODE_REG0[$id] . ",\t\t/* DDR3_MODE_REG0 */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR3_MODE_REG1[$id] . ",\t\t/* DDR3_MODE_REG1 */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR3_MODE_REG2[$id] . ",\t\t/* DDR3_MODE_REG2 */\n\t\t" ;
             $EMI_SETTINGS[$id] = $EMI_SETTINGS[$id] . $DDR3_MODE_REG3[$id] . ",\t\t/* DDR3_MODE_REG3 */\n\t}" ;
-        }   
+        }
         print  $EMI_SETTINGS[$id] ;
         print "\n\n" ;
         $id ++;
@@ -1223,7 +1327,7 @@ sub DeviceListParser_LPSDRAM
 
     # return total_part_number_iter
     return $id;
-    
+
 }
 
 
@@ -1234,9 +1338,9 @@ sub DeviceListParser_LPSDRAM
 #****************************************************************************************
 sub OsName {
   my $os = `set os`;
-  if(!defined $os) { 
+  if(!defined $os) {
     $os = "linux";
-  } 
+  }
   else {
     die "[Error]does not support windows now!!" ;
     $os = "windows";
@@ -1338,7 +1442,7 @@ sub write_tag()
     seek(FILE, 0x1b, 0);
     $pre_bin = "preloader_${project}.bin";
     print "PROJECT = $project, pre_bin = $pre_bin\n";
-    print FILE pack("a64", $pre_bin); 
+    print FILE pack("a64", $pre_bin);
     $filesize = $filesize + 64 ;
     seek(FILE, 0x58, 0);
     print FILE pack("H8", 56313136);
@@ -1349,10 +1453,10 @@ sub write_tag()
     $filesize = $filesize + 4 ;
     print FILE pack("a8", "MTK_BIN");
     $filesize = $filesize + 8 ;
-    
+
 #    print FILE pack("H8", bc000000);
-    
- 
+
+
     seek(FILE,0x6c, 0);
     # 1.LPDDR2 discrete dram number > 2
     # 2.LPDDR2 discrete dram > 0, DDR2 > 0
@@ -1365,13 +1469,13 @@ sub write_tag()
 	    print FILE pack("L", hex($TotalCustemChips));     # number of emi settings.
     }
     $filesize = $filesize + 4 ;
-    
+
     my $iter = 0 ;
 
     # 1.LPDDR2 discrete dram number > 2
     # 2.LPDDR2 discrete dram > 0, DDR2 > 0
     if (($Discrete_DDR > 2) || (($Discrete_DDR > 0) && ($MCP_DDR2 > 0)))
-    { 
+    {
         $filesize = $filesize + &write_tag_one_element_default_DDR2 () ;
     }
     for $iter (0..$TotalCustemChips-1)
@@ -1389,11 +1493,11 @@ sub write_tag()
         }
     }
 #    $filesize = $filesize + 4 ;
-    
+
 #    print "2.file size is $filesize \n";
 
     print FILE pack("L", $filesize) ;
-    
+
     close (FILE) ;
     print "$INFO_TAG is generated!\n";
     return ;
@@ -1416,7 +1520,7 @@ sub write_tag_one_element_default_DDR2()
 
     print FILE pack ("L", scalar("0")) ;        # FW ID checking length
     $fs = $fs + 4 ;
-    
+
     $_ = "{0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0}" ;
     if (/(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+),(\w+)/)
     {
@@ -1452,25 +1556,25 @@ sub write_tag_one_element_default_DDR2()
         $fs = $fs + 8 ;
     }
 
-    
+
     print FILE pack ("L", hex (lc("0x0000212E"))) ;         # EMI_CONA_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0xCC00CC00"))) ;    # DRAMC_DRVCTL0_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0xCC00CC00"))) ;    # DRAMC_DRVCTL1_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x00000008"))) ;        # DRAMC_DLE_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x666844B4"))) ;      # DRAMC_ACTIM_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x11000000"))) ;  # DRAMC_GDDR3CTL1_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0xF07486E1"))) ;      # DRAMC_CONF1_VAL
     $fs = $fs + 4 ;
 
@@ -1479,15 +1583,15 @@ sub write_tag_one_element_default_DDR2()
 
     print FILE pack ("L", hex (lc("0x9F098CA0"))) ;    # DRAMC_TEST2_3_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x03406341"))) ;      # DRAMC_CONF2_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x11662342"))) ;    # DRAMC_PD_CTRL_VAL
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x00008888"))) ;    # DRAMC_PADCTL3_VAL
-    
+
     $fs = $fs + 4 ;
     print FILE pack ("L", hex (lc("0xEEEEEEEE"))) ;     # DRAMC_DQODLY_VAL
     $fs = $fs + 4 ;
@@ -1497,7 +1601,7 @@ sub write_tag_one_element_default_DDR2()
 
     print FILE pack ("L", hex (lc("0x00000000"))) ;        # DRAMC_CLK_OUTPUT_DLY
     $fs = $fs + 4 ;
-    
+
     print FILE pack ("L", hex (lc("0x01000e10"))) ;           # $DRAMC_ACTIM1_VAL
     $fs = $fs + 4 ;
 
@@ -1515,7 +1619,7 @@ sub write_tag_one_element_default_DDR2()
     $fs = $fs + 4 ;
 
     print FILE pack ("L", hex ("0")) ;                                  #reserved[8]
-    print FILE pack ("L", hex ("0")) ;  
+    print FILE pack ("L", hex ("0")) ;
     print FILE pack ("L", hex ("0")) ;
     print FILE pack ("L", hex ("0")) ;
     print FILE pack ("L", hex ("0")) ;
@@ -1523,7 +1627,7 @@ sub write_tag_one_element_default_DDR2()
     print FILE pack ("L", hex ("0")) ;
     print FILE pack ("L", hex ("0")) ;
     $fs = $fs + 32 ;
-        
+
     if (1)
     {
         #ddr2

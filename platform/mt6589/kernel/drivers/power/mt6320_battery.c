@@ -102,6 +102,10 @@ int g_R_I_SENSE = R_I_SENSE;
 int g_R_CHARGER_1 = R_CHARGER_1;
 int g_R_CHARGER_2 = R_CHARGER_2;
 
+#if defined(SLT_DRV_AW992_CONFIG)
+extern int get_rtc_spare_fg_value(void);
+#endif
+
 #if defined(CONFIG_POWER_VERIFY)
 kal_bool upmu_is_chr_det(void)
 {
@@ -1366,6 +1370,27 @@ BATT_TEMPERATURE Batt_Temperature_Table[] = {
 #endif
 
 #if (BAT_NTC_10 == 1)
+#if defined(SLT_DRV_AW992_CONFIG)
+    BATT_TEMPERATURE Batt_Temperature_Table[] = {
+    	{-20,68237},
+        {-15,53650},
+        {-10,42506},
+        { -5,33892},
+        {  0,27219},
+        {  5,22021},
+        { 10,17926},
+        { 15,14674},
+        { 20,12081},
+        { 25,10000},
+        { 30,8315},
+        { 35,6948},
+        { 40,5834},
+        { 45,4917},
+        { 50,4161},
+        { 55,3535},
+        { 60,3014}
+    };
+#else
     BATT_TEMPERATURE Batt_Temperature_Table[] = {
         {-20,68237},
         {-15,53650},
@@ -1385,6 +1410,7 @@ BATT_TEMPERATURE Batt_Temperature_Table[] = {
         { 55,3535},
         { 60,3014}
     };
+#endif
 #endif
 
 #if (BAT_NTC_47 == 1)
@@ -2557,9 +2583,13 @@ int BAT_CheckBatteryStatus(void)
     {
         xlog_printk(ANDROID_LOG_WARN, "Power/Battery", "[BATTERY] Battery Over Temperature !!\n\r");                
         BMT_status.bat_charging_state = CHR_ERROR;
+		BMT_status.charger_protect_status = BATTERY_OVER_TEMP;
         return PMU_STATUS_FAIL;       
     }    
-
+	if (BMT_status.temperature <= MAX_CHARGE_TEMPERATURE)
+    {
+        BMT_status.charger_protect_status = 0;
+    }
 #endif
 
     if( upmu_is_chr_det() == KAL_TRUE)
@@ -2613,6 +2643,7 @@ int BAT_CheckBatteryStatus(void)
 
 PMU_STATUS BAT_BatteryStatusFailAction(void)
 {
+	static BOOL error_reason = 0;
     if (Enable_BATDRV_LOG == 1) {
         xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] BAD Battery status... Charging Stop !!\n\r");            
     }
@@ -2638,6 +2669,16 @@ PMU_STATUS BAT_BatteryStatusFailAction(void)
 
     /*  Disable charger */
     pchr_turn_off_charging();
+	if(BMT_status.charger_protect_status == BATTERY_OVER_TEMP)
+	{
+        error_reason = 1;
+	}
+	
+    if(error_reason == 1 && BMT_status.charger_protect_status == 0)
+    {
+        error_reason = 0;
+        BMT_status.bat_charging_state = CHR_PRE;
+    }
 
     return PMU_STATUS_OK;
 }

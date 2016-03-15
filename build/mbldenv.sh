@@ -15,6 +15,8 @@ TARGET_BUILD_VARIANT=user
 #TARGET_BUILD_VARIANT=eng
 export TARGET_BUILD_VARIANT
 
+export EXTRA_OPTFLAGS=
+
 # Overwrite JAVA_HOME environment variable setting if already exists
 JAVA_HOME=/usr/lib/jvm/java-6-oracle
 export JAVA_HOME

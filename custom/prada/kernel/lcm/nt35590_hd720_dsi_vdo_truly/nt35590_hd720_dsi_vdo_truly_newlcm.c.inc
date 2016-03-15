@@ -32,7 +32,7 @@
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
-
+static unsigned int fbk_div_default_newlcm = 27;
 //extern LCM_UTIL_FUNCS lcm_util;
 
 #define SET_RESET_PIN(v)    (lcm_util.set_reset_pin((v)))
@@ -1585,7 +1585,7 @@ static void init_lcm_registers_newlcm(void)
 
     data_array[0] = 0x00290500;
     dsi_set_cmdq(data_array, 1, 1);
-    MDELAY(50);
+
     data_array[0] = 0x00023902;
     data_array[1] = 0x000000FF;
     dsi_set_cmdq(data_array, 2, 1);
@@ -1648,15 +1648,11 @@ static void lcm_get_params_newlcm(LCM_PARAMS *params)
 
 		// Bit rate calculation
 		//1 Every lane speed
-		params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
+        params->dsi.pll_select=1;
+        params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4
-		params->dsi.fbk_div = fbk_div;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
+		params->dsi.fbk_div = fbk_div ? fbk_div : fbk_div_default_newlcm;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
 
-        // from driver
-        params->dsi.pll_select = 1;
-        params->dsi.compatibility_for_nvk = 1;
-        params->dbi.te_edge_polarity = 1;
-        params->dbi.te_mode = 1;
 }
 
 static void lcm_init_newlcm(void)
@@ -1667,7 +1663,7 @@ static void lcm_init_newlcm(void)
 		MDELAY(20);
 		SET_RESET_PIN(1);
 		MDELAY(20);
-#if 0
+
 		data_array[0] = 0x00023902;
 		data_array[1] = 0x0000EEFF;
 		dsi_set_cmdq(data_array, 2, 1);
@@ -3303,9 +3299,6 @@ static void lcm_init_newlcm(void)
 		data_array[0] = 0x00290500;
 		dsi_set_cmdq(data_array, 1, 1);
 		MDELAY(50);
-#else
-		init_lcm_registers_stocklcm();
-#endif
 }
 
 static void lcm_suspend_newlcm(void)
@@ -3336,7 +3329,7 @@ static void lcm_resume_newlcm(void)
 	  printf("[LK]---cmd---nt35590_newlcm----%s------\n",__func__);
     #else
 	  printk("[KERNEL]---cmd---nt35590_newlcm----%s------\n",__func__);
-	  printk("[nt35590] fbk_div = %d\n",fbk_div);
+      printk("[nt35590] fbk_div = %d\n",fbk_div ? fbk_div : fbk_div_default_newlcm);
     #endif
 }
 

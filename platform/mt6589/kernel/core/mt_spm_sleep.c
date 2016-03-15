@@ -502,9 +502,9 @@ typedef struct {
 } wake_status_t;
 
 /*lenovo-sw weiweij added for charging sleep in as charger*/
-//#ifdef MTK_FAN5405_SUPPORT
+#if defined(MTK_FAN5405_SUPPORT) || defined(MTK_BQ24196_SUPPORT)
 extern unsigned int battery_period;
-//#endif
+#endif
 /*lenovo-sw weiweij added for charging sleep in as charger end*/
 
 extern int get_dynamic_period(int first_use, int first_wakeup_time, int battery_capacity_level);
@@ -970,11 +970,13 @@ static u32 spm_get_wake_period(wake_reason_t last_wr)
     }
 #endif
 
+#if defined(MTK_FAN5405_SUPPORT) || defined(MTK_BQ24196_SUPPORT)
 /*lenovo-sw weiweij added for charging sleep in as charger*/
 	spm_crit2("ww_debug sleep period=%d, battery_period=%d\n", period, battery_period);
 	if(battery_period==10)
         	period = battery_period;
 /*lenovo-sw weiweij added for charging sleep in as charger end*/
+#endif
     return period;
 }
 #endif

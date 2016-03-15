@@ -32,7 +32,7 @@
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
-
+static unsigned int fbk_div_default_stocklcm = 22;
 //extern LCM_UTIL_FUNCS lcm_util;
 
 #define SET_RESET_PIN(v)    (lcm_util.set_reset_pin((v)))
@@ -1713,7 +1713,7 @@ params->dsi.vertical_active_line=1280;
 		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4
 #if (LCM_DSI_CMD_MODE) // THIS MODE P780!!!
 	//params->dsi.PLL_CLOCK = LCM_DSI_6589_PLL_CLOCK_22;//this value must be in MTK suggested table
-		params->dsi.fbk_div = 22;
+		params->dsi.fbk_div = fbk_div ? fbk_div : fbk_div_default_stocklcm;
 #else // NOT USED in p780
 	    params->dsi.fbk_div = 20;    // fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
 #endif
@@ -3397,6 +3397,7 @@ static void lcm_resume_stocklcm(void)
 	  printf("[LK]---cmd---nt35590_stocklcm----%s------\n",__func__);
     #else
 	  printk("[KERNEL]---cmd---nt35590_stocklcm----%s------\n",__func__);
+      printk("[nt35590] fbk_div = %d\n",fbk_div ? fbk_div : fbk_div_default_stocklcm);
     #endif
 }
 
