@@ -41,6 +41,7 @@
 #include <cust_alsps.h>
 #include "APDS9930.h"
 #include <linux/sched.h>
+#include <linux/alsps_sensor.h>
 /******************************************************************************
  * configuration
 *******************************************************************************/
@@ -992,6 +993,28 @@ static int APDS9930_get_ps_value(struct APDS9930_priv *obj, u16 ps)
 	}	
 }
 
+int pocket_detection_check(void)
+{
+	struct APDS9930_priv *obj = APDS9930_obj;
+	long ps_err = 0;
+	int ps_far = 1;
+
+	APDS9930_power(obj->hw, 1); // power on sensor
+	if((ps_far = APDS9930_enable_ps(obj->client, 1)))
+	{
+		APS_ERR("enable ps fail: %ld\n", ps_err);
+		return 1;
+	}
+
+	msleep(5); // wait for ps to enable
+	APDS9930_read_ps(obj->client, &obj->ps); // read data
+	ps_far = APDS9930_get_ps_value(obj, obj->ps); //read ps value
+
+	APDS9930_enable_ps(obj->client, 0); //disable ps detection
+	APDS9930_power(obj->hw, 0); //turn off sensor
+
+	return ps_far;
+}
 
 /*----------------------------------------------------------------------------*/
 /*for interrup work mode support -- by liaoxl.lenovo 12.08.2011*/
