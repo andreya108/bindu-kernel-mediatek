@@ -57,10 +57,12 @@ extern LCM_PARAMS *lcm_params;
 #endif//LENOVO_LCM_INFO
 
 unsigned int EnableVSyncLog = 0;
+#ifdef CONFIG_MTK_AEE_FEATURE
 extern unsigned int isAEEEnabled;
 
 #ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
 unsigned int screen_update_cnt = 0;
+#endif
 #endif
 
 #define INIT_FB_AS_COLOR_BAR    (0)
@@ -96,7 +98,7 @@ static size_t mtkfb_log_on = false;
 #define MTKFB_LOG_D(fmt, arg...) \
 	do { \
 		DISP_LOG_PRINT(ANDROID_LOG_DEBUG, "MTKFB", fmt, ##arg); \
-	}while (0)    
+	}while (0)
 #define MTKFB_ERR(fmt, arg...) \
     do { \
         DISP_LOG_PRINT(ANDROID_LOG_ERROR, "MTKFB", "error(%d):"fmt, __LINE__, ##arg); \
@@ -702,8 +704,8 @@ static void mtkfb_update_screen_impl(void)
     if (is_uboot_refresh == TRUE)
     {
 	is_uboot_refresh = FALSE;
-    }	
-#endif	
+    }
+#endif
      /*lenovo-sw, chenlj2, 2013-6-21, add for hall*/
 	MMProfileLog(MTKFB_MMP_Events.UpdateScreenImpl, MMProfileFlagStart);
 	if (down_interruptible(&sem_overlay_buffer)) {
@@ -1025,21 +1027,21 @@ static int _mtkfb_get_3d_offset(UINT32 layer_type, bool *r_1st, bool *landscape,
             *offset_x=0;
             *offset_y=fb_layer_context.src_height/2;
             *width = fb_layer_context.src_width;
-            *height = fb_layer_context.src_height/2;                    
+            *height = fb_layer_context.src_height/2;
             break;
         case LAYER_3D_SBS_180 :
             *r_1st=1; *landscape=0;
             *offset_x=fb_layer_context.src_width/2;
             *offset_y=0;
             *width = fb_layer_context.src_width/2;
-            *height = fb_layer_context.src_height;                    
+            *height = fb_layer_context.src_height;
             break;
         case LAYER_3D_SBS_270 :
             *r_1st=1; *landscape=1;
             *offset_x=0;
             *offset_y=fb_layer_context.src_height/2;
             *width = fb_layer_context.src_width;
-            *height = fb_layer_context.src_height/2;                    
+            *height = fb_layer_context.src_height/2;
             break;
         default :
             printk("_mtkfb_get_3d_offset not support%d\n",layer_type);
@@ -1147,7 +1149,9 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
             else
             {
                 LCD_Dynamic_Change_FB_Layer(TRUE);
+#ifdef CONFIG_MTK_AEE_FEATURE
                 DAL_RestoreAEE();
+#endif
             }
 		}
 		else
@@ -1155,7 +1159,7 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
 			bool r_1st = 0, landscape = 0;
 			UINT32 offset_x, offset_y;
             UINT32 width, height;
-            
+
             LCD_Dynamic_Change_FB_Layer(FALSE);
 			LCD_CHECK_RET(LCD_Layer3D_Prepare(FB_LAYER, &new_id_offset,TRUE));
             _mtkfb_get_3d_offset(mtkfb_using_layer_type, &r_1st, &landscape, &offset_x, &offset_y, &width, &height);
@@ -1169,10 +1173,10 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
             }
 			LCD_CHECK_RET(LCD_LayerSet3D(FB_LAYER, 1, r_1st, landscape));
 			LCD_CHECK_RET(LCD_LayerSet3D((FB_LAYER+new_id_offset), 1, r_1st, landscape));
-            
+
             LCD_CHECK_RET(LCD_LayerSetAddress((FB_LAYER+new_id_offset), paStart));
 		    LCD_CHECK_RET(LCD_LayerSetWindowOffset((FB_LAYER+new_id_offset), offset_x, offset_y));
-            LCD_CHECK_RET(LCD_LayerSetSize((FB_LAYER+new_id_offset), width, height));  
+            LCD_CHECK_RET(LCD_LayerSetSize((FB_LAYER+new_id_offset), width, height));
             LCD_CHECK_RET(LCD_LayerSetSize((FB_LAYER), width, height));
             LCD_CHECK_RET(LCD_LayerEnable((FB_LAYER+new_id_offset), 1));
 		}
@@ -1184,9 +1188,9 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
         UINT32 width, height;
         _mtkfb_get_3d_offset(mtkfb_using_layer_type, &r_1st, &landscape, &offset_x, &offset_y, &width, &height);
         LCD_CHECK_RET(LCD_LayerSetAddress(FB_LAYER&0x1 ? FB_LAYER-1 : FB_LAYER+1 , paStart));
-        LCD_CHECK_RET(LCD_LayerSetSize((FB_LAYER), width, height));//reset FB_LAYER size to 3d mode  
+        LCD_CHECK_RET(LCD_LayerSetSize((FB_LAYER), width, height));//reset FB_LAYER size to 3d mode
     }
-    
+
 #endif
 
     atomic_set(&OverlaySettingDirtyFlag, 1);
@@ -1599,7 +1603,7 @@ static int mtkfb_set_overlay_layer(struct fb_info *info, struct fb_overlay_layer
     if (is_early_suspended) {
         DISP_CHECK_RET(DISP_LCDPowerEnable(TRUE));
     }
-    
+
 	MTKFB_LOG("L%d set_overlay:%d,%d\n", layerInfo->layer_id, layerInfo->layer_enable, layerInfo->next_buff_idx);
 
     MTKFB_LOG("[FB Driver] mtkfb_set_overlay_layer():layer id = %u, layer en = %u, src format = %u, direct link: %u, src vir addr = %u, src phy addr = %u, src pitch=%u, src xoff=%u, src yoff=%u, src w=%u, src h=%u\n",
@@ -2346,7 +2350,7 @@ static int mtkfb_set_lcm_feature_mode(lenovo_disp_feature_state_t *states)
 End:
 	up(&sem_early_suspend);
 	up(&sem_flipping);
-    return 0; 
+    return 0;
 }
 #endif
 
@@ -2364,7 +2368,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
     switch (cmd) {
 	case MTKFB_GET_FRAMEBUFFER_MVA:
 	{
-        return copy_to_user(argp, &fb_pa,  sizeof(fb_pa)) ? -EFAULT : 0;	
+        return copy_to_user(argp, &fb_pa,  sizeof(fb_pa)) ? -EFAULT : 0;
 	}
 	case MTKFB_GET_MAX_DISPLAY_COUNT:
 	{
@@ -2427,7 +2431,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
 			g_is_fb_secure_layer = t;
 			mtkfb_wfd_secure_output_stub();
 		}
-		return r;	
+		return r;
 	}
 #endif
 	case MTKFB_POWERON:
@@ -3216,12 +3220,14 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
         result = mtkfb_fm_auto_test();
 		return copy_to_user(argp, &result, sizeof(result)) ? -EFAULT : 0;
 	}
+#ifdef CONFIG_MTK_AEE_FEATURE
     case MTKFB_AEE_LAYER_EXIST:
     {
 		//printk("[MTKFB] isAEEEnabled=%d \n", isAEEEnabled);
 		return copy_to_user(argp, &isAEEEnabled,
                             sizeof(isAEEEnabled)) ? -EFAULT : 0;
     }
+#endif
 ////////////////////////////////////////////////
 #ifdef LENOVO_LCM_EFFECT //lenovo add by jixu@lenovo.com
 		case MTKFB_GET_DISPLAY_FEATURE_INFORMATION:
@@ -3258,7 +3264,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
 				disp_feature_state[displayid].gamma_mode= state.gamma_mode;
 			if(state.ie_mode>=0)
 				disp_feature_state[displayid].ie_mode= state.ie_mode;
-	
+
 			mtkfb_set_lcm_feature_mode(&(disp_feature_state[displayid]));
 			return (r);
 		}
@@ -3275,7 +3281,7 @@ static int mtkfb_fbinfo_modify(struct fb_info *info)
     struct mtkfb_device *fbdev = (struct mtkfb_device *)info->par;
     struct fb_var_screeninfo var;
     int r = 0;
-    
+
     memcpy(&var, &(info->var), sizeof(var));
     var.activate		= FB_ACTIVATE_NOW;
     var.bits_per_pixel  = 32;
@@ -3333,12 +3339,12 @@ unsigned int mtkfb_fm_auto_test()
 	r = mtkfb_set_par(mtkfb_fbi);
 	if (r != 0)
 		PRNERR("failed to mtkfb_set_par\n");
-	
+
 	if(color == 0)
 		color = 0xFF00FF00;
 	fbsize = ALIGN_TO(DISP_GetScreenWidth(),32)*DISP_GetScreenHeight()*MTK_FB_PAGES;
 	bls_enable = DISP_BLS_Query();
-	
+
 	printk("BLS is enable %d\n",bls_enable);
     if(bls_enable == 1)
 		DISP_BLS_Enable(false);
@@ -3369,14 +3375,14 @@ unsigned int mtkfb_fm_auto_test()
     }
 
 	result = DISP_AutoTest();
-	
+
 	up(&sem_early_suspend);
 	if(result == 0){
 		printk("ATA LCM failed\n");
 	}else{
 		printk("ATA LCM passed\n");
 	}
-	
+
 	if(bls_enable == 1)
 		DISP_BLS_Enable(true);
 	return result;
@@ -3876,7 +3882,7 @@ BOOL mtkfb_find_lcm_version(void)
 	strncpy((char*)mtkfb_lcm_version, (const char*)p, (int)(q-p));
 
 	printk("%s, %s\n", __func__, mtkfb_lcm_version);
-	
+
 	ret = TRUE;
 
 done:
@@ -3934,7 +3940,7 @@ static s32 lcm_debug_write(struct file *filp, const char __user *buff, unsigned 
 
 	ret = len;
 
-	if (len > lenovo_lcm_proc_buffermax) 
+	if (len > lenovo_lcm_proc_buffermax)
         len = lenovo_lcm_proc_buffermax;
 
 	if (copy_from_user(&lcm_debug_buffer, buff, len))
@@ -3945,7 +3951,7 @@ static s32 lcm_debug_write(struct file *filp, const char __user *buff, unsigned 
 	//while ((tok = strsep(&lcm_debug_buffer, " ")) != NULL)
    // {
     //	printk("[JX] %s %s\n",__func__,tok);
-    
+
         lenovo_lcm_proc_process_opt(lcm_debug_buffer);
    // }
 	//memcpy(lenovo_lcm_proc_readback,lcm_debug_buffer,sizeof(lcm_debug_buffer));
@@ -4090,9 +4096,9 @@ static int mtkfb_probe(struct device *dev)
 #endif
 	}
 #ifdef LENOVO_LCM_INFO////lenovo add begin by jixu@lenovo.com
-	
+
 			do{
-				
+
 				if(lcm_drv==NULL){
 					printk("[JX] lcm_drv is NULL\n");
 					break;
@@ -4100,12 +4106,12 @@ static int mtkfb_probe(struct device *dev)
 			#ifdef LENOVO_LCM_VERSION
 				if((lcm_drv->version)!= NULL){
 					mtkfb_find_lcm_version();
-		
+
 					sprintf(lcm_drv->version,"%s_%s;\n", lcm_drv->version, mtkfb_lcm_version);
 				}
 			#endif
-				
-				lcm_debug = create_proc_entry("lcm_debug",0660,NULL);	
+
+				lcm_debug = create_proc_entry("lcm_debug",0660,NULL);
 				if(lcm_debug==NULL){
 					printk("[JX] Creat lcm_debug failed!!!\n");
 				}
@@ -4114,7 +4120,7 @@ static int mtkfb_probe(struct device *dev)
 					lcm_debug->write_proc = lcm_debug_write;
 					lcm_debug->read_proc = lcm_debug_read;
 				}
-				
+
 				lcm_info = create_proc_entry("lcm_info",0444,NULL);
 				if(lcm_info==NULL){
 					printk("[JX] Creat lcm_info failed!!!\n");
@@ -4133,9 +4139,9 @@ static int mtkfb_probe(struct device *dev)
 					lcm_version->read_proc = lcm_version_read;
 				}
 			#endif
-		
+
 			}while(0);
-		
+
 #endif//LENOVO_LCM_INFO
 
 	MTK_FB_XRES  = DISP_GetScreenWidth();
@@ -4476,27 +4482,29 @@ static void mtkfb_early_suspend(struct early_suspend *h)
     for(i=0;i<HW_OVERLAY_COUNT;i++)
     {
         disp_sync_release(i);
-        if (!((i == DISP_DEFAULT_UI_LAYER_ID) && isAEEEnabled)) 
+#ifdef CONFIG_MTK_AEE_FEATURE
+        if (!((i == DISP_DEFAULT_UI_LAYER_ID) && isAEEEnabled))
         {
             cached_layer_config[i].layer_en = 0;
             cached_layer_config[i].isDirty = 0;
         }
-        MTKFB_LOG("[FB driver] layer%d release fences\n",i);		
+#endif
+        MTKFB_LOG("[FB driver] layer%d release fences\n",i);
     }
 #endif
 	DISP_CHECK_RET(DISP_PanelEnable(FALSE));
  	DISP_CHECK_RET(DISP_PowerEnable(FALSE));
 
 	DISP_CHECK_RET(DISP_PauseVsync(TRUE));
-	
+
 	// clear force on before early suspend
         if(clk_is_force_on(MT_CG_DISP0_LARB2_SMI))
         {
             printk("[FB Driver] clear force on\n");
             clk_clr_force_on(MT_CG_DISP0_LARB2_SMI);
         }
-    
-    
+
+
 	#ifdef MT65XX_NEW_DISP
 	disp_path_clock_off("mtkfb");
 	#endif
@@ -4507,9 +4515,11 @@ static void mtkfb_early_suspend(struct early_suspend *h)
 	sem_early_suspend_cnt++;
     up(&sem_early_suspend);
     mutex_unlock(&ScreenCaptureMutex);
-	aee_kernel_wdt_kick_Powkey_api("mtkfb_early_suspend",WDT_SETBY_Display); 
+#ifdef CONFIG_MTK_AEE_FEATURE
+    aee_kernel_wdt_kick_Powkey_api("mtkfb_early_suspend",WDT_SETBY_Display);
+#endif
     printk("[FB Driver] leave early_suspend\n");
-    
+
     MSG_FUNC_LEAVE();
 }
 #endif
@@ -4589,7 +4599,9 @@ static void mtkfb_late_resume(struct early_suspend *h)
 	}
 #endif
     printk("[FB Driver] leave late_resume\n");
-	aee_kernel_wdt_kick_Powkey_api("mtkfb_late_resume",WDT_SETBY_Display); 
+#ifdef CONFIG_MTK_AEE_FEATURE
+    aee_kernel_wdt_kick_Powkey_api("mtkfb_late_resume",WDT_SETBY_Display);
+#endif
     MSG_FUNC_LEAVE();
 }
 #endif

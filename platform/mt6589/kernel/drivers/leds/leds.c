@@ -27,7 +27,9 @@
 #include <mach/upmu_common_sw.h>
 #include <mach/upmu_hw.h>
 #include "leds_sw.h"
+#ifdef CONFIG_MTK_AEE_FEATURE
 #include <linux/aee.h>
+#endif
 
 static DEFINE_MUTEX(leds_mutex);
 //#define ISINK_CHOP_CLK
@@ -819,7 +821,9 @@ void mt_mt65xx_led_set(struct led_classdev *led_cdev, enum led_brightness level)
 		}
 	}
 	//spin_unlock_irqrestore(&leds_lock, flags);
-	aee_kernel_wdt_kick_Powkey_api("mt_mt65xx_led_set",WDT_SETBY_Backlight);
+#ifdef CONFIG_MTK_AEE_FEATURE
+    aee_kernel_wdt_kick_Powkey_api("mt_mt65xx_led_set",WDT_SETBY_Backlight);
+#endif
 }
 
 int  mt_mt65xx_blink_set(struct led_classdev *led_cdev,
