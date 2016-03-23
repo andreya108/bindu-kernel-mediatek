@@ -184,7 +184,6 @@ static long int get_current_time_us(void)
 #endif
 static void lcm_mdelay(UINT32 ms)
 {
-//    udelay(1000 * ms);
     mdelay(ms);
 }
 void DSI_Enable_Log(bool enable)

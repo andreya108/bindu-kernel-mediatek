@@ -82,6 +82,7 @@
 *
 ********************************************************************************/
 /* SENSOR CHIP VERSION */
+#define MT9M114_SENSOR_ID                       0x2481
 #define OV2722MIPI_SENSOR_ID                    0x2722
 #define MC501CB_SENSOR_ID                       0x0062
 #define MC501CC_SENSOR_ID                       0x0074
@@ -221,6 +222,11 @@
 #define A5141MIPI_SENSOR_ID                     0x4800
 #define SP0A19_YUV_SENSOR_ID				0xA6
 #define A5142MIPI_SENSOR_ID                     0x4800
+
+#define S5K4E1FX_SENSOR_ID                      0x4E10
+
+#define IMX111_SENSOR_ID                     	0x0111
+#define SOC5140_SENSOR_ID                       0x2880
 #define GC0313MIPI_YUV_SENSOR_ID                0xD0
 #define IMX135_SENSOR_ID                        0x0135  
 //lenovo.sw wangsx3 20140515 add main backup sensor ov8865
@@ -228,15 +234,17 @@
 #define OV16825MIPI_SENSOR_ID                       0x0168
 #define IMX220_SENSOR_ID                        0x0220
 #define GC2035_SENSOR_ID			0x2035
-#define GC0329_SENSOR_ID			0xC0
-#define GC0330_SENSOR_ID			0xC1
+#define GC0329_SENSOR_ID			0x00C0
+#define GC0330_SENSOR_ID			0x00C1
 #define S5K4H5YX_2LANE_SENSOR_ID                0x485B
-#define MT9V113_MIPI_SENSOR_ID					0x2280   
+#define MT9V113_MIPI_SENSOR_ID					0x2280
+#define GC2035MIPI_SENSOR_ID                   0x2036
 
 /* CAMERA DRIVER NAME */
 #define CAMERA_HW_DEVNAME            "kd_camera_hw"
 
 /* SENSOR DEVICE DRIVER NAME */
+#define SENSOR_DRVNAME_MT9M114_MIPI_YUV		"mt9m114mipiyuv"
 #define SENSOR_DRVNAME_OV2722_MIPI_RAW  "ov2722mipiraw"
 #define SENSOR_DRVNAME_MT9P012_RAW  "mt9p012"
 #define SENSOR_DRVNAME_MT9P015_RAW  "mt9p015"
@@ -275,6 +283,8 @@
 #define SENSOR_DRVNAME_HI253_YUV    	"hi253yuv"
 #define SENSOR_DRVNAME_SIV121D_YUV    	"siv121dyuv"
 #define SENSOR_DRVNAME_HI704_YUV    	"hi704yuv"
+#define SENSOR_DRVNAME_GC2035_YUV      "gc2035yuv"
+#define SENSOR_DRVNAME_GC0329_YUV      "gc0329yuv"
 #define SENSOR_DRVNAME_MT9V114_YUV    "mt9v114"
 #define SENSOR_DRVNAME_MT9V115_YUV	"mt9v115yuv"
 #define SENSOR_DRVNAME_MT9T113_YUV    "mt9t113yuv"
@@ -297,6 +307,7 @@
 #define SENSOR_DRVNAME_OV8825_MIPI_RAW   "ov8825mipiraw"
 #define SENSOR_DRVNAME_OV12830_MIPI_RAW   "ov12830mipiraw"
 #define SENSOR_DRVNAME_GC2035_YUV   "gc2035_yuv"
+#define SENSOR_DRVNAME_GC2035MIPI_YUV      "gc2035mipiyuv"
 /*lenovo-sw sunliang modfiy for main backup 2013_10_14 begin*/
 #define SENSOR_DRVNAME_OV12830_MIPI_RAW_BACKUP   "ov12830mipirawbackup"
 /*lenovo-sw sunliang modfiy for main backup 2013_10_14 begin*/
@@ -314,6 +325,10 @@
 #define SENSOR_DRVNAME_OV8865_MIPI_RAW   "ov8865mipiraw"
 #define SENSOR_DRVNAME_S5K4H5YX_2LANE_MIPI_RAW  "s5k4h5yx2lanemipiraw"
 #define SENSOR_DRVNAME_MT9V113_MIPI_YUV     "mt9v113mipiyuv"
+#define SENSOR_DRVNAME_S5K4E1FX_RAW   "s5k4e1fxraw"
+#define SENSOR_DRVNAME_IMX111_MIPI_RAW   "imx111mipiraw"
+#define SENSOR_DRVNAME_SOC5140_MIPI_YUV    "soc5140mipiyuv"
+
 /*******************************************************************************
 *
 ********************************************************************************/

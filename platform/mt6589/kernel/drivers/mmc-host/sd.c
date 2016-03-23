@@ -5511,6 +5511,10 @@ static void msdc_ops_request_legacy(struct mmc_host *mmc, struct mmc_request *mr
 				goto out;
         } 
 
+        if ( cmd->error == (unsigned int)-ENOMEDIUM ) {
+            goto out;
+        }
+
         // [ALPS114710] Patch for data timeout issue.
         if (data && (data->error == (unsigned int)-ETIMEDOUT)) {  
             if (data->flags & MMC_DATA_READ) {
@@ -5754,6 +5758,10 @@ static void msdc_tune_async_request(struct mmc_host *mmc, struct mmc_request *mr
 			else
 				goto out;
         } 
+
+        if ( cmd->error == (unsigned int)-ENOMEDIUM ) {
+            goto out;
+        }
 
         // [ALPS114710] Patch for data timeout issue.
         if (data && (data->error == (unsigned int)-ETIMEDOUT)) {  

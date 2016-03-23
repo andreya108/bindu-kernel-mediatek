@@ -1,4 +1,4 @@
-OPTIM = -Os
+OPTIM = -O3 -fmodulo-sched -fmodulo-sched-allow-regmoves -fno-tree-vectorize -fno-inline-functions
 VER:=eng
 
 ccflags-y := \

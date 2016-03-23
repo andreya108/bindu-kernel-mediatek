@@ -262,3 +262,10 @@ endmenu
 config VFP_OPT
     bool "VFP OPT"
     default y
+	help
+
+config PVR_TIMER_HIGHPRIO
+	bool "PVR timer high priority workqueue"
+	default n
+	help
+	high priority for PVR workqueue (ALPS01435516)

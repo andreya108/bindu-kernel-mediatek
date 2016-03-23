@@ -1394,8 +1394,11 @@ static int freqhopping_dramc_proc_write(struct file *file, const char *buffer, u
 	if (sscanf(dramc, "%d", &freq) == 1)
 	{
 		if( (freq == 266) || (freq == 200)){
-			FH_MSG("dramc:%d ", freq);
-			(freq==266) ? mt_fh_hal_l2h_mempll() : mt_fh_hal_h2l_mempll();
+			FH_MSG("dramc:%d, g_curr_dramc:%d ", freq, g_curr_dramc);
+            if (g_curr_dramc != 293)
+			    (freq==266) ? mt_fh_hal_l2h_mempll() : mt_fh_hal_h2l_mempll();
+            else 
+                if (freq == 266)  mt_oc2h_mempll();
 		}
 		else if(freq == 293){
 			mt_fh_hal_dram_overclock(293);

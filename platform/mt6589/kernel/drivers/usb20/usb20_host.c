@@ -104,6 +104,10 @@ void mt_usb_set_vbus(struct musb *musb, int is_on)
         fan5405_set_opa_mode(1);
         fan5405_set_otg_pl(1);
         fan5405_set_otg_en(1);
+    #elif defined(MTK_BQ24158_SUPPORT)
+        bq24158_set_opa_mode(1);
+	bq24158_set_otg_pl(1);
+	bq24158_set_otg_en(1);        
 //Lenovo.sw yexh1 20131012 LENOVO_USB_STANDARD, add for usb otg vbus output
    #elif defined(MTK_BQ24196_SUPPORT)
    bq24196_set_otg_en(1);
@@ -120,6 +124,9 @@ void mt_usb_set_vbus(struct musb *musb, int is_on)
     #ifdef MTK_FAN5405_SUPPORT
         fan5405_config_interface_liao(0x01,0x30);
 		fan5405_config_interface_liao(0x02,0x8e);
+    #elif defined(MTK_BQ24158_SUPPORT)
+        bq24158_config_interface_reg(0x01,0x30);
+	bq24158_config_interface_reg(0x02,0x8e);		
 //Lenovo.sw yexh1 20131012 LENOVO_USB_STANDARD, add for usb otg vbus output
    #elif defined(MTK_BQ24196_SUPPORT)
         bq24196_set_otg_en(0);

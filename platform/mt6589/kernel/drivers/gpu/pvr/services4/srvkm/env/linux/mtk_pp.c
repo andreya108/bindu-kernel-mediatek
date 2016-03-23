@@ -6,7 +6,7 @@
 
 #include "mtk_pp.h"
 
-#define ENABLE_AEE_WHEN_LOCKUP
+//#define ENABLE_AEE_WHEN_LOCKUP
 
 #if defined(ENABLE_AEE_WHEN_LOCKUP)
 #include <linux/workqueue.h>

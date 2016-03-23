@@ -39,7 +39,12 @@
 /*********************************
 * glabal variable
 **********************************/
+// INTELLI_PLUG
+#ifdef CONFIG_INTELLI_PLUG 
+static int g_enable = 0;
+#else
 static int g_enable = 1;
+#endif
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
 static int g_enable_cpu_rush_boost = 0;

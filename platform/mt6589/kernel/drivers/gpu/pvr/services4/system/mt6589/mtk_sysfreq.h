@@ -11,6 +11,11 @@
 #define TBLTYPE2        0x2
 #define TBLTYPE3        0x3
 
+#define TBLTYPE0_0      0x4
+#define TBLTYPE0_1      0x5
+#define TBLTYPE0_2      0x6
+#define TBLTYPE0_3      0x7
+
 typedef struct PVRSRV_BRIDGE_INPUT_TAG
 {
     unsigned int freq;
@@ -34,5 +39,9 @@ PVRSRV_ERROR MtkInitSetFreq(void);
 void MtkInitSetFreqTbl(unsigned int tbltype);
 void MtkSetKeepFreq(void);
 
+extern unsigned int proton_gpu_frequency_get(void);
+extern unsigned int proton_gpu_tbltype_get(void);
+extern unsigned int proton_gpu_voltage_get(int num);
+extern bool proton_gpu_dvfs;
 
 #endif // MTK_SYSFREQ_H

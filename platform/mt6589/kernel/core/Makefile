@@ -5,6 +5,7 @@
 obj-y := core.o irq.o timer.o mt_dbg.o
 obj-y += mt_devs.o mt_gpt.o mt_boot.o board.o mt_pm_init.o
 obj-y += ca7_timer.o dram_overclock.o
+obj-y += proton_control.o
 ifeq ($(CONFIG_SMP),y)
 obj-y += mt-smp.o hotplug.o mt-headsmp.o mt_hotplug.o mt_hotplug_mechanism.o
 endif
@@ -79,7 +80,7 @@ ifeq ($(CONFIG_THERMAL),y)
 endif
 
 obj-y += mt_ptp.o
-obj-y += pftracer.o
+#obj-y += pftracer.o
 
 # Hibernation
 AFLAGS_swsusp.o	:= -DTEXT_OFFSET=$(TEXT_OFFSET)
@@ -91,6 +92,10 @@ ifneq ($(MTK_TABLET_HARDWARE), )
 ccflags-y += -DMTK_TABLET_PLATFORM=\"$(shell echo $(MTK_TABLET_HARDWARE) | tr a-z A-Z )\"
 endif
 
-KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=neon)
+ifeq ($(CONFIG_KERNEL_UNDERVOLT),yes)
+ccflags-y += -DPROTON_UNDERVOLT
+endif
+
+KBUILD_AFLAGS	:=$(KBUILD_AFLAGS:-msoft-float=-Wa,-mfpu=neon-vfpv4)
 
 

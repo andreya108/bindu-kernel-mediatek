@@ -75,6 +75,9 @@ typedef bool                    MBOOL;
 /*******************************************************************************
 *
 ********************************************************************************/
+//security concern
+#define ISP_RANGE         (0x10000)
+///////////////////////////////////////////////////////////////////
 #define ISP_DEV_NAME                "camera-isp"
 #define ISP_IRQ_POLLING             (0)
 
@@ -1258,9 +1261,15 @@ static MINT32 ISP_ReadReg(ISP_REG_IO_STRUCT* pRegIo)
             goto EXIT;
         }
         pData++;
-        //
+        if((ISP_ADDR_CAMINF + reg.Addr >= ISP_ADDR) && (ISP_ADDR_CAMINF + reg.Addr < (ISP_ADDR_CAMINF+ISP_RANGE)))
+        {
         reg.Val = ISP_RD32(ISP_ADDR_CAMINF + reg.Addr);
-        //
+        }
+        else
+        {
+            LOG_ERR("Wrong address(0x%x)",(unsigned int)(ISP_ADDR_CAMINF + reg.Addr));
+            reg.Val = 0;
+        }
         if  ( 0 != put_user(reg.Val, pData) )
         {
             LOG_ERR("put_user failed");
@@ -1298,7 +1307,14 @@ static MINT32 ISP_WriteRegToHw(
         {
             LOG_DBG("Addr(0x%08X), Val(0x%08X)", (MUINT32)(ISP_ADDR_CAMINF + pReg[i].Addr), (MUINT32)(pReg[i].Val));
         }
+        if(((ISP_ADDR_CAMINF + pReg[i].Addr) >= ISP_ADDR) && ((ISP_ADDR_CAMINF + pReg[i].Addr) < (ISP_ADDR_CAMINF+ISP_RANGE)))
+        {
         ISP_WR32(ISP_ADDR_CAMINF + pReg[i].Addr, pReg[i].Val);
+        }
+        else
+        {
+            LOG_ERR("wrong address(0x%x)",(unsigned int)(ISP_ADDR_CAMINF + pReg[i].Addr));
+        }
     }
     spin_unlock(&(IspInfo.SpinLockIsp));
     //
@@ -3413,6 +3429,13 @@ static long ISP_ioctl(
         {
             if(copy_from_user(&WaitIrq, (void*)Param, sizeof(ISP_WAIT_IRQ_STRUCT)) == 0)
             {
+                if((WaitIrq.Type >= ISP_IRQ_TYPE_AMOUNT) ||(WaitIrq.Type<0))
+                {
+                    Ret = -EFAULT;
+                    LOG_ERR("invalid type(%d)",WaitIrq.Type);
+                    goto EXIT;
+                }
+                //
                 Ret = ISP_WaitIrq(WaitIrq);
             }
             else
@@ -3426,6 +3449,13 @@ static long ISP_ioctl(
         {
             if(copy_from_user(&ReadIrq, (void*)Param, sizeof(ISP_READ_IRQ_STRUCT)) == 0)
             {
+                LOG_DBG("ISP_READ_IRQ Type(%d)",ReadIrq.Type);
+                if((ReadIrq.Type >= ISP_IRQ_TYPE_AMOUNT) ||(ReadIrq.Type<0))
+                {
+                    Ret = -EFAULT;
+                    LOG_ERR("invalid type(%d)",ReadIrq.Type);
+                    goto EXIT;
+                }
                 #if ISP_IRQ_POLLING
                 spin_lock_irqsave(&(IspInfo.SpinLockIrq), flags);
                 //
@@ -3467,6 +3497,14 @@ static long ISP_ioctl(
         {
             if(copy_from_user(&ClearIrq, (void*)Param, sizeof(ISP_CLEAR_IRQ_STRUCT)) == 0)
             {
+                 LOG_DBG("ISP_CLEAR_IRQ Type(%d)",ClearIrq.Type);
+                
+                if((ClearIrq.Type >= ISP_IRQ_TYPE_AMOUNT) ||(ClearIrq.Type<0))
+                {
+                    Ret = -EFAULT;
+                    LOG_ERR("invalid type(%d)",ClearIrq.Type);
+                    goto EXIT;
+                }
                 spin_lock_irqsave(&(IspInfo.SpinLockIrq), flags);
                 //
                 #if ISP_IRQ_POLLING
@@ -3555,6 +3593,7 @@ static long ISP_ioctl(
         }
     }
     //
+    EXIT:
     if(Ret != 0)
     {
         LOG_ERR("Fail, Cmd(%d), Pid(%d), (process, pid, tgid)=(%s, %d, %d)",Cmd, pUserInfo->Pid, current->comm , current->pid, current->tgid);

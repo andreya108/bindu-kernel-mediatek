@@ -32,7 +32,9 @@
 #include "mtkfb_info.h"
 #include <linux/dma-mapping.h>
 #include <linux/rtpm_prio.h>
+#ifdef CONFIG_MTK_AEE_FEATURE
 #include <linux/aee.h>
+#endif
 extern unsigned int lcd_fps;
 extern BOOL is_early_suspended;
 extern struct semaphore sem_early_suspend;
@@ -2138,7 +2140,9 @@ static int _DISP_DetectAliveKThread(void *data)
 
 			if(disp_memout_timeout_cnt >3 || vsync_timeout_cnt>3 || disp_thread_timeout_cnt>3){
 				printk("[ERROR, display detect hang], MEM timeout cnt = %d, vsync timeout = %d, SW thread timeout = %d\n",disp_memout_timeout_cnt,vsync_timeout_cnt,disp_thread_timeout_cnt);	
+#ifdef CONFIG_MTK_AEE_FEATURE
 				aee_kernel_warning("[Hang Detect]", "Display hang, we triger HWT");
+#endif
 				msleep(20*1000);
 				BUG();
 			}				
