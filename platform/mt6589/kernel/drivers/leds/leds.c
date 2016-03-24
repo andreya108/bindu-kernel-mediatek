@@ -751,6 +751,14 @@ int mt_mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level)
 			return 1;
 
 		case MT65XX_LED_MODE_GPIO:
+			#if defined(SLT_DRV_AW992_CONFIG)
+			if( level <= 30  && level > 20)
+			{
+				printk("mt65xx_leds_set_cust: set brightness, level:%d change to 20 by GPG!\n", level);
+				level = 20;				
+			}
+			#endif
+
 			printk("[LEDS_MT6589] brightness_set_cust:go GPIO mode! level=%d\n",level);
 			return ((cust_set_brightness)(cust->data))(level);
 

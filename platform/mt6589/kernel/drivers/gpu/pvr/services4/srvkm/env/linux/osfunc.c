@@ -4636,7 +4636,7 @@ PVRSRV_ERROR PVROSFuncInit(IMG_VOID)
 {
 #if defined(PVR_LINUX_TIMERS_USING_WORKQUEUES)
     {
-#if 1//for ALPS01435516
+#if defined(CONFIG_PVR_TIMER_HIGHPRIO)
         psTimerWorkQueue = alloc_workqueue("pvr_timer", WQ_HIGHPRI, 1);
 #else
         psTimerWorkQueue = create_workqueue("pvr_timer");

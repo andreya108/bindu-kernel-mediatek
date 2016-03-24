@@ -1977,6 +1977,20 @@ void select_charging_curret_bq24158(void)
                 }                       
 #else            
                 bq24158_config_interface_reg(0x01,0x78);
+	        //++++++++++++++++++++++add code here++++++++++++++++++++++++++++++++++
+		if(g_enable_high_vbat_spec == 1)
+		{
+		if(g_pmic_cid == 0x1020)
+		bq24158_config_interface_reg(0x02,0x8E);
+		else
+		bq24158_config_interface_reg(0x02,0xaa);
+		}
+		else
+		bq24158_config_interface_reg(0x02,0x8E); //for 4.2v CV threshold 
+		
+		bq24158_config_interface_reg(0x05,0x04);
+		
+		//++++++++++++++++++++++add code here++++++++++++++++++++++++++++++++++          
 #endif                
                 if (Enable_BATDRV_LOG == 1) {
                     printk("[BATTERY:bq24158] bq24158_config_interface_reg(0x01,0x78); 2\r\n");    
@@ -2744,6 +2758,7 @@ int BAT_CheckBatteryStatus_bq24158(void)
         (BMT_status.temperature == ERR_CHARGE_TEMPERATURE))
     {
         printk(  "[BATTERY] Battery Under Temperature or NTC fail !!\n\r");                
+        BMT_status.charger_protect_status = BATTERY_OVER_TEMP;//¼ÓÉÏÕâ¾ä»°           
         BMT_status.bat_charging_state = CHR_ERROR;
         return PMU_STATUS_FAIL;       
     }
@@ -2751,6 +2766,7 @@ int BAT_CheckBatteryStatus_bq24158(void)
     if (BMT_status.temperature >= MAX_CHARGE_TEMPERATURE)
     {
         printk(  "[BATTERY] Battery Over Temperature !!\n\r");                
+        BMT_status.charger_protect_status = BATTERY_OVER_TEMP;//¼ÓÉÏÕâ¾ä»°             
         BMT_status.bat_charging_state = CHR_ERROR;
         return PMU_STATUS_FAIL;       
     }
@@ -2831,6 +2847,20 @@ PMU_STATUS BAT_BatteryStatusFailAction(void)
 
     /*  Disable charger */
     pchr_turn_off_charging_bq24158();
+
+ if ((BMT_status.temperature <= (MAX_CHARGE_TEMPERATURE - 5)) &&     // Ð¡ÓÚMAX_CHARGE_TEMPERATURE-5ÒÔ¼°¸ßÓÚMIN_CHARGE_TEMPERATURE+5µÄÊ±ºò»Ö¸´³äµç
+    (BMT_status.temperature >= (MIN_CHARGE_TEMPERATURE + 5))&&
+    (BMT_status.temperature != ERR_CHARGE_TEMPERATURE)&&
+    (BMT_status.charger_protect_status == BATTERY_OVER_TEMP))
+   {
+		BMT_status.bat_charging_state = CHR_PRE;
+		BMT_status.charger_protect_status = 0;
+        if (Enable_BATDRV_LOG == 1) 
+       {
+       // printf(  "[BATTERY] temperture in range... start charging again!!\n\r");
+      }
+ }
+
 
     return PMU_STATUS_OK;
 }
