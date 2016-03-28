@@ -17,20 +17,20 @@
 
 #include "cust_gpio_usage.h"
 
- 
- 
+
+
 extern struct tpd_device *tpd;
- 
+
 struct i2c_client *i2c_client = NULL;
 struct task_struct *thread = NULL;
- 
+
 static DECLARE_WAIT_QUEUE_HEAD(waiter);
 static DEFINE_MUTEX(i2c_access);
- 
- 
+
+
 static void tpd_eint_interrupt_handler(void);
- 
-#ifdef MT6575 
+
+#ifdef MT6575
  extern void mt_eint_unmask(unsigned int line);
  extern void mt_eint_mask(unsigned int line);
  extern void mt65xx_eint_set_hw_debounce(kal_uint8 eintno, kal_uint32 ms);
@@ -100,7 +100,7 @@ static int usb_cable_flag = 0;
 #define TOUCH3_YH 0x11
 #define TOUCH3_YL 0x12
 
-#define CONFIG_SUPPORT_FTS_CTP_UPG  
+//#define CONFIG_SUPPORT_FTS_CTP_UPG
 
 //register define
 //#define ESD_CHECK
@@ -123,7 +123,7 @@ static struct delayed_work ctp_read_id_work;
 static struct workqueue_struct * ctp_read_id_workqueue = NULL;
 #endif
 
-#ifdef TPD_HAVE_BUTTON 
+#ifdef TPD_HAVE_BUTTON
 static int tpd_keys_local[TPD_KEY_COUNT] = TPD_KEYS;
 static int tpd_keys_dim_local[TPD_KEY_COUNT][4] = TPD_KEYS_DIM;
 #endif
@@ -244,12 +244,12 @@ static long tpd_unlocked_ioctl(struct file *file, unsigned int cmd,
        unsigned long arg)
 {
 	//struct i2c_client *client = (struct i2c_client*)file->private_data;
-	//struct adxl345_i2c_data *obj = (struct adxl345_i2c_data*)i2c_get_clientdata(client);	
+	//struct adxl345_i2c_data *obj = (struct adxl345_i2c_data*)i2c_get_clientdata(client);
 	//char strbuf[256];
 	void __user *data;
-	
+
 	long err = 0;
-	
+
 	if(_IOC_DIR(cmd) & _IOC_READ)
 	{
 		err = !access_ok(VERIFY_WRITE, (void __user *)arg, _IOC_SIZE(cmd));
@@ -272,14 +272,14 @@ static long tpd_unlocked_ioctl(struct file *file, unsigned int cmd,
 			if(data == NULL)
 			{
 				err = -EINVAL;
-				break;	  
-			}			
-			
+				break;
+			}
+
 			if(copy_to_user(data, &g_v_magnify_x, sizeof(g_v_magnify_x)))
 			{
 				err = -EFAULT;
 				break;
-			}				 
+			}
 			break;
 
 	   case TPD_GET_VELOCITY_CUSTOM_Y:
@@ -287,14 +287,14 @@ static long tpd_unlocked_ioctl(struct file *file, unsigned int cmd,
 			if(data == NULL)
 			{
 				err = -EINVAL;
-				break;	  
-			}			
-			
+				break;
+			}
+
 			if(copy_to_user(data, &g_v_magnify_y, sizeof(g_v_magnify_y)))
 			{
 				err = -EFAULT;
 				break;
-			}				 
+			}
 			break;
 
 
@@ -302,7 +302,7 @@ static long tpd_unlocked_ioctl(struct file *file, unsigned int cmd,
 			printk("tpd: unknown IOCTL: 0x%08x\n", cmd);
 			err = -ENOIOCTLCMD;
 			break;
-			
+
 	}
 
 	return err;
@@ -335,14 +335,14 @@ struct touch_info {
     int size[5];
 	#endif
 };
- 
+
  static const struct i2c_device_id ft5206_tpd_id[] = {{"ft5206",0},{}};
- //unsigned short force[] = {0,0x70,I2C_CLIENT_END,I2C_CLIENT_END}; 
+ //unsigned short force[] = {0,0x70,I2C_CLIENT_END,I2C_CLIENT_END};
  //static const unsigned short * const forces[] = { force, NULL };
  //static struct i2c_client_address_data addr_data = { .forces = forces, };
  static struct i2c_board_info __initdata ft5206_i2c_tpd={ I2C_BOARD_INFO("ft5206", (0x70>>1))};
- 
- 
+
+
  static struct i2c_driver tpd_i2c_driver = {
   .driver = {
 	 .name = "ft5206",//.name = TPD_DEVICE,
@@ -354,7 +354,7 @@ struct touch_info {
   .detect = tpd_detect,
 //  .address_data = &addr_data,
  };
- 
+
  #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
 static u8 *CTPI2CDMABuf_va = NULL;
 static u32 CTPI2CDMABuf_pa = NULL;
@@ -383,14 +383,14 @@ typedef unsigned char         FTS_BOOL;    //8 bit
 #define I2C_CTPM_ADDRESS       0x70
 
 /***********************************************************************************************
-Name	:	ft5x0x_i2c_rxdata 
+Name	:	ft5x0x_i2c_rxdata
 
 Input	:	*rxdata
                      *length
 
 Output	:	ret
 
-function	:	
+function	:
 
 ***********************************************************************************************/
 static int ft5x0x_i2c_rxdata(char *rxdata, int length)
@@ -416,18 +416,18 @@ static int ft5x0x_i2c_rxdata(char *rxdata, int length)
 	ret = i2c_transfer(i2c_client->adapter, msgs, 2);
 	if (ret < 0)
 		pr_err("msg %s i2c read error: %d\n", __func__, ret);
-	
+
 	return ret;
 }
 /***********************************************************************************************
-Name	:	 
+Name	:
 
-Input	:	
-                     
+Input	:
 
-Output	:	
 
-function	:	
+Output	:
+
+function	:
 
 ***********************************************************************************************/
 static int ft5x0x_i2c_txdata(char *txdata, int length)
@@ -456,7 +456,7 @@ Name	:	 ft5x0x_write_reg
 Input	:	addr -- address
                      para -- parameter
 
-Output	:	
+Output	:
 
 function	:	write register of ft5x0x
 
@@ -473,18 +473,18 @@ static int ft5x0x_write_reg(u8 addr, u8 para)
         pr_err("write reg failed! %#x ret: %d", buf[0], ret);
         return -1;
     }
-    
+
     return 0;
 }
 
 
 /***********************************************************************************************
-Name	:	ft5x0x_read_reg 
+Name	:	ft5x0x_read_reg
 
 Input	:	addr
                      pdata
 
-Output	:	
+Output	:
 
 function	:	read register of ft5x0x
 
@@ -517,7 +517,7 @@ static int ft5x0x_read_reg(u8 addr, u8 *pdata)
 
 	*pdata = buf[0];
 	return ret;
-  
+
 }
 
 
@@ -525,9 +525,9 @@ static int ft5x0x_read_reg(u8 addr, u8 *pdata)
 Name	:	 ft5x0x_read_fw_ver
 
 Input	:	 void
-                     
 
-Output	:	 firmware version 	
+
+Output	:	 firmware version
 
 function	:	 read TP firmware version
 
@@ -563,7 +563,7 @@ static void delay_qt_ms(unsigned long  w_ms)
 
 
 /*
-[function]: 
+[function]:
     callback: read data from ctpm by i2c interface,implemented by special user;
 [parameters]:
     bt_ctpm_addr[in]    :the address of the ctpm;
@@ -576,7 +576,7 @@ static void delay_qt_ms(unsigned long  w_ms)
 FTS_BOOL i2c_read_interface(FTS_BYTE bt_ctpm_addr, FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 {
     int ret;
-    
+
     ret=i2c_master_recv(i2c_client, pbt_buf, dw_lenth);
 
     if(ret<=0)
@@ -584,12 +584,12 @@ FTS_BOOL i2c_read_interface(FTS_BYTE bt_ctpm_addr, FTS_BYTE* pbt_buf, FTS_DWRD d
         printk("[TSP]i2c_read_interface error\n");
         return FTS_FALSE;
     }
-  
+
     return FTS_TRUE;
 }
 
 /*
-[function]: 
+[function]:
     callback: write data to ctpm by i2c interface,implemented by special user;
 [parameters]:
     bt_ctpm_addr[in]    :the address of the ctpm;
@@ -613,14 +613,14 @@ FTS_BOOL i2c_write_interface(FTS_BYTE bt_ctpm_addr, FTS_BYTE* pbt_buf, FTS_DWRD 
 }
 
 /*
-[function]: 
+[function]:
     send a command to ctpm.
 [parameters]:
     btcmd[in]        :command code;
-    btPara1[in]    :parameter 1;    
-    btPara2[in]    :parameter 2;    
-    btPara3[in]    :parameter 3;    
-    num[in]        :the valid input parameter numbers, if only command code needed and no parameters followed,then the num is 1;    
+    btPara1[in]    :parameter 1;
+    btPara2[in]    :parameter 2;
+    btPara3[in]    :parameter 3;
+    num[in]        :the valid input parameter numbers, if only command code needed and no parameters followed,then the num is 1;
 [return]:
     FTS_TRUE    :success;
     FTS_FALSE    :io fail;
@@ -637,25 +637,25 @@ FTS_BOOL cmd_write(FTS_BYTE btcmd,FTS_BYTE btPara1,FTS_BYTE btPara2,FTS_BYTE btP
 }
 
 /*
-[function]: 
+[function]:
     write data to ctpm , the destination address is 0.
 [parameters]:
     pbt_buf[in]    :point to data buffer;
-    bt_len[in]        :the data numbers;    
+    bt_len[in]        :the data numbers;
 [return]:
     FTS_TRUE    :success;
     FTS_FALSE    :io fail;
 */
 FTS_BOOL byte_write(FTS_BYTE* pbt_buf, FTS_DWRD dw_len)
 {
-    
+
     return i2c_write_interface(I2C_CTPM_ADDRESS, pbt_buf, dw_len);
 }
 
 
 static int CTPDMA_i2c_write(FTS_BYTE slave,FTS_BYTE* pbt_buf, FTS_DWRD dw_len)
 {
-    
+
 	int i = 0;
 	for(i = 0 ; i < dw_len; i++)
 	{
@@ -673,7 +673,7 @@ static int CTPDMA_i2c_write(FTS_BYTE slave,FTS_BYTE* pbt_buf, FTS_DWRD dw_len)
 		i2c_client->addr = i2c_client->addr & I2C_MASK_FLAG | I2C_DMA_FLAG;
 		//MSE_ERR("Sensor dma timing is %x!\r\n", this_client->timing);
 		return i2c_master_send(i2c_client, CTPI2CDMABuf_pa, dw_len);
-	}    
+	}
 }
 
 
@@ -692,7 +692,7 @@ static int CTPDMA_i2c_read(FTS_BYTE slave, FTS_BYTE *buf, FTS_DWRD len)
 		i2c_client->addr = i2c_client->addr & I2C_MASK_FLAG | I2C_DMA_FLAG;
 		//MSE_ERR("Sensor dma read timing is %x!\r\n", this_client->timing);
 		err = i2c_master_recv(i2c_client, CTPI2CDMABuf_pa, len);
-		
+
 	    if(err < 0)
 	    {
 			return err;
@@ -707,11 +707,11 @@ static int CTPDMA_i2c_read(FTS_BYTE slave, FTS_BYTE *buf, FTS_DWRD len)
 
 
 /*
-[function]: 
+[function]:
     read out data from ctpm,the destination address is 0.
 [parameters]:
     pbt_buf[out]    :point to data buffer;
-    bt_len[in]        :the data numbers;    
+    bt_len[in]        :the data numbers;
 [return]:
     FTS_TRUE    :success;
     FTS_FALSE    :io fail;
@@ -723,11 +723,11 @@ FTS_BOOL byte_read(FTS_BYTE* pbt_buf, FTS_BYTE bt_len)
 
 
 /*
-[function]: 
+[function]:
     burn the FW to ctpm.
 [parameters]:(ref. SPEC)
     pbt_buf[in]    :point to Head+FW ;
-    dw_lenth[in]:the length of the FW + 6(the Head length);    
+    dw_lenth[in]:the length of the FW + 6(the Head length);
     bt_ecc[in]    :the ECC of the FW
 [return]:
     ERR_OK        :no error;
@@ -743,7 +743,7 @@ FTS_BOOL byte_read(FTS_BYTE* pbt_buf, FTS_BYTE bt_len)
 
 static unsigned char CTPM_FW[]=
 {
-   #include "Snoopy_BIEL_ID3B_V0a_20130410_app.i" 
+   #include "Snoopy_BIEL_ID3B_V0a_20130410_app.i"
 };
 
 E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
@@ -766,15 +766,15 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-    msleep(10);  
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
+    msleep(10);
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-	//msleep(10);//add this line 
+	//msleep(10);//add this line
     printk("[TSP] Step 1: Reset CTPM test\n");
-   
-    delay_qt_ms(50);   
+
+    delay_qt_ms(50);
     /*********Step 2:Enter upgrade mode *****/
     auc_i2c_write_buf[0] = 0x55;
     auc_i2c_write_buf[1] = 0xaa;
@@ -785,7 +785,7 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
         delay_qt_ms(5);
     }while(i_ret <= 0 && i < 5 );
 
-    /*********Step 3:check READ-ID***********************/        
+    /*********Step 3:check READ-ID***********************/
     cmd_write(0x90,0x00,0x00,0x00,4);
 	i=0;
 	i_ret=0;
@@ -808,7 +808,7 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 
      /*********Step 4:erase app*******************************/
     ret = cmd_write(0x61,0x00,0x00,0x00,1);
-   
+
     delay_qt_ms(1500);
     printk("[TSP] Step 4: erase.ret=%d\n",ret);
 
@@ -830,10 +830,10 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 
         for (i=0;i<FTS_PACKET_LENGTH;i++)
         {
-            packet_buf[6+i] = pbt_buf[j*FTS_PACKET_LENGTH + i]; 
+            packet_buf[6+i] = pbt_buf[j*FTS_PACKET_LENGTH + i];
             bt_ecc ^= packet_buf[6+i];
         }
-        
+
         ret=CTPDMA_i2c_write(0x70, &packet_buf[0],FTS_PACKET_LENGTH + 6);
               //printk("[TSP] 111 ret 0x%x \n", ret);
         //delay_qt_ms(FTS_PACKET_LENGTH/6 + 1);
@@ -855,11 +855,11 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
 
         for (i=0;i<temp;i++)
         {
-            packet_buf[6+i] = pbt_buf[ packet_number*FTS_PACKET_LENGTH + i]; 
+            packet_buf[6+i] = pbt_buf[ packet_number*FTS_PACKET_LENGTH + i];
             bt_ecc ^= packet_buf[6+i];
         }
               printk("[TSP]temp 0x%x \n", temp);
-        ret = CTPDMA_i2c_write(0x70, &packet_buf[0],temp+6);    
+        ret = CTPDMA_i2c_write(0x70, &packet_buf[0],temp+6);
               printk("[TSP] 222 ret 0x%x \n", ret);
         delay_qt_ms(20);
     }
@@ -873,10 +873,10 @@ E_UPGRADE_ERR_TYPE  fts_ctpm_fw_upgrade_1(FTS_BYTE* pbt_buf, FTS_DWRD dw_lenth)
         temp =1;
         packet_buf[4] = (FTS_BYTE)(temp>>8);
         packet_buf[5] = (FTS_BYTE)temp;
-        packet_buf[6] = pbt_buf[ dw_lenth + i]; 
+        packet_buf[6] = pbt_buf[ dw_lenth + i];
         bt_ecc ^= packet_buf[6];
 
-        CTPDMA_i2c_write(0x70,&packet_buf[0],7);  
+        CTPDMA_i2c_write(0x70,&packet_buf[0],7);
         delay_qt_ms(20);
     }
 
@@ -895,8 +895,8 @@ i2c_smbus_read_i2c_block_data(i2c_client, 0xcc, 1, &(reg_val[0]));
     //cmd_write(0x07,0x00,0x00,0x00,1);
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-    msleep(10);  
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
+    msleep(10);
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
@@ -913,20 +913,20 @@ static int fts_ctpm_fw_upgrade_with_i_file(void)
     FTS_DWRD i = 0;
     //=========FW upgrade========================*/
    pbt_buf = CTPM_FW;
-#if 0	
+#if 0
 	printk("version=%x,pbt_buf[sizeof(CTPM_FW)-2]=%d\n",version,pbt_buf[sizeof(CTPM_FW)-2]);
 	if(ft5x0x_read_ID_ver() != pbt_buf[sizeof(CTPM_FW)-1])
 	{
         return;
 	}
-	
+
     do
     {
         i ++;
         version =ft5x0x_read_fw_ver();
         delay_qt_ms(2);
     }while( i < 5 );
-    
+
 	//if(version==pbt_buf[sizeof(CTPM_FW)-2])
 	//{
 	//	return;
@@ -953,7 +953,7 @@ static int fts_ctpm_fw_upgrade_with_i_file(void)
        //error handling ...
        //TBD
    }
-	msleep(200);  
+	msleep(200);
     ft5x0x_write_reg(0xfc,0x04);
 	msleep(4000);
 	flag=0;
@@ -978,15 +978,15 @@ unsigned char fts_ctpm_get_upg_ver(void)
 }
 #endif
 
-#ifdef ESD_CHECK	
+#ifdef ESD_CHECK
 static void ESD_read_id_workqueue(struct work_struct *work)
 {
 	char data;
-	if(tpd_halt) 
-		return; 
+	if(tpd_halt)
+		return;
 	i2c_smbus_read_i2c_block_data(i2c_client, 0x88, 1, &data);
 	TPD_DEBUG("ESD_read_id_workqueue data: %d\n", data);
-	
+
 	if((data > 5)&&(data < 10))
 	{
 		//add_timer();
@@ -1001,28 +1001,28 @@ static void ESD_read_id_workqueue(struct work_struct *work)
 	                input_sync(tpd->dev);
 			tpd_state = 0;
 		 }
-		msleep(5);  
-	
+		msleep(5);
+
 		    //power on, need confirm with SA
 		hwPowerDown(MT65XX_POWER_LDO_VGP2,"TP");
-		msleep(5);  
+		msleep(5);
 		hwPowerOn(MT65XX_POWER_LDO_VGP2, VOL_2800, "TP");
 		msleep(100);
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-		msleep(10);  
+		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
+		msleep(10);
 		mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
 		mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
 		mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
-		mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
+		mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
 
 		msleep(200);
 	}
-	if(tpd_halt) 
-		mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM); 
-	else 
-		queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection					
+	if(tpd_halt)
+		mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
+	else
+		queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection
 
 }
 #endif
@@ -1047,12 +1047,12 @@ static  void tpd_down(int x, int y, int p,int finger_id) {
 	input_report_abs(tpd->dev, ABS_MT_POSITION_Y_W, Yw);
 	#endif
 	 input_report_abs(tpd->dev, ABS_MT_TRACKING_ID, finger_id);
-	 
+
 	 printk("D[%4d %4d %4d] ", x, y, p);
 	 input_mt_sync(tpd->dev);
      if (FACTORY_BOOT == get_boot_mode()|| RECOVERY_BOOT == get_boot_mode())
-     {   
-       tpd_button(x, y, 1);  
+     {
+       tpd_button(x, y, 1);
      }
 	 if(y > TPD_RES_Y) //virtual key debounce to avoid android ANR issue
 	 {
@@ -1061,7 +1061,7 @@ static  void tpd_down(int x, int y, int p,int finger_id) {
 	 }
 	 TPD_EM_PRINT(x, y, x, y, p-1, 1);
  }
- 
+
 static  void tpd_up(int x, int y,int *count) {
 	 //if(*count>0) {
 		 //input_report_abs(tpd->dev, ABS_PRESSURE, 0);
@@ -1074,9 +1074,9 @@ static  void tpd_up(int x, int y,int *count) {
 		 TPD_EM_PRINT(x, y, x, y, 0, 0);
 	//	 (*count)--;
      if (FACTORY_BOOT == get_boot_mode()|| RECOVERY_BOOT == get_boot_mode())
-     {   
-        tpd_button(x, y, 0); 
-     }   		 
+     {
+        tpd_button(x, y, 0);
+     }
 
  }
 
@@ -1113,7 +1113,7 @@ static  void tpd_up(int x, int y,int *count) {
 	//TPD_DEBUG("[data[15]=%x,data[16]= %x ,data[17]=%x ,data[18]=%x]\n",data[15],data[16],data[17],data[18]);
 
 
-    //    
+    //
 	 //we have  to re update report rate
     // TPD_DMESG("report rate =%x\n",report_rate);
 /* Lenovo-sw yexm1 add for detect charger plug-in/out begin*/
@@ -1139,24 +1139,24 @@ static  void tpd_up(int x, int y,int *count) {
 		   TPD_DMESG("I2C read report rate error, line: %d\n", __LINE__);
 	   }
 	 }
-	 
+
 	mutex_unlock(&i2c_access);
 	/* Device Mode[2:0] == 0 :Normal operating Mode*/
-	if((data[0] & 0x70) != 0) return false; 
+	if((data[0] & 0x70) != 0) return false;
 
 	/*get the number of the touch points*/
 	point_num= data[2] & 0x0f;
-	
+
 	//TPD_DEBUG("point_num =%d\n",point_num);
-	
+
 //	if(point_num == 0) return false;
 
 	   //TPD_DEBUG("Procss raw data...\n");
 
-		
+
 		for(i = 0; i < point_num; i++)
 		{
-			cinfo->p[i] = data[3+6*i] >> 6; //event flag 
+			cinfo->p[i] = data[3+6*i] >> 6; //event flag
                    cinfo->finger_id[i] = data[3+6*i+2]>>4; //touch id
 	       /*get the X coordinate, 2 bytes*/
 			high_byte = data[3+6*i];
@@ -1166,9 +1166,9 @@ static  void tpd_up(int x, int y,int *count) {
 			cinfo->x[i] = high_byte |low_byte;
 
 				//cinfo->x[i] =  cinfo->x[i] * 480 >> 11; //calibra
-		
+
 			/*get the Y coordinate, 2 bytes*/
-			
+
 			high_byte = data[3+6*i+2];
 			high_byte <<= 8;
 			high_byte &= 0x0f00;
@@ -1178,14 +1178,14 @@ static  void tpd_up(int x, int y,int *count) {
 			cinfo->size[i] = data[8+6*i];
 			#endif
 			  //cinfo->y[i]=  cinfo->y[i] * 800 >> 11;
-		
+
 			cinfo->count++;
-			
+
 		}
-		//TPD_DEBUG(" cinfo->x[0] = %d, cinfo->y[0] = %d, cinfo->p[0] = %d\n", cinfo->x[0], cinfo->y[0], cinfo->p[0]);	
-		//TPD_DEBUG(" cinfo->x[1] = %d, cinfo->y[1] = %d, cinfo->p[1] = %d\n", cinfo->x[1], cinfo->y[1], cinfo->p[1]);		
-		//TPD_DEBUG(" cinfo->x[2]= %d, cinfo->y[2]= %d, cinfo->p[2] = %d\n", cinfo->x[2], cinfo->y[2], cinfo->p[2]);	
-		  
+		//TPD_DEBUG(" cinfo->x[0] = %d, cinfo->y[0] = %d, cinfo->p[0] = %d\n", cinfo->x[0], cinfo->y[0], cinfo->p[0]);
+		//TPD_DEBUG(" cinfo->x[1] = %d, cinfo->y[1] = %d, cinfo->p[1] = %d\n", cinfo->x[1], cinfo->y[1], cinfo->p[1]);
+		//TPD_DEBUG(" cinfo->x[2]= %d, cinfo->y[2]= %d, cinfo->p[2] = %d\n", cinfo->x[2], cinfo->y[2], cinfo->p[2]);
+
 	 return true;
 
  };
@@ -1208,20 +1208,20 @@ EXPORT_SYMBOL(set_tp_protect);
 
  static int touch_event_handler(void *unused)
  {
-  
+
     struct touch_info cinfo, pinfo;
 
 	 struct sched_param param = { .sched_priority = RTPM_PRIO_TPD };
 	 sched_setscheduler(current, SCHED_RR, &param);
- 
+
 	 do
 	 {
-	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM); 
-        set_current_state(TASK_INTERRUPTIBLE); 
+	  //mt65xx_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+        set_current_state(TASK_INTERRUPTIBLE);
 	  	/*lenovo -xm zhangjiano add begin in supend avoid int wake up 11*/
         while (tpd_halt)
 		{
-			tpd_flag = 0; 
+			tpd_flag = 0;
 			msleep(20);
 		}
 		/*end*/
@@ -1242,29 +1242,29 @@ EXPORT_SYMBOL(set_tp_protect);
 
 				#ifdef TPD_HAVE_BUTTON
                 if (((boot_mode == META_BOOT)||(boot_mode == RECOVERY_BOOT)||(boot_mode == FACTORY_BOOT)) && (point_num == 1)) {
-					tpd_button(cinfo.x[0], cinfo.y[0], 1);	
+					tpd_button(cinfo.x[0], cinfo.y[0], 1);
                 }
 				#endif
-                
+
                 if(point_num > 1) {
 					#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
 					tpd_down(cinfo.x[1], cinfo.y[1], 2,cinfo.finger_id[1], 0, 0);
 					#else
 	                tpd_down(cinfo.x[1], cinfo.y[1], 2,cinfo.finger_id[1]);
 					#endif
-                    if(point_num >2) 
+                    if(point_num >2)
 						#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
 						tpd_down(cinfo.x[2], cinfo.y[2], 3,cinfo.finger_id[2], 0, 0);
 						#else
                         tpd_down(cinfo.x[2], cinfo.y[2], 3,cinfo.finger_id[2]);
 						#endif
-            			if(point_num >3) 
+            			if(point_num >3)
 						#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
 						tpd_down(cinfo.x[3], cinfo.y[3], 4,cinfo.finger_id[3], 0, 0);
 						#else
-                        tpd_down(cinfo.x[3], cinfo.y[3], 4,cinfo.finger_id[3]);	
+                        tpd_down(cinfo.x[3], cinfo.y[3], 4,cinfo.finger_id[3]);
 						#endif
-    	              	 if(point_num >4) 
+    	              	 if(point_num >4)
 						 	#if defined(LENOVO_AREA_TOUCH)//lenovo jixu modify
 							tpd_down(cinfo.x[4], cinfo.y[4], 5,cinfo.finger_id[4], 0, 0);
 							#else
@@ -1280,22 +1280,22 @@ EXPORT_SYMBOL(set_tp_protect);
 					tpd_button(pinfo.x[0], pinfo.y[0], 0);
 				}
 				#endif
-				
+
             }
             input_sync(tpd->dev);
         }
 
  }while(!kthread_should_stop());
- 
+
 	 return 0;
  }
- 
- static int tpd_detect (struct i2c_client *client, struct i2c_board_info *info) 
+
+ static int tpd_detect (struct i2c_client *client, struct i2c_board_info *info)
  {
-	 strcpy(info->type, TPD_DEVICE);	
+	 strcpy(info->type, TPD_DEVICE);
 	  return 0;
  }
- 
+
  static void tpd_eint_interrupt_handler(void)
  {
 	 TPD_DEBUG("TPD interrupt has been triggered\n");
@@ -1306,12 +1306,12 @@ EXPORT_SYMBOL(set_tp_protect);
 	 }
 	 tpd_flag = 1;
 	 wake_up_interruptible(&waiter);
-	 
+
  }
  static int __devinit tpd_probe(struct i2c_client *client, const struct i2c_device_id *id)
- {	 
+ {
 	int retval = TPD_OK;
-#ifdef ESD_CHECK	
+#ifdef ESD_CHECK
 	int ret;
 #endif
 	char data;
@@ -1319,19 +1319,19 @@ EXPORT_SYMBOL(set_tp_protect);
 	int err=0;
 	int reset_count = 0;
 
-reset_proc:   
+reset_proc:
 	i2c_client = client;
 
-	
+
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-	msleep(10);  
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
+	msleep(10);
 
 #ifdef TPD_POWER_SOURCE_1800
 	hwPowerOn(TPD_POWER_SOURCE_1800, VOL_1800, "TP");
-#endif 
-   
+#endif
+
 		//power on, need confirm with SA
 #ifdef TPD_POWER_SOURCE_CUSTOM
 	hwPowerOn(TPD_POWER_SOURCE_CUSTOM, VOL_2800, "TP");
@@ -1340,7 +1340,7 @@ reset_proc:
 #endif
 
 
-#ifdef TPD_CLOSE_POWER_IN_SLEEP	 
+#ifdef TPD_CLOSE_POWER_IN_SLEEP
 	hwPowerDown(TPD_POWER_SOURCE,"TP");
 	hwPowerOn(TPD_POWER_SOURCE,VOL_3300,"TP");
 	msleep(100);
@@ -1357,7 +1357,7 @@ reset_proc:
     mt_set_gpio_dir(GPIO_CTP_EINT_PIN, GPIO_DIR_IN);
     mt_set_gpio_pull_enable(GPIO_CTP_EINT_PIN, GPIO_PULL_ENABLE);
     mt_set_gpio_pull_select(GPIO_CTP_EINT_PIN, GPIO_PULL_UP);
- 
+
 	if((i2c_smbus_read_i2c_block_data(i2c_client, 0x00, 1, &data))< 0)
 	{
 		TPD_DMESG("I2C transfer error, line: %d\n", __LINE__);
@@ -1368,14 +1368,14 @@ reset_proc:
             goto reset_proc;
         }
 #endif
-		   return -1; 
+		   return -1;
 	}
 
 	  mt65xx_eint_set_sens(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_SENSITIVE);
 	  mt65xx_eint_set_hw_debounce(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_CN);
-          mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_TOUCH_PANEL_POLARITY, tpd_eint_interrupt_handler, 1); 
+          mt65xx_eint_registration(CUST_EINT_TOUCH_PANEL_NUM, CUST_EINT_TOUCH_PANEL_DEBOUNCE_EN, CUST_EINT_TOUCH_PANEL_POLARITY, tpd_eint_interrupt_handler, 1);
           mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
- 
+
 	msleep(100);
 
 #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
@@ -1384,17 +1384,17 @@ reset_proc:
 	{
     		printk("[TSP] dma_alloc_coherent error\n");
 	}
-#endif		
+#endif
 
 	//set report rate 80Hz
-	report_rate = 0x8; 
+	report_rate = 0x8;
 	if((i2c_smbus_write_i2c_block_data(i2c_client, 0x88, 1, &report_rate))< 0)
 	{
 	    if((i2c_smbus_write_i2c_block_data(i2c_client, 0x88, 1, &report_rate))< 0)
 	    {
 		   TPD_DMESG("I2C read report rate error, line: %d\n", __LINE__);
 	    }
-		   
+
 	}
 
 	tpd_load_status = 1;
@@ -1403,7 +1403,7 @@ reset_proc:
 	if((err = misc_register(&tpd_misc_device)))
 	{
 		printk("mtk_tpd: tpd_misc_device register failed\n");
-		
+
 	}
 	#endif
 #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
@@ -1412,25 +1412,25 @@ reset_proc:
 //	fts_ctpm_fw_upgrade_with_i_file();
 
     	printk("[TSP] Step 8:init stop\n");
-#endif	
+#endif
 
 #ifdef FTS_CTL_IIC
 	if (ft_rw_iic_drv_init(client) < 0)
 		dev_err(&client->dev, "%s:[FTS] create fts control iic driver failed\n",
 				__func__);
-#endif	
+#endif
 #ifdef SYSFS_DEBUG
 	ft5x0x_create_sysfs(client);
 #endif
-#ifdef ESD_CHECK	
+#ifdef ESD_CHECK
 	ctp_read_id_workqueue = create_workqueue("ctp_read_id");
 	INIT_DELAYED_WORK(&ctp_read_id_work, ESD_read_id_workqueue);
-	ret = queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection					
+	ret = queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection
     	printk("[TSP] ret =%d\n",ret);
-#endif		
+#endif
 	thread = kthread_run(touch_event_handler, 0, TPD_DEVICE);
 	 if (IS_ERR(thread))
-		 { 
+		 {
 		  retval = PTR_ERR(thread);
 		  TPD_DMESG(TPD_DEVICE " failed to create kernel thread: %d\n", retval);
 		}
@@ -1443,82 +1443,82 @@ reset_proc:
 
 	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
    return 0;
-   
+
  }
 
  static int __devexit tpd_remove(struct i2c_client *client)
- 
+
  {
-   
+
 	 TPD_DEBUG("TPD removed\n");
 #ifdef CONFIG_SUPPORT_FTS_CTP_UPG
-	 
+
 	if(CTPI2CDMABuf_va)
 	{
 		dma_free_coherent(NULL, 4096, CTPI2CDMABuf_va, CTPI2CDMABuf_pa);
 		CTPI2CDMABuf_va = NULL;
 		CTPI2CDMABuf_pa = 0;
 	}
-#endif	
-#ifdef ESD_CHECK	
+#endif
+#ifdef ESD_CHECK
 	destroy_workqueue(ctp_read_id_workqueue);
-#endif	
+#endif
 	#ifdef SYSFS_DEBUG
 	ft5x0x_release_sysfs(client);
 	#endif
    return 0;
  }
- 
- 
+
+
  static int tpd_local_init(void)
  {
 
- 
+
   TPD_DMESG("Focaltech FT5206 I2C Touchscreen Driver (Built %s @ %s)\n", __DATE__, __TIME__);
 
    boot_mode = get_boot_mode();
    // Software reset mode will be treated as normal boot
    if(boot_mode==3) boot_mode = NORMAL_BOOT;
 
- 
+
    if(i2c_add_driver(&tpd_i2c_driver)!=0)
    	{
   		TPD_DMESG("ft5206 unable to add i2c driver.\n");
       	return -1;
     }
-    if(tpd_load_status == 0) 
+    if(tpd_load_status == 0)
     {
     	TPD_DMESG("ft5206 add error touch panel driver.\n");
     	i2c_del_driver(&tpd_i2c_driver);
     	return -1;
     }
-	
-#ifdef TPD_HAVE_BUTTON     
+
+#ifdef TPD_HAVE_BUTTON
     tpd_button_setting(TPD_KEY_COUNT, tpd_keys_local, tpd_keys_dim_local);// initialize tpd button data
-#endif   
-  
-#if (defined(TPD_WARP_START) && defined(TPD_WARP_END))    
+#endif
+
+#if (defined(TPD_WARP_START) && defined(TPD_WARP_END))
     TPD_DO_WARP = 1;
     memcpy(tpd_wb_start, tpd_wb_start_local, TPD_WARP_CNT*4);
     memcpy(tpd_wb_end, tpd_wb_start_local, TPD_WARP_CNT*4);
-#endif 
+#endif
 
 #if (defined(TPD_HAVE_CALIBRATION) && !defined(TPD_CUSTOM_CALIBRATION))
     memcpy(tpd_calmat, tpd_def_calmat_local, 8*4);
-    memcpy(tpd_def_calmat, tpd_def_calmat_local, 8*4);	
-#endif  
-		TPD_DMESG("end %s, %d\n", __FUNCTION__, __LINE__);  
+    memcpy(tpd_def_calmat, tpd_def_calmat_local, 8*4);
+#endif
+		TPD_DMESG("end %s, %d\n", __FUNCTION__, __LINE__);
 		tpd_type_cap = 1;
-    return 0; 
+    return 0;
  }
 
  static void tpd_resume( struct early_suspend *h )
  {
   //int retval = TPD_OK;
   //char data;
- 
+
    TPD_DMESG("TPD wake up\n");
-#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+#ifdef TPD_CLOSE_POWER_IN_SLEEP
 	hwPowerOn(TPD_POWER_SOURCE,VOL_3300,"TP");
 
 #else
@@ -1526,17 +1526,17 @@ reset_proc:
 
 	mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);  
-    msleep(1);  
+    mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ZERO);
+    msleep(1);
     mt_set_gpio_mode(GPIO_CTP_RST_PIN, GPIO_CTP_RST_PIN_M_GPIO);
     mt_set_gpio_dir(GPIO_CTP_RST_PIN, GPIO_DIR_OUT);
     mt_set_gpio_out(GPIO_CTP_RST_PIN, GPIO_OUT_ONE);
 #endif
-	msleep(200);//add this line 
-	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);  
-#ifdef ESD_CHECK	
-    	msleep(1);  
-	queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection					
+	msleep(200);//add this line
+	mt_eint_unmask(CUST_EINT_TOUCH_PANEL_NUM);
+#ifdef ESD_CHECK
+    	msleep(1);
+	queue_delayed_work(ctp_read_id_workqueue, &ctp_read_id_work,400); //schedule a work for the first detection
 #endif
 	tpd_halt = 0;
 	/* for resume debug
@@ -1559,14 +1559,14 @@ reset_proc:
  {
 	// int retval = TPD_OK;
 	 static char data = 0x3;
-#ifdef ESD_CHECK	
+#ifdef ESD_CHECK
  	cancel_delayed_work_sync(&ctp_read_id_work);
 #endif
  	 tpd_halt = 1;
 	 TPD_DMESG("TPD enter sleep\n");
 	 mt_eint_mask(CUST_EINT_TOUCH_PANEL_NUM);
 	 mutex_lock(&i2c_access);
-#ifdef TPD_CLOSE_POWER_IN_SLEEP	
+#ifdef TPD_CLOSE_POWER_IN_SLEEP
 	hwPowerDown(TPD_POWER_SOURCE,"TP");
 #else
 i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mode
@@ -1575,7 +1575,7 @@ i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mo
 	mutex_unlock(&i2c_access);
         TPD_DMESG("TPD enter sleep done\n");
 	 //return retval;
- } 
+ }
 
 
  static struct tpd_driver_t tpd_device_driver = {
@@ -1587,7 +1587,7 @@ i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mo
 		 .tpd_have_button = 1,
 #else
 		 .tpd_have_button = 0,
-#endif		
+#endif
  };
  /* called when loaded into kernel */
  static int __init tpd_driver_init(void) {
@@ -1597,14 +1597,14 @@ i2c_smbus_write_i2c_block_data(i2c_client, 0xA5, 1, &data);  //TP enter sleep mo
 			 TPD_DMESG("add FT5206 driver failed\n");
 	 return 0;
  }
- 
+
  /* should never be called */
  static void __exit tpd_driver_exit(void) {
 	 TPD_DMESG("MediaTek FT5206 touch panel driver exit\n");
 	 //input_unregister_device(tpd->dev);
 	 tpd_driver_remove(&tpd_device_driver);
  }
- 
+
  module_init(tpd_driver_init);
  module_exit(tpd_driver_exit);
 

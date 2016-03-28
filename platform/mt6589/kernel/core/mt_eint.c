@@ -313,7 +313,8 @@ void mt_eint_soft_set(unsigned int eint_num)
  * mt_eint_soft_clr: Unmask the specified EINT number.
  * @eint_num: EINT number to clear
  */
-static void mt_eint_soft_clr(unsigned int eint_num)
+//static 
+void mt_eint_soft_clr(unsigned int eint_num)
 {
 	unsigned int base;
 	unsigned int bit = 1 << (eint_num % 32);

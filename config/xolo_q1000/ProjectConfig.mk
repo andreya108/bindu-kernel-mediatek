@@ -744,7 +744,9 @@ MTK_FOTA_SUPPORT=no
 # Low cost phone using increasingly smaller  RAM size, the size of the SD card. Customers  can choose fsck_msdos_mtk to time for space.
 MTK_FSCK_MSDOS_MTK=no
 MTK_FSCK_TUNE=no
-MTK_FW_UPGRADE=yes
+#Begin, lenovo-sw wangxf14 modify, modify for lenovo recovery
+MTK_FW_UPGRADE=no
+#End, lenovo-sw wangxf14 modify, modify for lenovo recovery
 MTK_FW_UPGRADE_APP=no
 MTK_GAMELOFT_ASPHALTINJECTION_APP=no
 MTK_GAMELOFT_GLLIVE_APP=no
