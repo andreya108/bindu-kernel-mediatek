@@ -919,6 +919,73 @@ BOOL DISP_IsContextInited(void)
     else
         return FALSE;
 }
+//add for devinfo
+#ifdef SLT_DEVINFO_LCM
+
+#define SLT_DEVINFO_LCM_DEBUG
+
+#include  <linux/dev_info.h>
+#include <linux/timer.h>
+static int devinfo_first=0;
+struct devinfo_struct s_DEVINFO_lcm[10];   //suppose 10 max lcm device 
+static void devinfo_lcm_reg()
+{
+	int i=0;
+	for(i = 0;i < lcm_count;i++)
+	{
+#ifdef SLT_DEVINFO_LCM_DEBUG
+		printk("[DEVINFO LCM]registe LCM device!num:<%d> type:<%s> module:<%s> vendor<%s> ic<%s> version<%s> info<%s> used<%s>\n",i,
+				s_DEVINFO_lcm[i].device_type,s_DEVINFO_lcm[i].device_module,s_DEVINFO_lcm[i].device_vendor,s_DEVINFO_lcm[i].device_ic,
+				s_DEVINFO_lcm[i].device_version,s_DEVINFO_lcm[i].device_info,s_DEVINFO_lcm[i].device_used);
+#endif
+		DEVINFO_CHECK_DECLARE(s_DEVINFO_lcm[i].device_type,s_DEVINFO_lcm[i].device_module,s_DEVINFO_lcm[i].device_vendor,
+				s_DEVINFO_lcm[i].device_ic,s_DEVINFO_lcm[i].device_version,s_DEVINFO_lcm[i].device_info,s_DEVINFO_lcm[i].device_used);
+	}
+		return 0;
+}
+
+
+void DISP_DEVINFO_LCM_get(const char* lcm_name)
+{
+	LCM_DRIVER *slt_lcm = NULL;
+	int i;
+	LCM_PARAMS slt_s_lcm_params= {0};
+	LCM_PARAMS *slt_lcm_params= &slt_s_lcm_params;
+	for(i = 0;i < lcm_count;i++)
+	{
+		slt_lcm_params = &slt_s_lcm_params;
+		slt_lcm = lcm_driver_list[i];
+		memset((void*)slt_lcm_params, 0, sizeof(LCM_PARAMS));
+		slt_lcm->get_params(slt_lcm_params);
+
+		s_DEVINFO_lcm[i].device_info=kmalloc(64,GFP_KERNEL);
+
+			s_DEVINFO_lcm[i].device_type="LCM";
+			s_DEVINFO_lcm[i].device_module=slt_lcm_params->module;
+			s_DEVINFO_lcm[i].device_vendor=slt_lcm_params->vendor;
+			s_DEVINFO_lcm[i].device_ic=slt_lcm_params->ic;
+			s_DEVINFO_lcm[i].device_info=slt_lcm_params->info;
+			s_DEVINFO_lcm[i].device_version=DEVINFO_NULL;
+			if(!strcmp(lcm_name,slt_lcm->name))
+				s_DEVINFO_lcm[i].device_used=DEVINFO_USED;
+			else
+				s_DEVINFO_lcm[i].device_used=DEVINFO_UNUSED;
+
+//			sprintf(s_DEVINFO_lcm[i].device_info,"%d * %d",slt_lcm_params->width,slt_lcm_params->height);
+#ifdef SLT_DEVINFO_LCM_DEBUG
+		printk("[DEVINFO LCM]Num:[%d] type:[%s] module:[%s] vendor:[%s] ic:[%s] info:[%s] used:[%s]\n",i,s_DEVINFO_lcm[i].device_type,
+			s_DEVINFO_lcm[i].device_module,
+			s_DEVINFO_lcm[i].device_vendor,
+			s_DEVINFO_lcm[i].device_ic,
+			s_DEVINFO_lcm[i].device_info,
+			s_DEVINFO_lcm[i].device_used);
+#endif
+	}
+	return 0;
+}	
+
+#endif
+
 
 BOOL DISP_SelectDeviceBoot(const char* lcm_name)
 {
@@ -931,6 +998,11 @@ BOOL DISP_SelectDeviceBoot(const char* lcm_name)
         // we can't do anything in boot stage if lcm_name is NULL
         return false;
     }
+	//add for devinfo
+	#ifdef SLT_DEVINFO_LCM
+	DISP_DEVINFO_LCM_get(lcm_name);
+	#endif
+	
     lcm_drv = disphal_get_lcm_driver(lcm_name, &u4IndexOfLCMList);
 
     if (NULL == lcm_drv)
@@ -2182,6 +2254,15 @@ static int _DISP_ConfigUpdateKThread(void *data)
         	printk("[FB Driver] can't get semaphore:%d\n", __LINE__);
             continue;
         }
+
+		//add for DEVINFO 
+	#ifdef SLT_DEVINFO_LCM
+		if(devinfo_first==0)
+		{
+			devinfo_first=1;
+			devinfo_lcm_reg();
+		}
+	#endif
         //MMProfileLogEx(MTKFB_MMP_Events.EarlySuspend, MMProfileFlagStart, 1, 0);
         if(((LCM_TYPE_DSI == lcm_params->type) && (CMD_MODE == lcm_params->dsi.mode)) || (LCM_TYPE_DBI == lcm_params->type))
         {

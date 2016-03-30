@@ -71,6 +71,11 @@
 #define MTK_EMMC_ETT_TO_DRIVER  /* for eMMC off-line apply to driver */
 #endif
 
+#ifdef SLT_DEVINFO_EMCP
+#define DEVINFO_DEBUG_EMCP 0
+static int devinfo_register_emcp(struct msdc_host *host);
+static int rom_size = 0;
+#endif
 unsigned long long msdc_print_start_time;
 unsigned long long msdc_print_end_time;
 unsigned int print_nums;
@@ -2948,10 +2953,31 @@ u64 msdc_get_capacity(int get_emmc_total)
    u64 user_size = 0;
    u32 other_size = 0;
    u64 total_size = 0;
+   #ifdef SLT_DEVINFO_EMCP
+   static char first_register=0;
+   #endif
    int index = 0;
 	for(index = 0;index < HOST_MAX_NUM;++index){
 		if((mtk_msdc_host[index] != NULL) && (mtk_msdc_host[index]->hw->boot)){
 		  	user_size = msdc_get_user_capacity(mtk_msdc_host[index]);
+		  	#ifdef SLT_DEVINFO_EMCP
+			if((index==0)&&(first_register==0))
+			{
+				if(mtk_msdc_host[index]->mmc->card->type==MMC_TYPE_MMC)
+				{
+					rom_size=user_size/1024/1024;
+					#ifdef DEVINFO_DEBUG_EMCP
+				        printk("[DEVINFO_EMCP]msdc <%x>\n",mtk_msdc_host[index]->mmc->card->type); 
+				        printk("[DEVINFO_EMCP]msdc <%x><%x><%x><%x>\n",mtk_msdc_host[index]->mmc->card->raw_cid[0],mtk_msdc_host[index]->mmc->card->raw_cid[1],mtk_msdc_host[index]->mmc->card->raw_cid[2],mtk_msdc_host[index]->mmc->card->raw_cid[3]); 
+				        printk("[DEVINFO_EMCP]msdc size <%x>\n",rom_size); 
+					#endif		
+					devinfo_register_emcp(mtk_msdc_host[index]);
+					first_register=1;	
+				}
+				else
+				printk("[DEVINFO_EMCP]msdc Not fit!\n"); 
+			}
+			#endif
 			#ifdef MTK_EMMC_SUPPORT
 			if(get_emmc_total){
 		  		if(mmc_card_mmc(mtk_msdc_host[index]->mmc->card))
@@ -6961,6 +6987,241 @@ static void msdc_timer_pm(unsigned long data)
     spin_unlock_irqrestore(&host->clk_gate_lock, flags); 
 }
 
+//////////////////////////
+#ifdef SLT_DEVINFO_EMCP
+#include  <linux/dev_info.h>
+#include "../sltdevinfo/devinfo_emi.h"
+
+static int devinfo_register_emcp(struct msdc_host *host)
+{	
+	int i=0;
+	char* type;
+	char* module;
+	char* vendor;
+	char *ic;
+	char *version;
+	char *info=kmalloc(64,GFP_KERNEL);	//RAM SIZE
+	char *info1=kmalloc(64,GFP_KERNEL);	//RAM SIZE
+	unsigned long ram_size;
+#ifdef SLT_DEVINFO_DISRAM_BY_RTC
+	u16 ram_manuid=0;
+extern u16 hal_rtc_get_register_status(const char * cmd);
+#endif
+#ifdef DEVINFO_DEBUG_EMCP
+    printk("[DEVINFO_EMCP][%s]: register emcp info.[%d]\n", __func__,num_of_emi_records);
+    printk("[DEVINFO_EMCP][%s]: register emcp info.[%4x]\n", __func__,host->mmc->card->type);
+    printk("[DEVINFO_EMCP]: emcp device info.[%x][%x][%x][%x]\n",host->mmc->card->raw_cid[0],host->mmc->card->raw_cid[1],host->mmc->card->raw_cid[2],host->mmc->card->raw_cid[3]);
+#endif
+
+	for(i=0;i<num_of_emi_records;i++)
+	{
+#ifdef DEVINFO_DEBUG_EMCP
+    printk("[DEVINFO_EMCP]: emcp list info.[%x][%x][%x][%x]\n",emi_settings[i].ID[0],emi_settings[i].ID[1],emi_settings[i].ID[2],emi_settings[i].ID[3]);
+#endif
+		//DEIVE TYPE
+		//switch (host->mmc->card->type)
+		//Note: In fact,we cannot get right device type here from host->mmc->card->type,So we have to define a knowned value
+		switch (emi_settings[i].type)
+			{
+				case 0x0000:
+					type=	DEVINFO_NULL;
+					break;
+				case 0x0001:
+					type=	"RAM DDR1";
+					break;
+				case 0x0002:
+					type=	"RAM DDR2";
+					break;
+				case 0x0003:
+					type=	"RAM DDR3";
+					break;
+				case 0x0101:
+					type=	"MCP(NAND+DDR1)";
+					break;
+				case 0x0102:
+					type=	"MCP(NAND+DDR2)";
+					break;
+				case 0x0103:
+					type=	"MCP(NAND+DDR3)";
+					break;
+				case 0x0201:
+					type=	"MCP(eMMC+DDR1)";
+					break;
+				case 0x0202:
+					type=	"MCP(eMMC+DDR2)";
+					break;
+				case 0x0203:
+					type=	"MCP(eMMC+DDR3)";
+					break;
+				default:
+					type=	DEVINFO_NULL;
+					break;
+			}
+		//type = "RAM DDR2      "";
+		
+		//device module
+		module=	emi_settings[i].DEVINFO_MCP;
+		#ifdef DEVINFO_DEBUG_EMCP
+    	printk("[DEVINFO_EMCP]: device type:%s!\n",type);
+    	printk("[DEVINFO_EMCP]: device module:%s!\n",module);
+		#endif
+
+		//device vendor,eMMC PART
+		//switch(emi_settings[i].ID[0])
+		//For dist ddr,it is NULL in emi_setting.ID[n],we`d better get it from what we have got
+		switch((host->mmc->card->raw_cid[0]&0xFF000000)>>24)	
+		{
+			case 0x11:
+				vendor=	"Toshiba   ";
+				break;
+			case 0x15:
+				vendor=	"Samsung   ";
+				break;
+			case 0x90:
+				vendor=	"Hynix     ";
+				break;
+			case 0x45:
+				vendor=	"Sandisk   ";
+				break;
+			case 0x70:
+				vendor=	"Kingston  ";
+				break;
+			defalut:
+				vendor=	DEVINFO_NULL;
+			break;
+		}
+	
+		#ifdef DEVINFO_DEBUG_EMCP
+    	printk("[DEVINFO_EMCP]: device vendor:%s!\n",vendor);
+		#endif
+		//device ic
+		//same as module
+		ic = module;
+
+		#ifdef DEVINFO_DEBUG_EMCP
+    	printk("[DEVINFO_EMCP]: device ic:%s!\n",ic);
+		#endif
+		//device version
+		//NULL
+
+		//device RAM size ,we can not get ROM size here
+		ram_size=(unsigned long)((	emi_settings[i].DRAM_RANK_SIZE[0]/1024	+ emi_settings[i].DRAM_RANK_SIZE[1]/1024	+ emi_settings[i].DRAM_RANK_SIZE[2]/1024	+ emi_settings[i].DRAM_RANK_SIZE[3]/1024)/(1024)); 
+		#ifdef DEVINFO_DEBUG_EMCP
+    	printk("[DEVINFO_EMCP]: Device info:<%x> <%x><%x><%x><%d><%d>\n",emi_settings[i].DRAM_RANK_SIZE[0],emi_settings[i].DRAM_RANK_SIZE[1],emi_settings[i].DRAM_RANK_SIZE[2],emi_settings[i].DRAM_RANK_SIZE[3],rom_size,ram_size);
+		#endif
+		
+
+  		//DEVINFO_ITOA(ram_size,info);
+		//sprintf(info,"ram: %s + rom: %s MB",ram_size,rom_size);
+		//info= "(null)";
+	//	sprintf(info,"ram:%dMB",ram_size);
+
+		if(emi_settings[i].type < 0x0100)//Add for dis DDR type
+		{
+
+#ifdef SLT_DEVINFO_DISRAM_BY_RTC
+			ram_manuid = hal_rtc_get_register_status("MANUID");
+			//printk("[DEVINFO][EMCP]ram_manuid:%x,type:%x\n",ram_manuid,emi_settings[i].type);
+			if(emi_settings[i].type=0x0002)//DDR2
+			{
+				if(ram_manuid == emi_settings[i].LPDDR2_MODE_REG_5)
+				{
+					sprintf(info,"ram:%dMB",ram_size);
+					DEVINFO_DECLARE(type,module,"unknown",ic,version,info,DEVINFO_USED);	
+				}else{
+					sprintf(info,"ram:%dMB","unknown");
+					DEVINFO_DECLARE(type,module,"unknown",ic,version,info,DEVINFO_UNUSED);	
+				}
+			}else{
+				if(ram_manuid == emi_settings[i].LPDDR3_MODE_REG_5)
+				{
+					sprintf(info,"ram:%dMB",ram_size);
+					DEVINFO_DECLARE(type,module,"unknown",ic,version,info,DEVINFO_USED);	
+				}else{
+					sprintf(info,"ram:%dMB","unknown");
+					DEVINFO_DECLARE(type,module,"unknown",ic,version,info,DEVINFO_UNUSED);	
+				}	
+			}
+#else
+					sprintf(info,"ram:%dMB",ram_size);
+					DEVINFO_DECLARE(type,module,"unknown",ic,version,info,DEVINFO_USED);	
+
+#endif
+//NOTE:
+//we just reg what we found
+			sprintf(info1,"rom:%dMB",rom_size);
+			DEVINFO_DECLARE("eMMC","unknown",vendor,"unknown",version,info1,DEVINFO_USED);	//we can not judge  used or not
+		}
+		else{
+		//Check if used on this board
+		if((emi_settings[i].ID[0]==(host->mmc->card->raw_cid[0]&0xFF000000)>>24) && (emi_settings[i].ID[1]==(host->mmc->card->raw_cid[0]&0x00FF0000)>>16) && (emi_settings[i].ID[2]==(host->mmc->card->raw_cid[0]&0x0000FF00)>>8) && (emi_settings[i].ID[3]==(host->mmc->card->raw_cid[0]&0x000000FF)>>0)
+				//shaohui add the code to enhance ability of detecting more devices,for same seriers products
+			&&	(emi_settings[i].ID[4]==(host->mmc->card->raw_cid[1]&0xFF000000)>>24) && (emi_settings[i].ID[5]==(host->mmc->card->raw_cid[1]&0x00FF0000)>>16) && (emi_settings[i].ID[6]==(host->mmc->card->raw_cid[1]&0x0000FF00)>>8)
+				)
+		{
+		//sprintf(info,"ram:%dMB",ram_size);
+			switch(ram_size)
+			{
+				case 2048:
+					sprintf(info,"ram:2048MB+rom:%dMB",rom_size);
+					break;
+				case 1536:
+					sprintf(info,"ram:1536MB+rom:%dMB",rom_size);
+					break;
+				case 1024:
+					sprintf(info,"ram:1024MB+rom:%dMB",rom_size);
+					break;
+				case 768:
+					sprintf(info,"ram:768 MB+rom:%dMB",rom_size);
+					break;
+				case 512:
+					sprintf(info,"ram:512 MB+rom:%dMB",rom_size);
+					break;
+				default:
+					sprintf(info,"ram:512 MB+rom:%dMB",rom_size);
+					break;
+			}
+
+
+			#ifdef DEVINFO_DEBUG_EMCP
+    		printk("[DEVINFO_EMCP]: Get right device!\n");
+    		printk("[DEVINFO_EMCP]: Device info:%s \n",info);
+			#endif
+ 		//void devinfo_declare(char* type,char* module,char* vendor,char* ic,char* version,char* info,int used)
+		DEVINFO_DECLARE(type,module,vendor,ic,version,info,DEVINFO_USED );	//used device regist
+		}else{
+			switch(ram_size)
+			{
+				case 2048:
+					info="ram:2048MB+rom:null";
+					break;
+				case 1536:
+					info="ram:1536MB+rom:null";
+					break;
+				case 1024:
+					info="ram:1024MB+rom:null";
+					break;
+				case 768:
+					info="ram:768 MB+rom:null";
+					break;
+				case 512:
+					info="ram:512 MB+rom:null";
+					break;
+				default:
+					info="ram:512 MB+rom:null";
+					break;
+			}
+
+	//sprintf(info,"ram:%dMB",ram_size);
+		DEVINFO_DECLARE(type,module,vendor,ic,version,info,DEVINFO_UNUSED );	//unused device regist
+		}
+		}
+	}	   
+
+	return 0;
+}
+#endif
+//////////////////////////
 static u32 first_probe = 0; 
 #ifndef FPGA_PLATFORM
 static void msdc_set_host_power_control(struct msdc_host *host)

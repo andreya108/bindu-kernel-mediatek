@@ -57,12 +57,10 @@ extern LCM_PARAMS *lcm_params;
 #endif//LENOVO_LCM_INFO
 
 unsigned int EnableVSyncLog = 0;
-#ifdef CONFIG_MTK_AEE_FEATURE
 extern unsigned int isAEEEnabled;
 
 #ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
 unsigned int screen_update_cnt = 0;
-#endif
 #endif
 
 #define INIT_FB_AS_COLOR_BAR    (0)
@@ -1149,9 +1147,7 @@ static int mtkfb_pan_display_impl(struct fb_var_screeninfo *var, struct fb_info 
             else
             {
                 LCD_Dynamic_Change_FB_Layer(TRUE);
-#ifdef CONFIG_MTK_AEE_FEATURE
                 DAL_RestoreAEE();
-#endif
             }
 		}
 		else
@@ -2545,7 +2541,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
             atomic_set(&OverlaySettingApplied, 0);
             mutex_unlock(&OverlaySettingMutex);
 #ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
-						screen_update_cnt++;
+			screen_update_cnt++;
 #endif
         }
         return (r);
@@ -2610,7 +2606,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
             mutex_unlock(&OverlaySettingMutex);
             MMProfileLogStructure(MTKFB_MMP_Events.SetVideoLayers, MMProfileFlagEnd, layerInfo, struct mmp_fb_overlay_layers);
 #ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
-						screen_update_cnt++;
+			screen_update_cnt++;
 #endif
         }
 
@@ -2666,7 +2662,7 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
     		is_ipoh_bootup = false;
     		MMProfileLogStructure(MTKFB_MMP_Events.SetMultipleLayers, MMProfileFlagEnd, layerInfo, struct mmp_fb_overlay_layers);
 #ifdef CONFIG_MTK_AEE_POWERKEY_HANG_DETECT
-				screen_update_cnt++;
+			screen_update_cnt++;
 #endif
     	}
 
@@ -3220,14 +3216,12 @@ static int mtkfb_ioctl(struct file *file, struct fb_info *info, unsigned int cmd
         result = mtkfb_fm_auto_test();
 		return copy_to_user(argp, &result, sizeof(result)) ? -EFAULT : 0;
 	}
-#ifdef CONFIG_MTK_AEE_FEATURE
     case MTKFB_AEE_LAYER_EXIST:
     {
 		//printk("[MTKFB] isAEEEnabled=%d \n", isAEEEnabled);
 		return copy_to_user(argp, &isAEEEnabled,
                             sizeof(isAEEEnabled)) ? -EFAULT : 0;
     }
-#endif
 ////////////////////////////////////////////////
 #ifdef LENOVO_LCM_EFFECT //lenovo add by jixu@lenovo.com
 		case MTKFB_GET_DISPLAY_FEATURE_INFORMATION:
@@ -4482,14 +4476,12 @@ static void mtkfb_early_suspend(struct early_suspend *h)
     for(i=0;i<HW_OVERLAY_COUNT;i++)
     {
         disp_sync_release(i);
-#ifdef CONFIG_MTK_AEE_FEATURE
-        if (!((i == DISP_DEFAULT_UI_LAYER_ID) && isAEEEnabled))
+        if (!((i == DISP_DEFAULT_UI_LAYER_ID) && isAEEEnabled)) 
         {
             cached_layer_config[i].layer_en = 0;
             cached_layer_config[i].isDirty = 0;
         }
-#endif
-        MTKFB_LOG("[FB driver] layer%d release fences\n",i);
+        MTKFB_LOG("[FB driver] layer%d release fences\n",i);		
     }
 #endif
 	DISP_CHECK_RET(DISP_PanelEnable(FALSE));
