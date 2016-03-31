@@ -154,10 +154,10 @@ typedef struct
 
 /* for proximity sensor cali merge from avene-w ---add by lenovo huangdra 20130424 start */
 #define ALSPS_SET_PS_CALI           		_IOR(ALSPS, 0x14, HWMON_PS_STRUCT)
-#define ALSPS_GET_PS_RAW_DATA_FOR_CALI		 _IOR(ALSPS, 0x15, HWMON_PS_STRUCT)
-#define ALSPS_GET_PS_FAR_THRESHOLD					_IOR(ALSPS, 0x16, int)
-#define ALSPS_GET_PS_CLOSE_THRESHOLD						_IOR(ALSPS, 0x17, int)
-#define ALSPS_GET_PS_AVERAGE					_IOR(ALSPS, 0x18, int)
+#define ALSPS_GET_PS_RAW_DATA_FOR_CALI		_IOR(ALSPS, 0x15, HWMON_PS_STRUCT)
+#define ALSPS_GET_PS_FAR_THRESHOLD			_IOR(ALSPS, 0x16, int)
+#define ALSPS_GET_PS_CLOSE_THRESHOLD		_IOR(ALSPS, 0x17, int)
+#define ALSPS_GET_PS_AVERAGE				_IOR(ALSPS, 0x18, int)
 
 
 #define GYROSCOPE							0X86

@@ -1,10 +1,10 @@
 /*
 * Copyright (C) 2011-2014 MediaTek Inc.
-* 
-* This program is free software: you can redistribute it and/or modify it under the terms of the 
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the
 * GNU General Public License version 2 as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
 * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 * See the GNU General Public License for more details.
 *
@@ -43,8 +43,12 @@
 #define ID_LIGHT						(ID_BASE+SENSOR_TYPE_LIGHT-1)
 #define ID_PRESSURE						(ID_BASE+SENSOR_TYPE_PRESSURE-1)
 #define ID_TEMPRERATURE					(ID_BASE+SENSOR_TYPE_TEMPERATURE-1)
-#define ID_SIGNIFICANT_MOTION                    (ID_BASE+SENSOR_TYPE_SIGNIFICANT_MOTION-1)
+#ifdef CONFIG_MTK_HWMSENSOR_SIGNIFICANT_MOTION
+#define ID_SIGNIFICANT_MOTION           (ID_BASE+SENSOR_TYPE_SIGNIFICANT_MOTION-1)
 #define ID_SENSOR_MAX_HANDLE			(ID_BASE+11)
+#else
+#define ID_SENSOR_MAX_HANDLE			(ID_BASE+10)
+#endif
 #define ID_NONE							(ID_BASE+16)
 
 #define MAX_ANDROID_SENSOR_NUM	(ID_SENSOR_MAX_HANDLE +1)
@@ -61,13 +65,15 @@
 #define SENSOR_GRAVITY					(1 << ID_GRAVITY)
 #define SENSOR_LINEAR_ACCELERATION		(1 << ID_LINEAR_ACCELERATION)
 #define SENSOR_ROTATION_VECTOR			(1 << ID_ROTATION_VECTOR)
-#define SENSOR_SIGNIFICANT_MOTION            (1 << ID_SIGNIFICANT_MOTION)
+#ifdef CONFIG_MTK_HWMSENSOR_SIGNIFICANT_MOTION
+#define SENSOR_SIGNIFICANT_MOTION       (1 << ID_SIGNIFICANT_MOTION)
+#endif
 
 /*----------------------------------------------------------------------------*/
 #define HWM_INPUTDEV_NAME               "hwmdata"
 #define HWM_SENSOR_DEV_NAME             "hwmsensor"
 #define HWM_SENSOR_DEV                  "/dev/hwmsensor"
-#define C_MAX_HWMSEN_EVENT_NUM          4 
+#define C_MAX_HWMSEN_EVENT_NUM          4
 /*----------------------------------------------------------------------------*/
 #define ACC_PL_DEV_NAME                 "m_acc_pl"
 #define ACC_INPUTDEV_NAME               "m_acc_input"
@@ -75,22 +81,22 @@
 #define MAG_PL_DEV_NAME                 "m_mag_pl"
 #define MAG_INPUTDEV_NAME               "m_mag_input"
 #define MAG_MISC_DEV_NAME               "m_mag_misc"
-#define GYRO_PL_DEV_NAME                    "m_gyro_pl"
-#define GYRO_INPUTDEV_NAME                  "m_gyro_input"
-#define GYRO_MISC_DEV_NAME                  "m_gyro_misc"
-#define ALSPS_PL_DEV_NAME                    "m_alsps_pl"
-#define ALSPS_INPUTDEV_NAME              "m_alsps_input"
-#define ALSPS_MISC_DEV_NAME              "m_alsps_misc"
-#define BARO_PL_DEV_NAME                    "m_baro_pl"
+#define GYRO_PL_DEV_NAME                "m_gyro_pl"
+#define GYRO_INPUTDEV_NAME              "m_gyro_input"
+#define GYRO_MISC_DEV_NAME              "m_gyro_misc"
+#define ALSPS_PL_DEV_NAME               "m_alsps_pl"
+#define ALSPS_INPUTDEV_NAME             "m_alsps_input"
+#define ALSPS_MISC_DEV_NAME             "m_alsps_misc"
+#define BARO_PL_DEV_NAME                "m_baro_pl"
 #define BARO_INPUTDEV_NAME              "m_baro_input"
 #define BARO_MISC_DEV_NAME              "m_baro_misc"
-#define TEMP_PL_DEV_NAME                    "m_temp_pl"
-#define TEMP_INPUTDEV_NAME                  "m_temp_input"
-#define TEMP_MISC_DEV_NAME                  "m_temp_misc"
+#define TEMP_PL_DEV_NAME                "m_temp_pl"
+#define TEMP_INPUTDEV_NAME              "m_temp_input"
+#define TEMP_MISC_DEV_NAME              "m_temp_misc"
 
-#define BATCH_PL_DEV_NAME                   "m_batch_pl"
-#define BATCH_INPUTDEV_NAME                 "m_batch_input"
-#define BATCH_MISC_DEV_NAME                 "m_batch_misc"
+#define BATCH_PL_DEV_NAME               "m_batch_pl"
+#define BATCH_INPUTDEV_NAME             "m_batch_input"
+#define BATCH_MISC_DEV_NAME             "m_batch_misc"
 
 #define EVENT_TYPE_SENSOR				0x01
 #define EVENT_SENSOR_ACCELERATION		SENSOR_ACCELEROMETER
@@ -104,12 +110,14 @@
 #define EVENT_SENSOR_GRAVITY			SENSOR_PRESSURE
 #define EVENT_SENSOR_LINEAR_ACCELERATION		SENSOR_TEMPRERATURE
 #define EVENT_SENSOR_ROTATION_VECTOR	SENSOR_PROXIMITY
+#ifdef CONFIG_MTK_HWMSENSOR_SIGNIFICANT_MOTION
 #define EVENT_SENSOR_SIGNIFICANT_MOTION    SENSOR_SIGNIFICANT_MOTION
+#endif
 /*-----------------------------------------------------------------------------*/
 
 enum {
     HWM_MODE_DISABLE = 0,
-    HWM_MODE_ENABLE  = 1,    
+    HWM_MODE_ENABLE  = 1,
 };
 
 /*------------sensors data----------------------------------------------------*/

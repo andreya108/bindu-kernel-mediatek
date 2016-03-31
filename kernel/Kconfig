@@ -9,7 +9,7 @@ config ARCH_MTK_PLATFORM
   string
   option env="ARCH_MTK_PLATFORM"
 
-choice 
+choice
     bool "System Type"
 
 source "../mediatek/platform/$ARCH_MTK_PLATFORM/kernel/Kconfig/Platform"
@@ -28,7 +28,7 @@ config MTK_IN_HOUSE_TEE_SUPPORT
 
 config HAVE_TRUSTONIC_TEE_SUPPORT
 	def_bool n
-	
+
 #
 # TRUSTONIC TEE configuration
 #
@@ -37,13 +37,13 @@ config TRUSTONIC_TEE_SUPPORT
     depends on HAVE_TRUSTONIC_TEE_SUPPORT
     default n
     ---help---
-      Enable Trustonic TEE Support   
+      Enable Trustonic TEE Support
 
 #
 # MobiCore configuration
 #
 config MOBICORE_DRIVER
-    tristate "MobiCore Driver"    
+    tristate "MobiCore Driver"
     depends on TRUSTONIC_TEE_SUPPORT
     default n
     ---help---
@@ -72,7 +72,7 @@ config MOBICORE_API
     depends on MOBICORE_DRIVER
     default n
     ---help---
-      Enable Linux Kernel MobiCore API	  
+      Enable Linux Kernel MobiCore API
 
 config MTK_SEC_VIDEO_PATH_SUPPORT
 	bool "Enable MTK Secure Video Path Support"
@@ -100,4 +100,8 @@ config MTK_MEMCFG
        bool "Support enhanced memory configurations"
        default n
        help
+
+config MTK_HWMSENSOR_SIGNIFICANT_MOTION
+    bool "Device configuration has SIGNIFICANT_MOTION hardware sensor"
+    default n
 
