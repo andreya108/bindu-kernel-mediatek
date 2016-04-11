@@ -160,7 +160,7 @@ CUSTOM_KERNEL_SUB_IMGSENSOR= gc0329_yuv
 CUSTOM_KERNEL_SUB_LENS= dummy_lens
 
 # touch driver  need to report correct touch axes
-CUSTOM_KERNEL_TOUCHPANEL= GT9XX_2
+CUSTOM_KERNEL_TOUCHPANEL= GT9XX
 
 # Configuration for USB PHY
 CUSTOM_KERNEL_USB= mt6577
