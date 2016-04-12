@@ -55,12 +55,12 @@ CUSTOM_HAL_FLASHLIGHT=constant_flashlight
 CUSTOM_HAL_IMGSENSOR=ov8825_mipi_raw ov2659_yuv ov8825_truly_mipi_raw hi253_yuv ov8826_mipi_raw
 
 # = CUSTOM_HAL_MAIN_LENS +CUSTOM_HAL_MAIN_BACKUP_LENS + CUSTOM_HAL_SUB_LENS + CUSTOM_HAL_SUB_BACKUP_LENS
-CUSTOM_HAL_LENS= ov8825af dummy_lens ov8826af ov8825trulyaf
+CUSTOM_HAL_LENS= ov8825af dummy_lens ov8826af # ov8825trulyaf
 CUSTOM_HAL_MAIN2_IMGSENSOR=
 CUSTOM_HAL_MAIN_BACKUP_IMGSENSOR= ov8825_truly_mipi_raw
 
 # lens driver config for main camera (2nd solution)
-CUSTOM_HAL_MAIN_BACKUP_LENS= ov8825trulyaf
+CUSTOM_HAL_MAIN_BACKUP_LENS= #ov8825trulyaf
 
 # User space image sensor  driver: Main camera (rear camera) used sensor related tuning, setting and calibration information.Value is used main sensor name.
 CUSTOM_HAL_MAIN_IMGSENSOR= ov8825_mipi_raw ov8826_mipi_raw
@@ -125,7 +125,7 @@ CUSTOM_KERNEL_KPD= kpd
 CUSTOM_KERNEL_LEDS= mt65xx
 
 # same as CUSTOM_HAL_LENS
-CUSTOM_KERNEL_LENS= ov8825af dummy_lens ov8825trulyaf ov8826af
+CUSTOM_KERNEL_LENS= ov8825af dummy_lens # ov8825trulyaf ov8826af
 CUSTOM_KERNEL_MAIN2_BACKUP_IMGSENSOR=
 CUSTOM_KERNEL_MAIN2_IMGSENSOR=
 
@@ -133,7 +133,7 @@ CUSTOM_KERNEL_MAIN2_IMGSENSOR=
 CUSTOM_KERNEL_MAIN_BACKUP_IMGSENSOR= ov8825_truly_mipi_raw
 
 # lens driver config for main camera (2nd solution)
-CUSTOM_KERNEL_MAIN_BACKUP_LENS= ov8825trulyaf
+CUSTOM_KERNEL_MAIN_BACKUP_LENS= # ov8825trulyaf
 
 # Kernel space image sensor driver:Main camera (rear camera) used sensor driver.Value is used main sensor name.
 CUSTOM_KERNEL_MAIN_IMGSENSOR= ov8825_mipi_raw ov8826_mipi_raw
@@ -1321,7 +1321,7 @@ MTK_WEATHER_WIDGET_APP=yes
 MTK_WEB_NOTIFICATION_SUPPORT=yes
 
 # Define MTK weekly number(internal use only)
-MTK_WEEK_NO= 
+MTK_WEEK_NO=
 MTK_WFD_HDCP_TX_SUPPORT=no
 MTK_WFD_SINK_SUPPORT=no
 MTK_WFD_SINK_UIBC_SUPPORT=no
