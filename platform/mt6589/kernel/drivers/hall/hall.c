@@ -1,10 +1,10 @@
 /************************************************************
  * hall.c - Hall sensor driver
- * 
+ *
  * Copyright Lenovo MIDH
- * 
+ *
  * DESCRIPTION:
- *     This file provid the hall sensor drivers 
+ *     This file provid the hall sensor drivers
  *
  ***********************************************************/
 #ifdef LENOVO_HALL_SENSOR_SUPPORT
@@ -59,6 +59,15 @@ static struct workqueue_struct * hall_eint_workqueue = NULL;
 
 static bool suspended = false;
 
+static int __init hall_legacy_mode_setup(char *str)
+{
+   printk("OPT %s: hall.legacy_mode\n", __func__);
+   driver_mode_legacy = true;
+   return 0;
+}
+early_param("hall.legacy_mode",hall_legacy_mode_setup);
+
+
 /******************************************************************************
 Device driver structure
 *****************************************************************************/
@@ -84,16 +93,16 @@ static void hall_resume(struct early_suspend *h)
 
 static void hall_cover_closed_eint_handler(void)
 {
-    
+
     queue_work(hall_eint_workqueue, &hall_eint_work);
-	
+
 }
 
 static void hall_eint_work_callback(struct work_struct *work)
 {
 	bool cover_closed;
 	u8 old_state = hall_cover_closed_state;
-	
+
 	mt_eint_mask(CUST_EINT_MHALL_NUM);
 //	DOCK_DEBUG("[hall%s] hall_cover_closed_state = %d\n", driver_mode_legacy?"-legacy":"",hall_cover_closed_state );
     hall_cover_closed_state = !mt_get_gpio_in(GPIO_MHALL_EINT_PIN);
@@ -106,7 +115,7 @@ static void hall_eint_work_callback(struct work_struct *work)
 		DOCK_ERR("[hall%s] no hall state changed!!!\n",driver_mode_legacy?"-legacy":"");
 	} else {
 		if (driver_mode_legacy) {
-			if (cover_closed != suspended) 
+			if (cover_closed != suspended)
 			{
 				printk("[hall%s] sending powerkey event!\n",driver_mode_legacy?"-legacy":"");
 				input_report_key(kpd_input_dev, KPD_PWRKEY_MAP, 1);
@@ -119,7 +128,7 @@ static void hall_eint_work_callback(struct work_struct *work)
 		}
 	}
 
- 	if (!driver_mode_legacy) 
+ 	if (!driver_mode_legacy)
  	{
 		switch_set_state((struct switch_dev *)&hall_data, hall_cover_closed_state);
 	}
@@ -130,18 +139,18 @@ static void hall_eint_work_callback(struct work_struct *work)
 
 static void hall_init_hw(void)
 {
-	
+
 	mt_set_gpio_mode(GPIO_MHALL_EINT_PIN, GPIO_ACCDET_EINT_PIN_M_EINT);
 	mt_set_gpio_dir(GPIO_MHALL_EINT_PIN, GPIO_DIR_IN);
-	mt_set_gpio_pull_enable(GPIO_MHALL_EINT_PIN, GPIO_PULL_DISABLE); 
-	
+	mt_set_gpio_pull_enable(GPIO_MHALL_EINT_PIN, GPIO_PULL_DISABLE);
+
 	mt_eint_set_hw_debounce(CUST_EINT_MHALL_NUM, CUST_EINT_MHALL_DEBOUNCE_CN);
 	mt_eint_registration(CUST_EINT_MHALL_NUM, CUST_EINT_MHALL_TYPE, hall_cover_closed_eint_handler, 0);
-	mt_eint_unmask(CUST_EINT_MHALL_NUM); 
+	mt_eint_unmask(CUST_EINT_MHALL_NUM);
 
 }
 
-static int hall_probe(struct platform_device *dev)	
+static int hall_probe(struct platform_device *dev)
 {
 	DOCK_DEBUG("[hall] %s  \n", __func__);
 	#if 1
@@ -151,11 +160,11 @@ static int hall_probe(struct platform_device *dev)
         printk("hall_probe 1\n");
         switch_dev_register(&hall_data);
         printk("hall_probe 2\n");
-	
+
 	hall_eint_workqueue = create_singlethread_workqueue("hall_eint");
         printk("hall_probe 3\n");
         INIT_WORK(&hall_eint_work, hall_eint_work_callback);
-       
+
         printk("hall_probe 4\n");
 	hall_init_hw();
         printk("hall_probe\n");
@@ -163,7 +172,7 @@ static int hall_probe(struct platform_device *dev)
 	#endif
 	return 0;
 }
-static int hall_remove(struct platform_device *dev)	
+static int hall_remove(struct platform_device *dev)
 {
        #if 1
 	destroy_workqueue(hall_eint_workqueue);
@@ -212,22 +221,22 @@ struct kobject *hall_kobj;
 
 /******************************************************************************
  * hall_mod_init
- * 
+ *
  * DESCRIPTION:
- *   Register the hall sensor driver ! 
- * 
- * PARAMETERS: 
+ *   Register the hall sensor driver !
+ *
+ * PARAMETERS:
  *   None
- * 
- * RETURNS: 
+ *
+ * RETURNS:
  *   None
- * 
- * NOTES: 
+ *
+ * NOTES:
  *   0 : Success
- * 
+ *
  ******************************************************************************/
 static s32 __devinit hall_mod_init(void)
-{	
+{
 	s32 ret;
         printk("hall_mod_init\n");
 	ret = platform_driver_register(&hall_driver);
@@ -248,30 +257,30 @@ static s32 __devinit hall_mod_init(void)
 	register_early_suspend(&early_suspend_desc);
 
 	DOCK_DEBUG("[Hall]hall_mod_init Done \n");
- 
+
 	return 0;
 }
 
 /******************************************************************************
  * hall_mod_exit
- * 
- * DESCRIPTION: 
- *   Free the device driver ! 
- * 
- * PARAMETERS: 
+ *
+ * DESCRIPTION:
+ *   Free the device driver !
+ *
+ * PARAMETERS:
  *   None
- * 
- * RETURNS: 
+ *
+ * RETURNS:
  *   None
- * 
- * NOTES: 
+ *
+ * NOTES:
  *   None
- * 
+ *
  ******************************************************************************/
- 
+
 static void __exit hall_mod_exit(void)
 {
-	
+
 	platform_driver_unregister(&hall_driver);
 	sysfs_remove_group(hall_kobj, &dev_attr_legacy_mode);
 	unregister_early_suspend(&early_suspend_desc);
