@@ -41,7 +41,7 @@
 *  contained herein may not be used or disclosed except with the written
 *  permission of MediaTek Inc. (C) 2008
 *
-*  BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
+   BY OPENING THIS FILE, BUYER HEREBY UNEQUIVOCALLY ACKNOWLEDGES AND AGREES
 *  THAT THE SOFTWARE/FIRMWARE AND ITS DOCUMENTATIONS ("MEDIATEK SOFTWARE")
 *  RECEIVED FROM MEDIATEK AND/OR ITS REPRESENTATIVES ARE PROVIDED TO BUYER ON
 *  AN "AS-IS" BASIS ONLY. MEDIATEK EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES,
@@ -80,449 +80,53 @@
 #else
 	#include <mach/mt_gpio.h>
 #endif
+
+
 // ---------------------------------------------------------------------------
 //  Local Constants
 // ---------------------------------------------------------------------------
 
-#define FRAME_WIDTH  (720)
-#define FRAME_HEIGHT (1280)
+#define FRAME_WIDTH  				(720)
+#define FRAME_HEIGHT 				(1280)
 
 #ifndef TRUE
-    #define TRUE 1
+#define TRUE 1
 #endif
 
 #ifndef FALSE
-    #define FALSE 0
+#define FALSE 0
 #endif
 
-#define REGFLAG_DELAY                                       0XFFE
-#define REGFLAG_END_OF_TABLE                                0xFFF   // END OF REGISTERS MARKER
-
+//#define LCM_DSI_CMD_MODE			0
 
 #define LCM_ID    0x1283
 
 // ---------------------------------------------------------------------------
 //  Local Variables
 // ---------------------------------------------------------------------------
+static unsigned int lcm_esd_test = FALSE; ///only for ESD test
 
 static LCM_UTIL_FUNCS lcm_util = {0};
 
-#define SET_RESET_PIN(v)    (lcm_util.set_reset_pin((v)))
+#define SET_RESET_PIN(v)    	(lcm_util.set_reset_pin((v)))
 
-
-
-
-#define UDELAY(n) (lcm_util.udelay(n))
-#define MDELAY(n) (lcm_util.mdelay(n))
+#define UDELAY(n) 		(lcm_util.udelay(n))
+#define MDELAY(n) 		(lcm_util.mdelay(n))
 
 
 // ---------------------------------------------------------------------------
 //  Local Functions
 // ---------------------------------------------------------------------------
 
-#define dsi_set_cmdq_V2(cmd, count, ppara, force_update)	        lcm_util.dsi_set_cmdq_V2(cmd, count, ppara, force_update)
+#define dsi_set_cmdq_V2(cmd, count, ppara, force_update)	lcm_util.dsi_set_cmdq_V2(cmd, count, ppara, force_update)
 #define dsi_set_cmdq(pdata, queue_size, force_update)		lcm_util.dsi_set_cmdq(pdata, queue_size, force_update)
-#define wrtie_cmd(cmd)										lcm_util.dsi_write_cmd(cmd)
-#define write_regs(addr, pdata, byte_nums)					lcm_util.dsi_write_regs(addr, pdata, byte_nums)
-#define read_reg(cmd)											lcm_util.dsi_dcs_read_lcm_reg(cmd)
-#define read_reg_v2(cmd, buffer, buffer_size)   				lcm_util.dsi_dcs_read_lcm_reg_v2(cmd, buffer, buffer_size)   
-
-
-//#define   LCM_DSI_CMD_MODE							0
-
-static struct LCM_setting_table
-{
-    unsigned cmd;
-    unsigned char count;
-    unsigned char para_list[64];
-};
-
-#if 0
-static struct LCM_setting_table lcm_initialization_setting[] =
-{
-	{0xff,3,{0x12,0x83,0x01 							  }},
-	{0x00,1,{0x80										  }},
-	{0xff,2,{0x12,0x83									  }},
-	{0x00,1,{0x90										  }},
-	{0xf5,4,{0x02,0x11,0x02,0x11						  }},
-	{0x00,1,{0x90										  }},
-	{0xc5,1,{0x50										  }},
-	{0x00,1,{0x94										  }},
-	{0xc5,1,{0x77										  }},
-	{0x00,1,{0x80										  }},
-	{0xc0,9,{0x00,0x64,0x00,0x10,0x10,0x00,0x64,0x10,0x10 }},
-	{0x00,1,{0x90}},
-	{0xc0,6,{0x00,0x5c,0x00,0x01,0x00,0x04}},
-	{0x00,1,{0xb3						 }},
-	{0xc0,2,{0x00,0x50					 }},
-	{0x00,1,{0x81						 }},
-	{0xc1,1,{0x55						 }},
-    {0x00,1,{0xa0}},
-    {0xc1,1,{0x02}},  		
-	{0x00,1,{0xa0						 }},
-	{0xc4,14,{0x05,0x10,0x06,0x02,0x05,0x15,0x10,0x05,0x10,0x07,0x02,0x05,0x15,0x10}},
-	{0x00,1,{0xb0	 }},
-	{0xc4,2,{0x00,0x00}},
-	{0x00,1,{0x91	  }},
-	{0xc5,2,{0x46,0x40}},
-	{0x00,1,{0x00	  }},
-	{0xd8,2,{0xbc,0xbc}},
-	{0x00,1,{0x00	  }},
-	{0xd9,1,{0x30	  }},
-	{0x00,1,{0xb0	  }},
-	{0xc5,2,{0x04,0x38}},
-	{0x00,1,{0xbb	  }},
-	{0xc5,1,{0x80	  }},
-	{0x00,1,{0xc3	  }},
-	{0xf5,1,{0x81	  }},
-	{0x00,1,{0x82	  }},
-	{0xf4,1,{0x00	  }},
-	{0x00,1,{0x80	  }},
-	{0xc6,1,{0x24	  }},
-	{0x00,1,{0x00	  }},
-	{0xd0,1,{0x40	  }},
-	{0x00,1,{0x00	  }},
-	{0xd1,2,{0x00,0x00}},
-	{0x00,1,{0x80	  }},
-	{0xcb,11,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0x90}},
-	{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xa0}},
-	{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xb0}},
-	{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xc0}},
-	{0xcb,15,{0x05,0x00,0x05,0x05,0x05,0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xd0}},
-	{0xcb,15,{0x00,0x00,0x00,0x05,0x00,0x05,0x05,0x05,0x00,0x05,0x05,0x05,0x05,0x00,0x00}},
-	{0x00,1,{0xe0}},
-	{0xcb,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x05,0x00,0x05,0x05}},
-	{0x00,1,{0xf0}},
-	{0xcb,11,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}},
-	{0x00,1,{0x80}},
-	{0xcc,15,{0x02,0x00,0x0a,0x0e,0x0c,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0x90}},
-	{0xcc,15,{0x00,0x00,0x00,0x06,0x00,0x2e,0x2d,0x01,0x00,0x09,0x0d,0x0b,0x0f,0x00,0x00}},
-	{0x00,1,{0xa0}},
-	{0xcc,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x05,0x00,0x2e,0x2d}},
-	{0x00,1,{0xb0}},
-	{0xcc,15,{0x05,0x00,0x0f,0x0b,0x0d,0x09,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xc0}},
-	{0xcc,15,{0x00,0x00,0x00,0x01,0x00,0x2d,0x2e,0x06,0x00,0x10,0x0c,0x0e,0x0a,0x00,0x00}},
-	{0x00,1,{0xd0}},
-	{0xcc,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0x00,0x2d,0x2e}},
-	{0x00,1,{0x80}},
-	{0xce,12,{0x87,0x03,0x18,0x86,0x03,0x18,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0x90}},
-	{0xce,14,{0x34,0xfe,0x18,0x34,0xff,0x18,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xa0}},
-	{0xce,14,{0x38,0x03,0x05,0x00,0x00,0x18,0x00,0x38,0x02,0x05,0x01,0x00,0x18,0x00}},
-	{0x00,1,{0xb0}},
-	{0xce,14,{0x38,0x01,0x05,0x02,0x00,0x18,0x00,0x38,0x00,0x05,0x03,0x00,0x18,0x00}},
-	{0x00,1,{0xc0}},
-	{0xce,14,{0x30,0x00,0x05,0x04,0x00,0x18,0x00,0x30,0x01,0x05,0x05,0x00,0x18,0x00}},
-	{0x00,1,{0xd0}},
-	{0xce,14,{0x30,0x02,0x05,0x06,0x00,0x18,0x00,0x30,0x03,0x05,0x07,0x00,0x18,0x00}},
-	{0x00,1,{0x80}},
-	{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0x90}},
-	{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xa0}},
-	{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xb0}},
-	{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	{0x00,1,{0xc0}},
-	{0xcf,10,{0x01,0x01,0x20,0x20,0x00,0x00,0x01,0x01,0x00,0x00}},
-	{0x00,1,{0xb5}},
-	{0xc5,6,{0x37,0xf1,0xfd,0x37,0xf1,0xfd}},
-	{0x00,1,{0x90}},
-	{0xc4,1,{0x49}},
-	{0x00,1,{0x82}},
-	{0xC4,1,{0x02}},
-	{0x00,1,{0xc6}},
-	{0xb0,1,{0x03}},
-	{0x00,1,{0x94}},
-	{0xF5,1,{0x02}},
-	{0x00,1,{0xBA}},
-	{0xF5,1,{0x03}},
-	{0x00,1,{0x00}},
-	{0xE1,16,{0x00,0x08,0x0D,0x0D,0x06,0x11,0x0D,0x0C,0x01,0x05,0x08,0x07,0x0D,0x12,0x0F,0x0D}},
-	{0x00,1,{0x00}},
-	{0xE2,16,{0x00,0x08,0x0D,0x0D,0x06,0x11,0x0D,0x0C,0x01,0x05,0x08,0x07,0x0D,0x12,0x0F,0x0D}},
-	{0x00,1,{0x90}},
-	{0xb3,1,{0x02}},
-	{0x00,1,{0x92}},
-	{0xb3,1,{0x40}},
-	{0x00,1,{0x80}},
-	{0xf6,1,{0x01}},
-	{	0X11,0X00,{}},	
-	{REGFLAG_DELAY, 120, {}},
-	{	0X29,0X00,{}},		
-	{REGFLAG_DELAY, 100, {}},
-	{REGFLAG_END_OF_TABLE, 0x00, {}}		
-};
-
-#else   //S539 Ò×¿ìÀ´
-static struct LCM_setting_table lcm_initialization_setting[] =
-{
-	    {0x00,1,{0x00}},
-		{0xff,3,{0x12,0x83,0x01}},	//EXTC=1
-	
-		{0x00,1,{0x80}},			//Orise mode enable
-		{0xff,2,{0x12,0x83}},
-	
-	//-------------------- panel setting --------------------//
-		{0x00,1,{0x80}},			 //TCON Setting
-		{0xc0,9,{0x00,0x64,0x00,0x10,0x10,0x00,0x64,0x10,0x10}},
-	
-		{0x00,1,{0x90}},			 //Panel Timing Setting
-		{0xc0,6,{0x00,0x5c,0x00,0x01,0x00,0x04}},
-	
-		{0x00,1,{0xa4}},			 //source pre. 
-		{0xc0,1,{0x22}},
-	
-		{0x00,1,{0xb3}},			 //Interval Scan Frame: 0 frame, column inversion
-		{0xc0,2,{0x00,0x50}},
-	
-		{0x00,1,{0x81}},			 //frame rate:60Hz
-		{0xc1,1,{0x55}},
-	
-		{0x00,1,{0x90}},			 //clock delay for data latch 
-		{0xc4,1,{0x49}},
-	
-	//-------------------- power setting --------------------//
-		{0x00,1,{0xa0}},			 //dcdc setting
-		{0xc4,14,{0x05,0x10,0x06,0x02,0x05,0x15,0x10,0x05,0x10,0x07,0x02,0x05,0x15,0x10}},
-	
-		{0x00,1,{0xb0}},			 //clamp voltage setting
-		{0xc4,2,{0x00,0x00}},
-	
-		{0x00,1,{0x91}},			 //VGH=15V, VGL=-10V, pump ratio:VGH=6x, VGL=-5x
-		{0xc5,2,{0x46,0x40}},
-	
-		{0x00,1,{0x00}},			 //GVDD=5.008V, NGVDD=-5.008V
-		{0xd8,2,{0xc7,0xc7}},
-	
-		{0x00,1,{0x00}},			 //VCOMDC=-1.584
-		{0xd9,1,{0x7D}},
-	
-		{0x00,1,{0x81}},			 //source bias 0.75uA
-		{0xc4,1,{0x82}},
-	
-		{0x00,1,{0xb0}},			 //VDD_18V=1.6V, LVDSVDD=1.55V
-		{0xc5,2,{0x04,0xb8}},
-	
-		{0x00,1,{0xbb}},			 //LVD voltage level setting
-		{0xc5,1,{0x80}},
-	
-		{0x00,1,{0x82}},		// chopper 0: frame 2: line 4: disable
-		{0xC4,1,{0x02}}, 
-	
-		{0x00,1,{0xc6}},		// debounce
-		{0xB0,1,{0x03}}, 
-	
-	//-------------------- control setting --------------------//
-		{0x00,1,{0x00}},			 //ID1
-		{0xd0,1,{0x40}},
-	
-		{0x00,1,{0x00}},			 //ID2, ID3
-		{0xd1,2,{0x00,0x00}},
-	
-	//-------------------- panel timing state control --------------------//
-		{0x00,1,{0x80}}, 
-		{0xcb,11,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0x90}}, 
-		{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xa0}}, 
-		{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xb0}},  
-		{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xc0}}, 
-		{0xcb,15,{0x05,0x05,0x05,0x05,0x05,0x05,0x00,0x00,0x00,0x00,0x05,0x05,0x00,0x05,0x05}},
-	
-		{0x00,1,{0xd0}}, 
-		{0xcb,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x05,0x05,0x05,0x05,0x05,0x05,0x00,0x00}},
-	
-		{0x00,1,{0xe0}},
-		{0xcb,14,{0x00,0x00,0x05,0x05,0x00,0x05,0x05,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xf0}},
-		{0xcb,11,{0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff}},
-	
-	//-------------------- panel pad mapping control --------------------//
-		{0x00,1,{0x80}}, 
-		{0xcc,15,{0x0E,0x10,0x0A,0x0C,0x02,0x04,0x00,0x00,0x00,0x00,0x2E,0x2D,0x00,0x29,0x2A}},
-	
-		{0x00,1,{0x90}},	
-		{0xcc,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0D,0x0F,0x09,0x0B,0x01,0x03,0x00,0x00}},
-	
-		{0x00,1,{0xa0}}, 
-		{0xcc,14,{0x00,0x00,0x2E,0x2D,0x00,0x29,0x2A,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xb0}}, 
-		{0xcc,15,{0x0B,0x09,0x0F,0x0D,0x03,0x01,0x00,0x00,0x00,0x00,0x2D,0x2E,0x00,0x29,0x2A}},
-	
-		{0x00,1,{0xc0}}, 
-		{0xcc,15,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0C,0x0A,0x10,0x0E,0x04,0x02,0x00,0x00}},
-	
-		{0x00,1,{0xd0}},  
-		{0xcc,14,{0x00,0x00,0x2D,0x2E,0x00,0x29,0x2A,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-	//-------------------- panel timing setting --------------------//
-		{0x00,1,{0x80}},			 //panel VST setting
-		{0xce,12,{0x8B,0x03,0x18,0x8A,0x03,0x18,0x89,0x03,0x18,0x88,0x03,0x18}},
-	
-		{0x00,1,{0x90}},			 //panel VEND setting
-		{0xce,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xa0}},			 //panel CLKA1/2 setting
-		{0xce,14,{0x38,0x07,0x05,0x00,0x00,0x18,0x00,0x38,0x06,0x05,0x01,0x00,0x18,0x00}},
-	
-		{0x00,1,{0xb0}},			 //panel CLKA3/4 setting
-		{0xce,14,{0x38,0x05,0x05,0x02,0x00,0x18,0x00,0x38,0x04,0x05,0x03,0x00,0x18,0x00}},
-	
-		{0x00,1,{0xc0}},			 //panel CLKb1/2 setting
-		{0xce,14,{0x38,0x03,0x05,0x04,0x00,0x18,0x00,0x38,0x02,0x05,0x05,0x00,0x18,0x00}},
-	
-		{0x00,1,{0xd0}},			 //panel CLKb3/4 setting
-		{0xce,14,{0x38,0x01,0x05,0x06,0x00,0x18,0x00,0x38,0x00,0x05,0x07,0x00,0x18,0x00}},
-	
-		{0x00,1,{0x80}},			 //panel CLKc1/2 setting
-		{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0x90}},			 //panel CLKc3/4 setting
-		{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xa0}},			 //panel CLKd1/2 setting
-		{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xb0}},			 //panel CLKd3/4 setting
-		{0xcf,14,{0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00}},
-	
-		{0x00,1,{0xc0}},			 //panel ECLK setting
-		{0xcf,11,{0x01,0x01,0x20,0x20,0x00,0x00,0x01,0x81,0x00,0x03,0x08}}, //gate pre. ena.
-	
-		{0x00,1,{0xb5}},			 //TCON_GOA_OUT Setting
-		{0xc5,6,{0x00,0x6f,0xfF,0x00,0x6f,0xfF}},
-	
-	//-------------------- for Power IC --------------------//
-		{0x00,1,{0x90}},			 //Mode-3
-		{0xf5,4,{0x02,0x11,0x02,0x11}},
-	
-		{0x00,1,{0x90}},			 //2xVPNL
-		{0xc5,1,{0x50}},
-	
-		{0x00,1,{0x94}},			 //Freq.
-		{0xc5,1,{0x66}},
-	
-	//------------------VGLO1/O2 disable----------------
-		{0x00,1,{0xb2}},			 //VGLO1
-		{0xf5,2,{0x00,0x00}},
-	
-		{0x00,1,{0xb4}},			 //VGLO1_S
-		{0xf5,2,{0x00,0x00}},
-	
-		{0x00,1,{0xb6}},			 //VGLO2
-		{0xf5,2,{0x00,0x00}},
-	
-		{0x00,1,{0xb8}},			 //VGLO2_S
-		{0xf5,2,{0x00,0x00}},
-	
-		{0x00,1,{0x94}},		//VCL on	
-		{0xF5,1,{0x02}},
-	
-		{0x00,1,{0xBA}},		//VSP on	
-		{0xF5,1,{0x03}},
-	
-		{0x00,1,{0xb4}},			 //VGLO1/2 Pull low setting
-		{0xc5,1,{0xc0}},		//d[7] vglo1 d[6] vglo2 => 0: pull vss, 1: pull vgl
-	
-	//-------------------- Gamma --------------------//
-		{0x00,1,{0x00}},
-		{0xE1,16,{0x00,0x08,0x0e,0x0d,0x06,0x0e,0x0a,0x0a,0x04,0x07,0x0f,0x08,0x0f,0x13,0x0d,0x06}},
-	
-		{0x00,1,{0x00}},
-		{0xE2,16,{0x00,0x08,0x0e,0x0d,0x06,0x0e,0x0a,0x0a,0x04,0x07,0x0f,0x08,0x0f,0x13,0x0d,0x06}},
-	
-	
-		{0x00,1,{0x00}},			 //Orise mode disable
-		{0xff,3,{0xff,0xff,0xff}},
-	
-		{0x11, 1,{0x00}},
-		{REGFLAG_DELAY, 120, {}},
-	
-		{0x29, 1,{0x00}},
-		{REGFLAG_DELAY, 30, {}},	   
-
-	    {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-#endif
-
-static struct LCM_setting_table lcm_sleep_in_setting[] =
-{
-    // Display off sequence
-    {0x28, 0, {0x00}},
-
-    // Sleep Mode On
-    {0x10, 0, {0x00}},
-
-    {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-
-static struct LCM_setting_table lcm_sleep_out_setting[] =
-{
-    // Sleep Out
-    {0x11, 0, {0x00}},
-    {REGFLAG_DELAY, 120, {}},
-
-    // Display ON
-    {0x29, 0, {0x00}},
-    {REGFLAG_DELAY, 10, {}},
-
-    {REGFLAG_END_OF_TABLE, 0x00, {}}
-};
-
-
-static void push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
-{
-    unsigned int i;
-
-    for(i = 0; i < count; i++)
-    {
-
-        unsigned cmd;
-        cmd = table[i].cmd;
-
-        switch (cmd)
-        {
-
-            case REGFLAG_DELAY :
-                MDELAY(table[i].count);
-                break;
-
-            case REGFLAG_END_OF_TABLE :
-                break;
-
-            default:
-				
-				dsi_set_cmdq_V2(cmd, table[i].count, table[i].para_list, force_update);
-//                dsi_set_cmdq_dcs(cmd, table[i].count, table[i].para_list, force_update);
-        }
-    }
-
-}
-
-static void init_lcm_registers(void)
-{
-	push_table(lcm_initialization_setting, sizeof(lcm_initialization_setting) / sizeof(struct LCM_setting_table), 1);
-}
-
-
-
+#define wrtie_cmd(cmd)						lcm_util.dsi_write_cmd(cmd)
+#define write_regs(addr, pdata, byte_nums)			lcm_util.dsi_write_regs(addr, pdata, byte_nums)
+#define read_reg(cmd) 						lcm_util.dsi_dcs_read_lcm_reg(cmd)
+#define read_reg_v2(cmd, buffer, buffer_size)   		lcm_util.dsi_dcs_read_lcm_reg_v2(cmd, buffer, buffer_size)    
+       
+static unsigned int lcm_compare_id(void);
+static unsigned int lcm_check_status(void);
 // ---------------------------------------------------------------------------
 //  LCM Driver Implementations
 // ---------------------------------------------------------------------------
@@ -535,7 +139,6 @@ static void lcm_set_util_funcs(const LCM_UTIL_FUNCS *util)
 
 static void lcm_get_params(LCM_PARAMS *params)
 {
-
 		memset(params, 0, sizeof(LCM_PARAMS));
 	
 		params->type   = LCM_TYPE_DSI;
@@ -547,18 +150,14 @@ static void lcm_get_params(LCM_PARAMS *params)
 		params->dbi.te_mode 				= LCM_DBI_TE_MODE_VSYNC_ONLY;
 		params->dbi.te_edge_polarity		= LCM_POLARITY_RISING;
 
-        #if (LCM_DSI_CMD_MODE)
+#if (LCM_DSI_CMD_MODE)
 		params->dsi.mode   = CMD_MODE;
-        #else
+#else
 		params->dsi.mode   = BURST_VDO_MODE;
-		//params->dsi.mode   = SYNC_EVENT_VDO_MODE; 
-		
-        #endif
+#endif
 	
 		// DSI
 		/* Command mode setting */
-		//1 Three lane or Four lane
-//		params->dsi.LANE_NUM				= LCM_THREE_LANE;
 		params->dsi.LANE_NUM				= LCM_FOUR_LANE;
 		//The following defined the fomat for data coming from LCD engine.
 		params->dsi.data_format.color_order = LCM_COLOR_ORDER_RGB;
@@ -571,12 +170,10 @@ static void lcm_get_params(LCM_PARAMS *params)
 		params->dsi.packet_size=256;
 
 		// Video mode setting		
-		params->dsi.intermediat_buffer_num = 0;//because DSI/DPI HW design change, this parameters should be 0 when video mode in MT658X; or memory leakage
+		params->dsi.intermediat_buffer_num = 0;
 
 		params->dsi.PS=LCM_PACKED_PS_24BIT_RGB888;
-		params->dsi.word_count=720*3;	
-		params->dsi.compatibility_for_nvk = 0;
-		
+
 		params->dsi.vertical_sync_active				= 2;
 		params->dsi.vertical_backporch					= 14;
 		params->dsi.vertical_frontporch					= 16;
@@ -585,20 +182,14 @@ static void lcm_get_params(LCM_PARAMS *params)
 		params->dsi.horizontal_sync_active				= 2;
 		params->dsi.horizontal_backporch				= 34;
 		params->dsi.horizontal_frontporch				= 24;
-		params->dsi.horizontal_active_pixel				= FRAME_WIDTH;  // ?¦Ì?¨º ((150+150+10)+720)*((20+20+4)+1280)*60*24=
-																			// 1030 x 1324 x60 x 24 / 4
+		params->dsi.horizontal_active_pixel				= FRAME_WIDTH;
 
-        //	params->dsi.HS_PRPR=6;
-	    //params->dsi.LPX=8; 
-		//params->dsi.HS_PRPR=5;
-		//params->dsi.HS_TRAIL=13;
-	//	params->dsi.CLK_TRAIL = 10;
 		// Bit rate calculation
-		//1 Every lane speed
-		params->dsi.pll_div1=0;		// div1=0,1,2,3;div1_real=1,2,4,4 ----0: 546Mbps  1:273Mbps
-		params->dsi.pll_div2=1;		// div2=0,1,2,3;div1_real=1,2,4,4	
+		params->dsi.pll_div1=0;		// fref=26MHz, fvco=fref*(div1+1)	(div1=0~63, fvco=500MHZ~1GHz)
+		params->dsi.pll_div2=1; 		// div2=0~15: fout=fvo/(2*div2)
 		params->dsi.fbk_div =15;    //fref=26MHz, fvco=fref*(fbk_div+1)*2/(div1_real*div2_real)
 
+/* Lenovo-sw2 houdz1 add, 20140318 begin */
 #ifdef LENOVO_BACKLIGHT_LIMIT
  		params->bl_app.min =1;
   		params->bl_app.def =102;
@@ -607,7 +198,702 @@ static void lcm_get_params(LCM_PARAMS *params)
   		params->bl_bsp.def =102;
   		params->bl_bsp.max =255;
 #endif
+/* Lenovo-sw2 houdz1 add, 20140318 end */
+
 }
+
+
+static void lcm_init_register(void)
+{
+	unsigned int data_array[16];
+
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00043902; //EXTC=1
+    	data_array[1] = 0x018312FF;                 
+    	dsi_set_cmdq(&data_array, 2, 1);    
+
+    	data_array[0] = 0x00023902; //ORISE mode enable
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x008312FF;    
+    	dsi_set_cmdq(&data_array, 2, 1);    
+
+
+
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000a3902; //10
+    	data_array[1] = 0x005A00C0;//0x006400C0;
+		data_array[2] = 0x6400110F;
+		data_array[3] = 0x0000110F;
+    	dsi_set_cmdq(&data_array, 4, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00073902; //07
+    	data_array[1] = 0x005C00C0;
+		data_array[2] = 0x00040001;
+    	dsi_set_cmdq(&data_array, 3, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A400;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000000C0; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008700;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000018C4; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B300;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x005000c0; //0x005000c0
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008100;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000066C1;//55=60Hz ;66=65Hz
+    	dsi_set_cmdq(&data_array, 2, 1); 
+
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008100;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000082C4; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008200;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000002C4; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000049C4; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C600;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000003B0; 
+    	dsi_set_cmdq(&data_array, 2, 1); 		
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00053902; //5
+    	data_array[1] = 0x021102F5;
+		data_array[2] = 0x00000011;
+	   	dsi_set_cmdq(&data_array, 3, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000050C5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009400;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000066C5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009400;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000002F5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000BA00;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000003F5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B200;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000F5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B400;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000F5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B600;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000F5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B800;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000F5; 
+    	dsi_set_cmdq(&data_array, 2, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B400;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C0C5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B200;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000040C5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x061005C4;
+		data_array[2] = 0x10150502;
+		data_array[3] = 0x02071005;
+		data_array[4] = 0x00101505;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000C4; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009100;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x005007C5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x00BCBCD8; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x00B804C5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000BB00;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000080C5; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000040D0; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x000000D1; 
+    	dsi_set_cmdq(&data_array, 2, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000C3902; //12
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		dsi_set_cmdq(&data_array, 4, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x050505CB;
+		data_array[2] = 0x00050505;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000D000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x05050000;
+		data_array[3] = 0x05050505;
+		data_array[4] = 0x00000505;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000E000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CB;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00050500;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000F000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000C3902; //12
+    	data_array[1] = 0xFFFFFFCB;
+		data_array[2] = 0xFFFFFFFF;
+		data_array[3] = 0xFFFFFFFF;
+	   	dsi_set_cmdq(&data_array, 4, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x0D0B09CC;
+		data_array[2] = 0x0003010F;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CC;
+		data_array[2] = 0x2D2E0000;
+		data_array[3] = 0x100E0C0A;
+		data_array[4] = 0x00000402;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CC;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x002D2E00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x0C0E10CC;
+		data_array[2] = 0x0002040A;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00103902; //16
+    	data_array[1] = 0x000000CC;
+		data_array[2] = 0x2E2D0000;
+		data_array[3] = 0x090B0D0F;
+		data_array[4] = 0x00000103;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000D000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CC;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x002E2D00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000D3902; //13
+    	data_array[1] = 0x00038FCE;
+		data_array[2] = 0x8D00038E;
+		data_array[3] = 0x038C0003;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1);
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CE;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x050B38CE;
+		data_array[2] = 0x0A0A0000;
+		data_array[3] = 0x01050A38;
+		data_array[4] = 0x000A0A00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x050938CE;
+		data_array[2] = 0x0A0A0002;
+		data_array[3] = 0x03050838;
+		data_array[4] = 0x000A0A00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x050738CE;
+		data_array[2] = 0x0A0A0004;
+		data_array[3] = 0x05050638;
+		data_array[4] = 0x000A0A00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+			
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000D000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x050538CE;
+		data_array[2] = 0x0A0A0006;
+		data_array[3] = 0x07050438;
+		data_array[4] = 0x000A0A00;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CF;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00009000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CF;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000A000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CF;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000F3902; //15
+    	data_array[1] = 0x000000CF;
+		data_array[2] = 0x00000000;
+		data_array[3] = 0x00000000;
+		data_array[4] = 0x00000000;
+    	dsi_set_cmdq(&data_array, 5, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x000C3902; //12
+    	data_array[1] = 0x200101CF;
+		data_array[2] = 0x01000020;
+		data_array[3] = 0x08000002;
+	   	dsi_set_cmdq(&data_array, 4, 1); 
+		
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000B500;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00073902; //7
+    	data_array[1] = 0xFFF133C5;
+		data_array[2] = 0x00FFF133;
+    	dsi_set_cmdq(&data_array, 3, 1); 
+    	
+    			data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008700;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000018C4;//
+    	dsi_set_cmdq(&data_array, 2, 1); 
+    	
+    	
+    			data_array[0] = 0x00023902;
+    	data_array[1] = 0x0000C300;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000081F5;//
+    	dsi_set_cmdq(&data_array, 2, 1); 
+    	
+    	/*
+    			data_array[0] = 0x00023902;
+    	data_array[1] = 0x00008200;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000000F4;
+    	dsi_set_cmdq(&data_array, 2, 1); 
+*/
+		
+		
+		
+		
+//--Gamma-------------------------
+//E1
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00113902; //17
+    	data_array[1] = 0x0b0700E1;    
+    	data_array[2] = 0x0c0e060c;    
+    	data_array[3] = 0x0a06020b;    
+    	data_array[4] = 0x0c120f06;    
+    	data_array[5] = 0x00000000;     
+    	dsi_set_cmdq(&data_array, 6, 1);     
+
+ 
+//E2
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00113902; //25
+    	data_array[1] = 0x0c0700E2;    
+    	data_array[2] = 0x0c0e060c;    
+    	data_array[3] = 0x0a05020b;    
+    	data_array[4] = 0x0c120f06;    
+    	data_array[5] = 0x00000000;      
+    	dsi_set_cmdq(&data_array, 6, 1);      
+
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x000078D9;    
+    	dsi_set_cmdq(&data_array, 2, 1); 
+
+			
+///////////////////////////////////////////////////// update by xuanquan.wang 2013/04/09
+#if 0
+data_array[0] = 0x00023902;
+data_array[1] = 0x0000A000;
+dsi_set_cmdq(&data_array, 2, 1);
+
+data_array[0] = 0x00023902;
+data_array[1] = 0x000002C1;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(1);
+
+//data_array[0] = 0x00023902;
+//data_array[1] = 0x0000A200;
+//dsi_set_cmdq(&data_array, 2, 1);
+//data_array[0] = 0x00023902;
+//data_array[1] = 0x000008C1;
+//dsi_set_cmdq(&data_array, 2, 1);
+//data_array[0] = 0x00023902;
+//data_array[1] = 0x0000A400;
+//dsi_set_cmdq(&data_array, 2, 1);
+//data_array[0] = 0x00023902;
+//data_array[1] = 0x0000F0C1;
+//dsi_set_cmdq(&data_array, 2, 1);
+data_array[0] = 0x00023902;
+data_array[1] = 0x00008000;
+dsi_set_cmdq(&data_array, 2, 1);
+data_array[0] = 0x00023902;
+data_array[1] = 0x000030C4;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(10);
+data_array[0] = 0x00023902;
+data_array[1] = 0x00008A00;
+dsi_set_cmdq(&data_array, 2, 1);
+data_array[0] = 0x00023902;
+data_array[1] = 0x000040C4;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(10);
+#else
+data_array[0]=0x00023902;
+data_array[1]=0x0000A000;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x000002C1;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000A200;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000FFC1;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000A400;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000FFC1;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x00009000;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00103902;
+data_array[1]=0xC0C0C0CB;
+data_array[2]=0x00C0C0C0;
+data_array[3]=0x00000000;
+data_array[4]=0x00000000;
+dsi_set_cmdq(&data_array, 5, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000A000;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00103902;
+data_array[1]=0x000000CB;
+data_array[2]=0xC0C00000;
+data_array[3]=0xC0C0C0C0;
+data_array[4]=0x0000C0C0;
+dsi_set_cmdq(&data_array, 5, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x0000B000;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00103902;
+data_array[1]=0x000000CB;
+data_array[2]=0x00000000;
+data_array[3]=0x00000000;
+data_array[4]=0xC0C00000;
+dsi_set_cmdq(&data_array, 5, 1);
+MDELAY(2);
+/*
+data_array[0]=0x00023902;
+data_array[1]=0x0000B400;
+dsi_set_cmdq(&data_array, 2, 1);
+MDELAY(2);
+
+data_array[0]=0x00023902;
+data_array[1]=0x000010C0;
+dsi_set_cmdq(&data_array, 2, 1);
+
+MDELAY(2);
+*/
+#endif
+///////////////////////////////////////////////////////		
+  
+//orise mode disable
+		data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00043902; //EXTC=1
+    	data_array[1] = 0x0FFFFFFF;                 
+    	dsi_set_cmdq(&data_array, 2, 1);  
+
+	data_array[0] = 0x00351500;//te on
+    	dsi_set_cmdq(&data_array, 1, 1);    
+
+     	data_array[0] = 0x00110500;                
+    	dsi_set_cmdq(&data_array, 1, 1); 
+    	MDELAY(150); 
+    	
+    	data_array[0] = 0x00290500;                
+    	dsi_set_cmdq(&data_array, 1, 1);    
+    	MDELAY(20); 
+
+//    	data_array[0] = 0x002C0500;                
+//    	dsi_set_cmdq(&data_array, 1, 1);    
+//    	MDELAY(20); 
+
+} 
 
 static void lcm_init(void)
 {
@@ -620,16 +906,20 @@ static void lcm_init(void)
 	MDELAY(5);	
    	 mt_set_gpio_out(GPIO131, 1);
 	MDELAY(10);		
+
 	SET_RESET_PIN(1);
-	MDELAY(10);
+	MDELAY(5);
 	SET_RESET_PIN(0);
-	MDELAY(10);
-	
+	MDELAY(5);
 	SET_RESET_PIN(1);
-	MDELAY(10);      
+	MDELAY(10);
 
-	init_lcm_registers();
-
+	lcm_check_status();
+#ifdef BUILD_LK
+    printf("[wj]otm1283a init code.\n");
+#endif
+    lcm_init_register();
+	lcm_check_status();
 }
 
 
@@ -637,44 +927,101 @@ static void lcm_suspend(void)
 {
 	unsigned int data_array[16];
 
-	mt_set_gpio_out(GPIO155, 0);//diable backlight ic
+#if defined(BUILD_LK) || defined(BUILD_UBOOT)
+	printf("%s, lcm_init \n", __func__);
+#else
+	printk("%s, lcm_init \n", __func__);
+#endif	
+//begin lenovo jixu add for power consume 20130131
+mt_set_gpio_out(GPIO155, 0);//diable backlight ic
+//end lenovo jixu add for power consume 20130131
+    	data_array[0] = 0x00280500;                
+    	dsi_set_cmdq(&data_array, 1, 1);    
 
-//	push_table(lcm_sleep_in_setting, sizeof(lcm_sleep_in_setting) / sizeof(struct LCM_setting_table), 1);
-    SET_RESET_PIN(1);
-	MDELAY(20);
-    SET_RESET_PIN(0);
-    MDELAY(20);
-	data_array[0]=0x00280500; // Display Off
-	dsi_set_cmdq(data_array, 1, 1);
-	
-	data_array[0] = 0x00100500; // Sleep In
-	dsi_set_cmdq(data_array, 1, 1);
-
-	SET_RESET_PIN(0);
+    	data_array[0] = 0x00100500;                
+    	dsi_set_cmdq(&data_array, 1, 1);   
+//begin lenovo jixu add for power consume 20130206
+		SET_RESET_PIN(0);
+//end lenovo jixu add for power consume 20130206
 }
 
 
 static void lcm_resume(void)
 {
-	int i;
-/*
-	unsigned int data_array[16];
+int i;
+#if defined(BUILD_LK) || defined(BUILD_UBOOT)
+	printf("%s, lcm_resume otm1283a\n", __func__);
+#else
+	printk("%s, lcm_resume otm1283a\n", __func__);
+#endif	
+#if 1
 	SET_RESET_PIN(1);
-	MDELAY(10);
+	MDELAY(5);
 	SET_RESET_PIN(0);
-	MDELAY(50);
-
+	MDELAY(10);
 	SET_RESET_PIN(1);
 	MDELAY(50);
-	init_lcm_registers();
-	MDELAY(100); 	 */
-	lcm_init();
 
+	lcm_init_register();
+//begin lenovo jixu add for power consume 20130206
+for(i = 0; i < 6; i++)
+	{
+		mt_set_gpio_out(155, 1);
+		UDELAY(1);
+		mt_set_gpio_out(155, 0);
+		UDELAY(1);
+	}
+	mt_set_gpio_out(155, 1);
+//end lenovo jixu add for power consume 20130206
+#else
+	data_array[0] = 0x00110500; 			   
+	dsi_set_cmdq(&data_array, 1, 1); 
+	MDELAY(150); 
+	
+	data_array[0] = 0x00290500; 			   
+	dsi_set_cmdq(&data_array, 1, 1);	
+	MDELAY(20); 
+#endif
+
+
+//begin lenovo jixu add for power consume 20130131
 	mt_set_gpio_out(GPIO155, 1);//enable backlight ic
-
+//end lenovo jixu add for power consume 20130131
 }
-         
-#if (LCM_DSI_CMD_MODE)
+
+static unsigned int lcm_check_status(void)
+{
+	unsigned char buffer[2];
+	int   array[4];
+//	unsigned int i = 0;
+	
+	array[0] = 0x00013700;// read id return two byte,version and id
+	dsi_set_cmdq(array, 1, 1);
+#if 0
+	while(i < 10){
+		read_reg_v2(0x0A, buffer, 1);
+#ifdef BUILD_LK
+		printf("Check LCM Status: 0x%08x\n", buffer[0]);
+#else
+		printk("Check LCM Status: 0x%08x\n", buffer[0]);
+#endif
+		if(buffer[0] != 0x9C)
+			init_lcm_registers();
+		else
+			break;
+		i++;
+	}
+#else
+	read_reg_v2(0x0A, buffer, 1);
+#ifdef BUILD_LK
+	printf("Check LCM Status: 0x%08x\n", buffer[0]);
+#else
+	printk("Check LCM Status: 0x%08x\n", buffer[0]);
+#endif
+#endif
+	return 0;
+}
+
 static void lcm_update(unsigned int x, unsigned int y,
                        unsigned int width, unsigned int height)
 {
@@ -697,21 +1044,14 @@ static void lcm_update(unsigned int x, unsigned int y,
 	data_array[0]= 0x00053902;
 	data_array[1]= (x1_MSB<<24)|(x0_LSB<<16)|(x0_MSB<<8)|0x2a;
 	data_array[2]= (x1_LSB);
-	dsi_set_cmdq(&data_array, 3, 1);
-	
-	data_array[0]= 0x00053902;
-	data_array[1]= (y1_MSB<<24)|(y0_LSB<<16)|(y0_MSB<<8)|0x2b;
-	data_array[2]= (y1_LSB);
-	dsi_set_cmdq(&data_array, 3, 1);
+	data_array[3]= 0x00053902;
+	data_array[4]= (y1_MSB<<24)|(y0_LSB<<16)|(y0_MSB<<8)|0x2b;
+	data_array[5]= (y1_LSB);
+	data_array[6]= 0x002c3909;
 
-	data_array[0]= 0x00290508; //HW bug, so need send one HS packet
-	dsi_set_cmdq(&data_array, 1, 1);
-	
-	data_array[0]= 0x002c3909;
-	dsi_set_cmdq(&data_array, 1, 0);
+	dsi_set_cmdq(&data_array, 7, 0);
 
 }
-#endif
 
 static void lcm_setbacklight(unsigned int level)
 {
@@ -727,96 +1067,147 @@ static void lcm_setbacklight(unsigned int level)
 
 }
 
-static unsigned int lcm_compare_id(void)
-{
-	unsigned char lcd_id = 0;
-	unsigned int id=0;
-	unsigned char buffer[5];
-	unsigned int array[16];  
-
-	SET_RESET_PIN(1);
-	MDELAY(10); 	
-	SET_RESET_PIN(0);
-	MDELAY(20);
-	
-	SET_RESET_PIN(1);
-	MDELAY(80);  
-
-// {0xff,3,{0x12,0x83,0x01 							  }},
-	array[0]=0x00043902;
-	array[1]=0x018312ff;// page enable
-	
-	dsi_set_cmdq(&array, 2, 1);
-	MDELAY(10);
-	
-	array[0] = 0x00053700;// return byte number
-	dsi_set_cmdq(&array, 1, 1);
-	MDELAY(10);
-
-	read_reg_v2(0xA1, buffer, 5);
-//	id = buffer[2]; //we only need ID
-	
-#ifdef BUILD_LK
-	printf("lcm_compare_id otm1283a buffer[0] = 0x%x,buffer[1] = 0x%x,buffer[2] = 0x%x,buffer[3] = 0x%x,buffer[4] = 0x%x\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
-#else
-	printk("lcm_compare_id otm1283a buffer[0] = 0x%x,buffer[1] = 0x%x,buffer[2] = 0x%x,buffer[3] = 0x%x,buffer[4] = 0x%x\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4]);
-
-#endif
-
-
-	if((buffer[0]==0x01)&&(buffer[1]==0x8b)&&(buffer[2]==0x12)&&(buffer[3]==0x83))
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}	
-
-
-}
 static unsigned int lcm_esd_check(void)
 {
-#ifndef BUILD_LK
-//#if 1
-	char  buffer[3];
-	int   array[4];
+unsigned char buffer[2],ret;
 
-	array[0] = 0x00013700;
-	dsi_set_cmdq(array, 1, 1);
-
-	read_reg_v2(0x0a, buffer, 1);
-	printk("jacob test lcm_esd_check buffer[0]=0x%x\n",buffer[0]);
-	if(buffer[0]==0x9c)
+#ifndef BUILD_UBOOT
+	if(lcm_esd_test)
 	{
-		return FALSE;
+	lcm_esd_test = FALSE;
+	return TRUE;
 	}
-	else
-	{	
-		return TRUE;
-	}
-#else
-	return FALSE;
+
+	/// please notice: the max return packet size is 1
+	/// if you want to change it, you can refer to the following marked code
+	/// but read_reg currently only support read no more than 4 bytes....
+	/// if you need to read more, please let BinHan knows.
+	/*
+	unsigned int data_array[16];
+	unsigned int max_return_size = 1;
+
+	data_array[0]= 0x00003700 | (max_return_size << 16); 
+
+	dsi_set_cmdq(&data_array, 1, 1);
+	*/
+	read_reg_v2(0x0A, buffer,2);
+	#ifndef BUILD_LK
+	printk("[JX] %s 0x0A 0=0x%x 1=0x%x \n",__func__,buffer[0],buffer[1]);
+	#endif
+	ret = buffer[0]==0x9C?0:1;
+	#ifndef BUILD_LK
+	printk("[JX] %s ret=%d \n",__func__,ret);
+	#endif
+	if(ret) return TRUE;
+
+	read_reg_v2(0x0D, buffer,2);
+	#ifndef BUILD_LK
+	printk("[JX] %s 0x0D 0=0x%x 1=0x%x \n",__func__,buffer[0],buffer[1]);
+	#endif
+	ret = buffer[0]==0x00?0:1;
+	#ifndef BUILD_LK
+	printk("[JX] %s ret=%d \n",__func__,ret);
+	#endif
+	if(ret) return TRUE;
+
+	read_reg_v2(0x0E, buffer,2);
+	#ifndef BUILD_LK
+	printk("[JX] %s 0x0E 0=0x%x 1=0x%x \n",__func__,buffer[0],buffer[1]);
+	#endif
+	ret = ((buffer[0])&(0xf0))==0x80?0:1;
+	#ifndef BUILD_LK
+	printk("[JX] %s ret=%d \n",__func__,ret);
+	#endif
+	if(ret) return TRUE;
+	else return FALSE;
 #endif
 }
-
-
 
 static unsigned int lcm_esd_recover(void)
 {
-#ifndef BUILD_LK	
-	lcm_init();
-//	MDELAY(100);
-//	lcm_init();
-	printk("jacob test lcm_esd_recover\n");
-#endif
+#if 0
+	unsigned char para = 0;
+
+	SET_RESET_PIN(1);
+	MDELAY(5);
+	SET_RESET_PIN(0);
+	MDELAY(10);
+	SET_RESET_PIN(1);
+	MDELAY(50);
+
+	lcm_init_register();
+
 	return TRUE;
+#else
+lcm_suspend();
+MDELAY(50);
+lcm_resume();
+#endif
 }
 
+static unsigned int lcm_compare_id(void)
+{
+#if 1
+	unsigned int id=0;
+	unsigned char buffer[4];
+	unsigned int data_array[16];  
+
+    SET_RESET_PIN(1);
+   MDELAY(10);
+    SET_RESET_PIN(0);
+    MDELAY(10);
+    SET_RESET_PIN(1);
+    MDELAY(50);//Must over 6 ms
+
+   	data_array[0] = 0x00023902;
+    	data_array[1] = 0x00000000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00043902; //EXTC=1
+    	data_array[1] = 0x018312FF;                 
+    	dsi_set_cmdq(&data_array, 2, 1);    
+
+    	data_array[0] = 0x00023902; //ORISE mode enable
+    	data_array[1] = 0x00008000;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00033902;
+    	data_array[1] = 0x008312FF;    
+    	dsi_set_cmdq(&data_array, 2, 1);  
+ 
+    	data_array[0] = 0x00023902; //ORISE mode enable
+    	data_array[1] = 0x0000C600;    
+    	dsi_set_cmdq(&data_array, 2, 1);     
+    	data_array[0] = 0x00023902;
+    	data_array[1] = 0x000003B0;    
+    	dsi_set_cmdq(&data_array, 2, 1);    
+
+	data_array[0] = 0x00043700;
+	dsi_set_cmdq(&data_array, 1, 1);
+
+	read_reg_v2(0xA1, buffer, 4);
+	id = buffer[3]|(buffer[2]<<8); //we only need ID
+//        id = read_reg(0xDA);
+#if defined(BUILD_LK) || defined(BUILD_UBOOT)
+	printf("%s, otm1283a id = 0x%08x\n", __func__, id);
+#else
+       printk("%s, otm1283a id = 0x%08x\n", __func__, id);
+#endif
+
+	return (LCM_ID == id)?1:0;
+//	return 1;
+#else
+	unsigned int ret = 0;
+	ret = mt_get_gpio_in(GPIO154);
+#if defined(BUILD_LK)
+	printf("%s, [wj]otm1283a GPIO154 = %d \n", __func__, ret);
+#endif	
+
+	return (ret == 1)?1:0;
+#endif
+}
 
 LCM_DRIVER otm1283a_hd720_dsi_vdo_lcm_drv = 
 {
-    .name			= "otm1283a_hd720_dsi_vdo",
+	.name = "otm1283a_hd720_dsi_vdo",
 	.set_util_funcs = lcm_set_util_funcs,
 	.get_params     = lcm_get_params,
 	.init           = lcm_init,
@@ -824,9 +1215,9 @@ LCM_DRIVER otm1283a_hd720_dsi_vdo_lcm_drv =
 	.resume         = lcm_resume,
 	.compare_id     = lcm_compare_id,
 	.esd_check   = lcm_esd_check,
-    .esd_recover   = lcm_esd_recover,	
+  .esd_recover   = lcm_esd_recover,
 #if (LCM_DSI_CMD_MODE)
 	.set_backlight	= lcm_setbacklight,
     .update         = lcm_update,
 #endif
-    };
+};
