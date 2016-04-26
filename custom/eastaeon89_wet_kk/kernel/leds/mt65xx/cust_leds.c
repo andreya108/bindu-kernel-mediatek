@@ -38,157 +38,6 @@ unsigned int brightness_mapping(unsigned int level)
        
 	return mapped_level;
 }
-
-#if defined(SLT_DRV_AW992_CONFIG)
-#define SGM3727_BACKLIGHT_IC
-#endif
-
-#ifdef  SGM3727_BACKLIGHT_IC	
-//#define SGM3727_DEBUG
-#define SGM3727_LEVEL_MIN  0xfe
-#define SGM3727_LEVEL_MAX  0xff
-#define SGM3727_LEVEL_STEP 32
-
-static BOOL light_first_set_flag = FALSE;
-static unsigned int g_pre_pulse=0;
-static unsigned int pulse_num_temp= 0xFFF;
-static DEFINE_SPINLOCK(backlight_lock);
-
-static unsigned int SGM3727_brightness_mapping(unsigned int level)
-{
-
-	 if ((level >= 20) && (level <= 255))
-	{
-		#if 0//def SLT_DRV_AW890_CONFIG
-		return 31-(level-20)*8/75;// 20% decreased for power supply test
-		#else
-		return 31-(level-20)*2/15;
-		#endif
-	}
-       else if(level < 20)
-	       return SGM3727_LEVEL_MIN;
-	else 
-	       return SGM3727_LEVEL_MAX;
-	
-}
-
-static unsigned int SGM3727_SetBacklight(unsigned int level)
-{
-	unsigned int pulse_num = 0;
-	unsigned int pulse_diff = 0;
-	unsigned int i;
-       static int flags;
-	   
-#if defined(SGM3727_DEBUG)	
-	printk("kernel SGM3727_SetBacklight level=%d \n",level);
-#endif
-
-	pulse_num = SGM3727_brightness_mapping(level);
-
-#if defined(SGM3727_DEBUG)	
-	printk("kernel SGM3727_SetBacklight pulse_num=%d \n",pulse_num);
-#endif
-
-	if (light_first_set_flag == FALSE)
-	{
-		if (mt_set_gpio_out(GPIO_LCM_BL_EN, 0))
-		{
-		#if defined(SGM3727_DEBUG)	
-			printk("kernel SGM3727_SetBacklight first set low error \n");
-		#endif
-		}
-
-		mdelay(3);
-		udelay(100);
-		light_first_set_flag = TRUE;
-
-	}
-
-	if (pulse_num == pulse_num_temp)
-	{
-		return;
-	}
-
-	if (pulse_num - SGM3727_LEVEL_MIN == 0)
-	{
-		if (mt_set_gpio_out(GPIO_LCM_BL_EN, 0))
-		{
-			#if defined(SGM3727_DEBUG)	
-			printk("kernel SGM3727_SetBacklight set low error \n");
-			#endif
-		}
-		g_pre_pulse = 0;
-
-		mdelay(4);
-	}
-	else if(pulse_num - SGM3727_LEVEL_MAX == 0)
-	{
-		if (mt_set_gpio_out(GPIO_LCM_BL_EN, 1))
-		{
-			#if defined(SGM3727_DEBUG)	
-			printk("kernel SGM3727_SetBacklight set high error \n");
-			#endif
-		}
-		g_pre_pulse = 0;
-	}	
-	else if((pulse_num>=0) && (pulse_num<= 31))
-	{
-
-		
-		if (pulse_num >= g_pre_pulse)
-		{
-			pulse_diff = pulse_num - g_pre_pulse;
-		}
-		else
-		{
-			pulse_diff = pulse_num + SGM3727_LEVEL_STEP  - g_pre_pulse;
-		}
-
-		#if defined(SGM3727_DEBUG)	
-		printk("kernel SGM3727_SetBacklight pulse_diff=%d \n", pulse_diff);
-		#endif
-
-		if(g_pre_pulse == 0)
-		{
-			mt_set_gpio_out(GPIO_LCM_BL_EN, 1);
-			udelay(31);
-		}
-		
-		spin_lock_irqsave(&backlight_lock,flags);
-		for (i = 0; i< pulse_diff ; i++)
-		{
-
-			if (mt_set_gpio_out(GPIO_LCM_BL_EN, 0))
-			{
-			#if defined(SGM3727_DEBUG)	
-				printk("kernel SGM3727_SetBacklight set low error \n");
-			#endif
-			}
-			udelay(10);
-			if (mt_set_gpio_out(GPIO_LCM_BL_EN, 1))
-			{
-			#if defined(SGM3727_DEBUG)	
-				printk("kernel SGM3727_SetBacklight set high error \n");
-			#endif
-			}
-			udelay(10);
-			
-		}
-	       spin_unlock_irqrestore(&backlight_lock,flags);
-	       g_pre_pulse = pulse_num;
-
-	}
-
-       pulse_num_temp = pulse_num;
-	   
-	#if defined(SGM3727_DEBUG)	
-	printk("kernel SGM3727_SetBacklight g_pre_pulse=%d \n", g_pre_pulse);
-	#endif	
-
-	return 0;
-}
-#endif
-
 /*
 unsigned int Cust_SetBacklight(int level, int div)
 {
@@ -268,17 +117,13 @@ unsigned int Cust_SetBacklight(int level, int div)
  *-------------------------------------------------------------------------------------------
  */
 static struct cust_mt65xx_led cust_led_list[MT65XX_LED_TYPE_TOTAL] = {
-	{"red",               MT65XX_LED_MODE_NONE, -1,{0}},
-	{"green",             MT65XX_LED_MODE_NONE, -1,{0}},
+	{"red",              MT65XX_LED_MODE_PMIC, MT65XX_LED_PMIC_NLED_ISINK1,{0}},
+	{"green",            MT65XX_LED_MODE_PMIC, MT65XX_LED_PMIC_NLED_ISINK0,{0}},
 	{"blue",              MT65XX_LED_MODE_NONE, -1,{0}},
-	{"jogball-backlight", MT65XX_LED_MODE_NONE, -1,{0}},
+	{"jogball-backlight", MT65XX_LED_MODE_PMIC, MT65XX_LED_PMIC_NLED_ISINK0,{0}},
 	{"keyboard-backlight",MT65XX_LED_MODE_NONE, -1,{0}},
 	{"button-backlight",  MT65XX_LED_MODE_PMIC, MT65XX_LED_PMIC_BUTTON,{0}},
-#if defined(SLT_DRV_AW992_CONFIG)
-	{"lcd-backlight",     MT65XX_LED_MODE_GPIO, (int)SGM3727_SetBacklight,{0}},
-#else
 	{"lcd-backlight",     MT65XX_LED_MODE_CUST_BLS_PWM, (int)disp_bls_set_backlight,{0}},
-#endif
 };
 
 struct cust_mt65xx_led *get_cust_led_list(void)

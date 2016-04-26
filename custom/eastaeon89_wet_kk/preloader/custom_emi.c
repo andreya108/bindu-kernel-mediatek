@@ -7,9 +7,6 @@ int num_of_emi_records = NUM_EMI_RECORD;
 EMI_SETTINGS emi_settings[] =
 {
 {
-	#ifdef SLT_DEVINFO_EMCP
-	"Longcheer",	//30 charactors 
-	#endif
         0x0101,            //MCP(NAND+DDR1)
 	{0xAD, 0xBC, 0x90, 0x55, 0x54},       //HYNIX
         0x0002202E,        //CONA
@@ -32,9 +29,6 @@ EMI_SETTINGS emi_settings[] =
         0x00000020,        //EXT_MODE_REG
     },
 {
-	#ifdef SLT_DEVINFO_EMCP
-	"Longcheer",	//30 charactors 
-	#endif
         0x0101,            //MCP(NAND+DDR1)
         {0x2C, 0xBC, 0x90, 0x55, 0x56},      //MICRON
         0x0002202E,        //CONA
@@ -57,9 +51,6 @@ EMI_SETTINGS emi_settings[] =
         0x00000020,        //EXT_MODE_REG
     },
 {
-	#ifdef SLT_DEVINFO_EMCP
-	"Longcheer",	//30 charactors 
-	#endif
         0x0101,            //MCP(NAND+DDR1)
         {0xEC, 0xBC, 0x00, 0x66, 0x56},          //SAMSUNG
         0x0002202E,        //CONA

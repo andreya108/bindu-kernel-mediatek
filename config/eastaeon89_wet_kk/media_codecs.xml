@@ -120,6 +120,20 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.MTK.VIDEO.DECODER.DIVX3" type="video/divx3" />
         <MediaCodec name="OMX.MTK.VIDEO.DECODER.XVID" type="video/xvid" />
         <MediaCodec name="OMX.google.aac.decoder" type="audio/mp4a-latm" />
+
+         <!-- DOLBY_UDC -->
+        <MediaCodec name="OMX.dolby.ac3.decoder" >
+            <Type name="audio/ac3" />
+            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="requires-flush-complete-emulation" />
+        </MediaCodec>
+        <MediaCodec name="OMX.dolby.ec3.decoder" >
+            <Type name="audio/eac3" />
+            <Quirk name="needs-flush-before-disable" />
+            <Quirk name="requires-flush-complete-emulation" />
+        </MediaCodec>
+        <!-- DOLBY_UDC END -->
+
     </Decoders>
 
     <Encoders>

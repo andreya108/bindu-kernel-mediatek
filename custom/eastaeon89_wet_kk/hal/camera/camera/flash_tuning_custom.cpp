@@ -81,7 +81,8 @@ FLASH_PROJECT_PARA& cust_getFlashProjectPara(int aeMode, NVRAM_CAMERA_STROBE_STR
 {
 	static FLASH_PROJECT_PARA para;
 
-	para.dutyNum = 25;
+//	para.dutyNum = 25;
+	para.dutyNum = 4;
 	para.stepNum = 1;
 	//tuning
 
@@ -124,59 +125,66 @@ FLASH_PROJECT_PARA& cust_getFlashProjectPara(int aeMode, NVRAM_CAMERA_STROBE_STR
 
 	//af
 	para.engLevel.afEngMode = ENUM_FLASH_ENG_INDEX_MODE;
-	para.engLevel.afDuty = 4;
+//	para.engLevel.afDuty = 4;
+	para.engLevel.afDuty = 1;
 	para.engLevel.afStep = 0;
 
 	//pf, mf, normal
 	para.engLevel.pmfEngMode = ENUM_FLASH_ENG_INDEX_MODE;
-	para.engLevel.pfDuty = 4;
-	para.engLevel.mfDutyMax = 17;
-	para.engLevel.mfDutyMin = 0;
+//	para.engLevel.pfDuty = 4;
+	para.engLevel.pfDuty = 2;
+//	para.engLevel.mfDutyMax = 17;
+	para.engLevel.mfDutyMax = 3;
+//	para.engLevel.mfDutyMin = 0;
+	para.engLevel.mfDutyMin = 3;
 	para.engLevel.pmfStep = 0;
 
 	//low bat
 	para.engLevel.IChangeByVBatEn=1;
 	para.engLevel.vBatL = 3400;	//mv
-	para.engLevel.pfDutyL = 4;
-	para.engLevel.mfDutyMaxL = 15;
-	para.engLevel.mfDutyMinL = 0;
+//	para.engLevel.pfDutyL = 4;
+	para.engLevel.pfDutyL = 2;
+//	para.engLevel.mfDutyMaxL = 15;
+	para.engLevel.mfDutyMaxL = 3;
+//	para.engLevel.mfDutyMinL = 0;
+	para.engLevel.mfDutyMinL = 3;
 	para.engLevel.pmfStepL = 0;
 
 	//burst setting
 	para.engLevel.IChangeByBurstEn=1;
-	para.engLevel.pfDutyB = 4;
-	para.engLevel.mfDutyMaxB = 5;
+//	para.engLevel.pfDutyB = 4;
+	para.engLevel.pfDutyB = 1;
+//	para.engLevel.mfDutyMaxB = 5;
+	para.engLevel.mfDutyMaxB = 2;
+//	para.engLevel.mfDutyMinB = 0;
 	para.engLevel.mfDutyMinB = 0;
 	para.engLevel.pmfStepB = 0;
 
 	//--------------------
 	//cooling delay para
 	para.coolTimeOutPara.tabMode = ENUM_FLASH_ENG_INDEX_MODE;
-	para.coolTimeOutPara.tabNum = 6;
+	para.coolTimeOutPara.tabNum = 3;//6;
 	para.coolTimeOutPara.tabId[0]=0;
-	para.coolTimeOutPara.tabId[1]=5;
-	para.coolTimeOutPara.tabId[2]=8;
-	para.coolTimeOutPara.tabId[3]=12;
-	para.coolTimeOutPara.tabId[4]=16;
-	para.coolTimeOutPara.tabId[5]=20;
+	para.coolTimeOutPara.tabId[1]=2;//5;
+	para.coolTimeOutPara.tabId[2]=3;//8;
+	para.coolTimeOutPara.tabId[3]=0;//12;
+	para.coolTimeOutPara.tabId[4]=2;//16;
+	para.coolTimeOutPara.tabId[5]=3;//20;
 	para.coolTimeOutPara.coolingTM[0]=0;
 	para.coolTimeOutPara.coolingTM[1]=0;
-	para.coolTimeOutPara.coolingTM[2]=3;
-	para.coolTimeOutPara.coolingTM[3]=5;
-	para.coolTimeOutPara.coolingTM[4]=7;
-	para.coolTimeOutPara.coolingTM[5]=8;
+	para.coolTimeOutPara.coolingTM[2]=5;//3;
+	para.coolTimeOutPara.coolingTM[3]=0;//5;
+	para.coolTimeOutPara.coolingTM[4]=0;//7;
+	para.coolTimeOutPara.coolingTM[5]=5;//8;
 
 	para.coolTimeOutPara.timOutMs[0]=ENUM_FLASH_TIME_NO_TIME_OUT;
 	para.coolTimeOutPara.timOutMs[1]=ENUM_FLASH_TIME_NO_TIME_OUT;
-	para.coolTimeOutPara.timOutMs[2]=1000;
+	para.coolTimeOutPara.timOutMs[2]=500;//1000;
 	para.coolTimeOutPara.timOutMs[3]=400;
 	para.coolTimeOutPara.timOutMs[4]=400;
 	para.coolTimeOutPara.timOutMs[5]=400;
- 	#ifdef SLT_DRV_AW992_CONFIG
-	para.maxCapExpTimeUs = 125000;
-	#else
+
 	para.maxCapExpTimeUs = 100000;
-	#endif
 
 	/*
 	//---------------

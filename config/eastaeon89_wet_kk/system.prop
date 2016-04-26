@@ -29,8 +29,10 @@ wifi.tethering.interface=ap0
 ro.opengles.version=131072
 
 wifi.direct.interface=p2p0
-dalvik.vm.heapgrowthlimit=128m
-dalvik.vm.heapsize=256m
+dalvik.vm.heapgrowthlimit=256m
+dalvik.vm.heapsize=512m
+dalvik.vm.heapStartsize=4m
+dalvik.vm.heapminfree=1m
 
 # USB MTP WHQL
 ro.sys.usb.mtp.whql.enable=0
@@ -52,3 +54,4 @@ ro.audio.silent=0
 
 ro.zygote.preload.enable=0
 
+persist.sys.timezone=Europe/Amsterdam

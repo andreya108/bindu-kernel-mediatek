@@ -54,11 +54,7 @@
 ******************************************************************/
 #define USING_CLASSD_AMP                // define using which flag
 //#define USING_CLASSAB_AMP
-#if defined(SLT_DRV_AW992_CONFIG)
-//#define USING_EXTAMP_HP                // define using which flag
-#else
 #define USING_EXTAMP_HP                // define using which flag
-#endif
 
 #endif
 

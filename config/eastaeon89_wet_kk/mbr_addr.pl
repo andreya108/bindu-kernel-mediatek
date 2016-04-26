@@ -5,7 +5,7 @@
 # $MBR_Start_Address_KB = 1024+1024+128; is right
 # $MBR_Start_Address_KB = 6*1024+128; is right
 
-$MBR_Start_Address_KB = 6144;
+$MBR_Start_Address_KB = 16384;
 print "[Ptgen in module] MBR_Start_Address_KB = $MBR_Start_Address_KB\n";
 
 return $MBR_Start_Address_KB;

@@ -40,13 +40,13 @@ on post-fs-data
 #Camera
     chmod 0660 /dev/OV8825AF
     chown system camera /dev/OV8825AF
-    
-    chmod 0660 /dev/S5K3H2YXAF
-    chown system camera /dev/S5K3H2YXAF
 
 # BT
     chmod 0660 /dev/stpbt
     chown bluetooth radio /dev/stpbt
+
+#TP
+    chmod 0777 /dev/ft_rw_iic_drv
 
 # GPS
     chown gps gps /dev/stpgps

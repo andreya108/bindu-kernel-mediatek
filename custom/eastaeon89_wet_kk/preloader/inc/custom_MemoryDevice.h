@@ -102,10 +102,82 @@
  ****************************************************************************
 */
 
-#define BOARD_ID                MT6589_EVB
+#define BOARD_ID                MT6589_EASTAEON
 
-#define CS_PART_NUMBER[0]       H9TP18A8JDMCPR_KGM
-#define CS_PART_NUMBER[1]       H9TP32A8JDMCPR_KGM
-#define CS_PART_NUMBER[2]       KMK8U000VM_B410
+//=====================================================================
+// T600  T600F
+
+//4+4
+//#define CS_PART_NUMBER[0]       KMNJS000ZM_B205
+//#define CS_PART_NUMBER[1]       H9TP32A4GDMCPR_KDM 
+//#define CS_PART_NUMBER[2]       KE4CN2L2HA5A2A
+//#define CS_PART_NUMBER[3]       SD7DP24F_4G
+//#define CS_PART_NUMBER[4]       MT29PZZZ4D4WKETF_18W_6E4
+
+//   4+8
+//#define CS_PART_NUMBER[0]       KMKJS000VM_B309
+//#define CS_PART_NUMBER[1]       H9TP32A8JDMCPR_KGM
+//#define CS_PART_NUMBER[2]       KE4CN2L2HA8A2A
+//#define CS_PART_NUMBER[3]       SD5D28B_4G
+//#define CS_PART_NUMBER[4]       MT29PZZZ8D4WKFEW_18W_6D4
+
+//   8+8
+//#define CS_PART_NUMBER[0]      KMKUS000VM_B410
+//#define CS_PART_NUMBER[1]		 MT29PZZZ8D5WKFMW_18W_6D5
+
+// 16+8
+//#define CS_PART_NUMBER[0]       KMK3U000VM_B410
+//#define CS_PART_NUMBER[1]       H9TP17A8JDACNR_KGM 
+//#define CS_PART_NUMBER[2]       SD5C28B_16G 
+//#define CS_PART_NUMBER[3]		TYD0HH251623RC
+//#define CS_PART_NUMBER[4]		H9TP18A8JDMCPR_KGM
+
+
+
+// 32+8
+//#define CS_PART_NUMBER[0]       H9TP26A8JDACNR_KGM
+
+
+//=====================================================================
+//T600E
+
+//4+4
+//#define CS_PART_NUMBER[0]       KMNJS000ZM_B205_MMD2
+//#define CS_PART_NUMBER[1]       H9TP32A4GDMCPR_KDM_MMD2 
+//#define CS_PART_NUMBER[2]       KE4CN2L2HA5A2A_MMD2
+//#define CS_PART_NUMBER[3]       SD7DP24F_4G_MMD2
+//#define CS_PART_NUMBER[4]       MT29PZZZ4D4WKETF_18W_6E4_MMD2
+
+//   4+8
+//#define CS_PART_NUMBER[0]       KMKJS000VM_B309_MMD2
+//#define CS_PART_NUMBER[1]       H9TP32A8JDMCPR_KGM_MMD2
+//#define CS_PART_NUMBER[2]       KE4CN2L2HA8A2A_MMD2
+//#define CS_PART_NUMBER[3]       SD5D28B_4G_MMD2
+//#define CS_PART_NUMBER[4]       MT29PZZZ8D4WKFEW_18W_6D4_MMD2
+
+//   8+8
+//#define CS_PART_NUMBER[0]      KMKUS000VM_B410_MMD2
+//#define CS_PART_NUMBER[1]		 MT29PZZZ8D5WKFMW_18W_6D5_MMD2
+
+
+// 16+8
+//#define CS_PART_NUMBER[0]       KMK3U000VM_B410_MMD2
+//#define CS_PART_NUMBER[1]       H9TP17A8JDACNR_KGM_MMD2 
+//#define CS_PART_NUMBER[2]       SD5C28B_16G_MMD2 
+//#define CS_PART_NUMBER[3]		  TYD0HH251623RC_MMD2
+//#define CS_PART_NUMBER[4]		  H9TP18A8JDMCPR_KGM_MMD2
+
+
+//16+16
+#define CS_PART_NUMBER[0]       KMI8U000MA_B605_MMD2
+#define CS_PART_NUMBER[1]       H9TP17ABLDMCNR_KGM_MMD2
+// 32+8
+//#define CS_PART_NUMBER[0]       H9TP26A8JDACNR_KGM_MMD2
+
+//32+16
+//#define CS_PART_NUMBER[0]  H9TP26ABLDMCNR_KGM_MMD2
+//#define CS_PART_NUMBER[1]  KMI2U000MA_B800_MMD2
+
+
 
 #endif /* __CUSTOM_MEMORYDEVICE__ */

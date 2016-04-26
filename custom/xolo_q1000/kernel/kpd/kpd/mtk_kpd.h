@@ -38,7 +38,8 @@
 /* the keys can wake up the system and we should enable backlight */
 #define KPD_BACKLIGHT_WAKE_KEY	\
 {				\
-	KEY_ENDCALL, KEY_POWER,	\
+	KEY_ENDCALL, KEY_POWER, \
+	KEY_VOLUMEDOWN, KEY_VOLUMEUP,	\
 }
 
 #define KPD_HAS_SLIDE_QWERTY	KPD_NO

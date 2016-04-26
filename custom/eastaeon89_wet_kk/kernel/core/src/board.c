@@ -437,11 +437,7 @@ EXPORT_SYMBOL(mt_wifi_power_off);
 /*=======================================================================*/
 /* Board Devices Capability                                              */
 /*=======================================================================*/
-#if defined(SLT_DRV_AW992_CONFIG)
-#define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_HIGHSPEED | MSDC_UHS1 | MSDC_DDR )
-#else
 #define MSDC_SDCARD_FLAG  (MSDC_SYS_SUSPEND | MSDC_CD_PIN_EN | MSDC_REMOVABLE | MSDC_HIGHSPEED )
-#endif
 //Please enable/disable SD card MSDC_CD_PIN_EN for customer request
 #define MSDC_SDIO_FLAG    (MSDC_EXT_SDIO_IRQ | MSDC_HIGHSPEED)
 #define MSDC_EMMC_FLAG	  (MSDC_SYS_SUSPEND | MSDC_HIGHSPEED | MSDC_UHS1 |MSDC_DDR)

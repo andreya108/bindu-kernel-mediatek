@@ -94,3 +94,5 @@ key 163   MEDIA_NEXT          WAKE
 key 165   MEDIA_PREVIOUS      WAKE
 key 168   MEDIA_REWIND        WAKE
 key 159   MEDIA_FAST_FORWARD  WAKE
+key 744   FCOVER_1              
+key 745   FCOVER_2            WAKE

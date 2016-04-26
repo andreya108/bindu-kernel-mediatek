@@ -30,8 +30,8 @@ typedef struct{
 }VBAT_TO_PERCENT;
 
 /* Battery Temperature Protection */
-#define MAX_CHARGE_TEMPERATURE  50
-#define MIN_CHARGE_TEMPERATURE  0
+#define MAX_CHARGE_TEMPERATURE  45
+#define MIN_CHARGE_TEMPERATURE  (-6)
 #define ERR_CHARGE_TEMPERATURE  0xFF
 
 /* Recharging Battery Voltage */
@@ -40,6 +40,7 @@ typedef struct{
 /* Charging Current Setting */
 #define USB_CHARGER_CURRENT					Cust_CC_450MA
 #define AC_CHARGER_CURRENT					Cust_CC_650MA	
+#define bq24158_AC_CHARGING_CURRENT_950 950
 
 /* Battery Meter Solution */
 #define CONFIG_ADC_SOLUTION 	1
@@ -48,16 +49,16 @@ typedef struct{
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
 	{3400,0},
-	{3686,10},
-	{3740,20},
-	{3771,30},
-	{3789,40},
-	{3820,50},
-	{3873,60},
-	{3943,70},
-	{4013,80},
+	{3691,10},
+	{3736,20},
+	{3772,30},
+	{3797,40},
+	{3828,50},
+	{3888,60},
+	{3944,70},
+	{4010,80},
 	{4100,90},
-	{4189,100},
+	{4176,100},
 };
 
 /* Precise Tunning */
@@ -88,13 +89,9 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 //#define TBAT_OVER_CRITICAL_LOW     483954
 #define TBAT_OVER_CRITICAL_LOW     67790
 #define BAT_TEMP_PROTECT_ENABLE    1
-#if defined(SLT_DRV_AW992_CONFIG)
 #define BAT_NTC_10 1
-#else
-#define BAT_NTC_10 0
-#endif
 #define BAT_NTC_47 0
-#define BAT_NTC_CG103JF103F
+//#define BAT_NTC_CG103JF103F
 
 /* The option of new charging animation */
 #define ANIMATION_NEW
