@@ -38,7 +38,8 @@
 /* the keys can wake up the system and we should enable backlight */
 #define KPD_BACKLIGHT_WAKE_KEY	\
 {				\
-	KEY_ENDCALL, KEY_POWER,	\
+	KEY_ENDCALL, KEY_POWER, \
+	KEY_VOLUMEDOWN, KEY_VOLUMEUP,	\
 }
 
 #define KPD_HAS_SLIDE_QWERTY	KPD_NO
@@ -83,4 +84,11 @@ void kpd_pmic_rstkey_handler(unsigned long pressed);
 //#define KPD_PMIC_RSTKEY_MAP KEY_VOLUMEDOWN
 //#define KPD_PMIC_LPRST_TD 1 /* timeout period. 0: 5sec; 1: 7sec; 2: 9sec; 3: 11sec */
 
+/*lenovo-sw jixj 2013.4.28 add begin*/
+#ifdef LENOVO_LONG_POWER_RESET
+#define ONEKEY_REBOOT_NORMAL_MODE
+#define ONEKEY_REBOOT_OTHER_MODE
+#define KPD_PMIC_LPRST_TD 0 /* timeout period. 0: 8sec; 1: 11sec; 2: 14sec; 3: 5sec */
+#endif
+/*lenovo-sw jixj 2013.4.28 add end*/
 #endif

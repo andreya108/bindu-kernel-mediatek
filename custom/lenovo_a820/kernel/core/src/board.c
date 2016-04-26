@@ -77,10 +77,24 @@ static int mt_wifi_pm_late_cb = 0;
 /*=======================================================================*/
 extern kal_bool pmic_chrdet_status(void);
 
+extern void upmu_set_rg_vibr_vosel(U32);
+extern void upmu_set_rg_vibr_en(U32);
+
+void vibrate_once(int ms)
+{
+    printk("vibrate_once(%d)\n", ms);
+    upmu_set_rg_vibr_vosel(0x5);
+    upmu_set_rg_vibr_en(0x1);
+    udelay(ms*1000);
+    upmu_set_rg_vibr_vosel(0x4);
+    upmu_set_rg_vibr_en(0x0);
+}
+
 void mt_power_off(void)
 {
 	printk("mt_power_off\n");
 
+    vibrate_once(200);
 	/* pull PWRBB low */
 	rtc_bbpu_power_down();
 
