@@ -50,7 +50,7 @@ CUSTOM_HAL_EEPROM=dummy_eeprom
 CUSTOM_HAL_FLASHLIGHT=constant_flashlight
 
 # User space image sensor driver. Define  project used all image sensors. The value is combination of CUSTOM_HAL_MAIN_IMGSENSOR, CUSTOM_HAL_MAIN_BACKUP_IMGSENSOR, CUSTOM_HAL_SUB_IMGSENSOR, and CUSTOM_HAL_SUB_BACKUP_IMGSENSOR
-CUSTOM_HAL_IMGSENSOR = ov8825_mipi_raw
+CUSTOM_HAL_IMGSENSOR = ov8825_mipi_raw  ov2659_raw
 
 # = CUSTOM_HAL_MAIN_LENS +CUSTOM_HAL_MAIN_BACKUP_LENS + CUSTOM_HAL_SUB_LENS + CUSTOM_HAL_SUB_BACKUP_LENS
 CUSTOM_HAL_LENS=fm50af sensordrive dummy_lens
@@ -76,6 +76,9 @@ CUSTOM_HAL_SUB_BACKUP_IMGSENSOR=
 
 # lens driver config for video telephony camera (2nd solution)
 CUSTOM_HAL_SUB_BACKUP_LENS=dummy_lens
+
+# User space driver: Sub camera (front camera )used sensor related tuning, setting and calibration information. Value is used sub sensor name.
+CUSTOM_HAL_SUB_IMGSENSOR=ov2659_raw
 
 # lens driver config for video telephony camera
 CUSTOM_HAL_SUB_LENS=dummy_lens
@@ -112,7 +115,7 @@ CUSTOM_KERNEL_FLASHLIGHT=constant_flashlight
 CUSTOM_KERNEL_HEADSET=accdet
 
 # Kernel space image sensor driver. Define  project used all image sensors .The value is combination of CUSTOM_KERNEL_MAIN_IMGSENSOR, CUSTOM_KERNEL_MAIN_BACKUP_IMGSENSOR, CUSTOM_KERNEL_SUB_IMGSENSOR, and CUSTOM_KERNEL_SUB_BACKUP_IMGSENSOR
-CUSTOM_KERNEL_IMGSENSOR = ov8825_mipi_raw
+CUSTOM_KERNEL_IMGSENSOR = ov8825_mipi_raw ov2659_raw
 
 # key pad driver to report key event
 CUSTOM_KERNEL_KPD=kpd
@@ -150,6 +153,9 @@ CUSTOM_KERNEL_SUB_BACKUP_IMGSENSOR=
 # lens driver config for video telephony camera (2nd solution)
 CUSTOM_KERNEL_SUB_BACKUP_LENS=dummy_lens
 
+# Kernel space image sensor driver:Sub camera (front camera) used sensor driver.Value is used sub sensor name.
+CUSTOM_KERNEL_SUB_IMGSENSOR=ov2659_raw
+
 # lens driver config for video telephony camera
 CUSTOM_KERNEL_SUB_LENS=dummy_lens
 
@@ -163,7 +169,7 @@ CUSTOM_KERNEL_USB=mt6577
 CUSTOM_KERNEL_VIBRATOR=vibrator
 
 # To choose LK LCM driver name
-CUSTOM_LK_LCM = nt35590_hd720_dsi_cmd_yassy_seine
+CUSTOM_LK_LCM = otm1282a_hd720_dsi_vdo otm1283a_hd720_dsi_vdo nt35590_hd720_dsi_cmd_yassy_seine nt35520_hd720_dsi_vdo_cpt
 
 # Support customer to implement and apply their own RSA security functions
 CUSTOM_SEC_AUTH_SUPPORT=no
@@ -1472,10 +1478,10 @@ MTK_HDMI_SUPPORT=no
 BOOT_LOGO=hd720
 
 # To choose kernel LCM driver name
-CUSTOM_KERNEL_LCM= nt35590_hd720_dsi_cmd_yassy_seine
+CUSTOM_KERNEL_LCM=otm1282a_hd720_dsi_vdo otm1283a_hd720_dsi_vdo nt35590_hd720_dsi_cmd_yassy_seine nt35520_hd720_dsi_vdo_cpt
 
 # To choose uboot LCM driver name
-CUSTOM_UBOOT_LCM= nt35590_hd720_dsi_cmd_yassy_seine
+CUSTOM_UBOOT_LCM=otm1282a_hd720_dsi_vdo otm1283a_hd720_dsi_vdo nt35590_hd720_dsi_cmd_yassy_seine nt35520_hd720_dsi_vdo_cpt
 
 # To set LCM resolution height size
 LCM_HEIGHT=1280 #800
@@ -1498,7 +1504,7 @@ MTK_ATV_CHIP=
 MTK_MATV_ANALOG_SUPPORT=yes
 
 # if it is set to TRUE: Support WAPI (WLAN Authentication and Privacy Infrastructure) if it is set to FALSE: Does not Support WAPI (WLAN Authentication and Privacy Infrastructure)
-MTK_WAPI_SUPPORT=no
+MTK_WAPI_SUPPORT=yes
 
 # To enable Wi-Fi Tethering in the Wi-Fi Setting UI * valid_value_list = Yes or No (Yes: Enable, No: Disable)  * dependency_relationship need MTK_WLAN_SUPPORT = yes
 MTK_WIFI_HOTSPOT_SUPPORT=yes
@@ -1560,20 +1566,15 @@ LENOVO_LCM_EFFECT = yes
 #lenovo add by jixu@lenovo.com begin
 LENOVO_BACKLIGHT_CURRENT_SETTING = yes
 LENOVO_LCM_INFO = yes
-LENOVO_LEDS_GPIO_SUPPORT = yes
+LENOVO_LEDS_GPIO_SUPPORT = no
 #lenovo add by jixu@lenovo.com end
 
 #lenovo-sw yexh1, add dynamic userdata feature for different size of emmc device
-LENOVO_DYNAMIC_USERDATA=no
+LENOVO_DYNAMIC_USERDATA = yes
 #lenovo-sw yexh1 end
 
 #lenovo-sw lixh10 add 20140616 begin
 LENOVO_VIBRATOR_HAPTIC_FEEDBACK = yes
 #lenovo-sw lixh10 add 20140616 begin
 LENOVO_CPUFREQ_LIMIT = 1209000
-LENOVO_PERF_BOOSTER_SUPPORT = yes
-LENOVO_CPU_INPUT_BOOST_HIGH_PERF = yes
-
 LENOVO_SHARED_SDCARD=yes
-LENOVO_RECOVERY_ONLINE = no
-LENOVO_POWERHAL_SUPPORT = yes
