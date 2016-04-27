@@ -24,6 +24,8 @@
 #include "ov8825mipiraw_CameraCustomized.h"
 static DEFINE_SPINLOCK(ov8825mipiraw_drv_lock);
 
+#define OV8825_TEST_PATTERN_CHECKSUM (0xa3fe2449)
+
 #define OV8825_DEBUG
 //#define OV8825_DEBUG_SOFIA
 
@@ -349,13 +351,14 @@ void write_OV8825_gain(kal_uint16 gain)
 void OV8825_SetGain(UINT16 iGain)
 {
 	unsigned long flags;
+    kal_uint16 ov8825GlobalGain=0;
 
-	
-	
-	spin_lock_irqsave(&ov8825mipiraw_drv_lock,flags);
+	ov8825GlobalGain = OV8825Gain2Reg(iGain);
+
+	spin_lock(&ov8825mipiraw_drv_lock);
 	ov8825.realGain = iGain;
-	ov8825.sensorGlobalGain = OV8825Gain2Reg(iGain);
-	spin_unlock_irqrestore(&ov8825mipiraw_drv_lock,flags);
+	ov8825.sensorGlobalGain =ov8825GlobalGain;
+	spin_unlock(&ov8825mipiraw_drv_lock);
 
 	write_OV8825_gain(ov8825.sensorGlobalGain);
 	OV8825DB("[OV8825_SetGain]ov8825.sensorGlobalGain=0x%x,ov8825.realGain=%d\n",ov8825.sensorGlobalGain,ov8825.realGain);
@@ -382,12 +385,14 @@ void OV8825_SetGain(UINT16 iGain)
 kal_uint16 read_OV8825_gain(void)
 {
 	kal_uint16 read_gain=0;
+	kal_uint16 ov8825RealGain =0;
 
 	read_gain=(((OV8825_read_cmos_sensor(0x350a)&0x01) << 8) | OV8825_read_cmos_sensor(0x350b));
+    ov8825RealGain = OV8825Reg2Gain(read_gain);
 
 	spin_lock(&ov8825mipiraw_drv_lock);
 	ov8825.sensorGlobalGain = read_gain;
-	ov8825.realGain = OV8825Reg2Gain(ov8825.sensorGlobalGain);
+	ov8825.realGain = ov8825RealGain;
 	spin_unlock(&ov8825mipiraw_drv_lock);
 
 	OV8825DB("ov8825.sensorGlobalGain=0x%x,ov8825.realGain=%d\n",ov8825.sensorGlobalGain,ov8825.realGain);
@@ -1120,11 +1125,13 @@ static void OV8825_Sensor_Init(void)
 	OV8825_write_cmos_sensor(0x3615,0x00);//; analog control
 	OV8825_write_cmos_sensor(0x3616,0x03);//; analog control
 	OV8825_write_cmos_sensor(0x3617,0xa1);//; analog control
+	
 	OV8825_write_cmos_sensor(0x3618,0x00);//; VCM position & slew rate, slew rate = 0
 	OV8825_write_cmos_sensor(0x3619,0x00);//; VCM position = 0
 	OV8825_write_cmos_sensor(0x361a,0xB0);//; VCM clock divider, VCM clock = 24000000/0x4b0 = 20000
 	OV8825_write_cmos_sensor(0x361b,0x04);//; VCM clock divider
-        OV8825_write_cmos_sensor(0x361C,0x07);//; VCM clock divider    	
+	OV8825_write_cmos_sensor(0x361c,0x07);//VCM Driver current
+	
 	OV8825_write_cmos_sensor(0x3700,0x20);//
 	OV8825_write_cmos_sensor(0x3701,0x44);//; sensor control
 	OV8825_write_cmos_sensor(0x3702,0x50);//
@@ -1448,7 +1455,7 @@ UINT32 OV8825Open(void)
 	ov8825.ispBaseGain = BASEGAIN;//0x40
 	ov8825.sensorGlobalGain = 0x1f;//sensor gain read from 0x350a 0x350b; 0x1f as 3.875x
 	ov8825.pvGain = 0x1f;
-	ov8825.realGain = OV8825Reg2Gain(0x1f);//ispBaseGain as 1x
+	ov8825.realGain = 0x1f;//ispBaseGain as 1x
 	spin_unlock(&ov8825mipiraw_drv_lock);
 	//OV8825DB("OV8825Reg2Gain(0x1f)=%x :\n ",OV8825Reg2Gain(0x1f));
 
@@ -1519,21 +1526,10 @@ UINT32 OV8825GetSensorID(UINT32 *sensorID)
 *************************************************************************/
 void OV8825_SetShutter(kal_uint32 iShutter)
 {
-	if(MSDK_SCENARIO_ID_CAMERA_ZSD == OV8825CurrentScenarioId )
-	{
-		//OV8825DB("always UPDATE SHUTTER when ov8825.sensorMode == SENSOR_MODE_CAPTURE\n");
-	}
-	else{
-		if(ov8825.sensorMode == SENSOR_MODE_CAPTURE)
-		{
-			//OV8825DB("capture!!DONT UPDATE SHUTTER!!\n");
-			//return;
-		}
-	}
-
 	
-	if(ov8825.shutter == iShutter)
-		return;
+	//if(ov8825.shutter == iShutter)
+		//return;
+	
    spin_lock(&ov8825mipiraw_drv_lock);
    ov8825.shutter= iShutter;
    spin_unlock(&ov8825mipiraw_drv_lock);
@@ -1699,7 +1695,7 @@ UINT32 OV8825Preview(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
 	//OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
-	OV8825SetFlipMirror(IMAGE_NORMAL);
+	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
 
 	OV8825DBSOFIA("[OV8825Preview]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
     mDELAY(40);
@@ -1734,7 +1730,7 @@ UINT32 OV8825Video(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 	ov8825.imgMirror = sensor_config_data->SensorImageMirror;
 	spin_unlock(&ov8825mipiraw_drv_lock);
 	//OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
-	OV8825SetFlipMirror(IMAGE_NORMAL);
+	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
 
 	OV8825DBSOFIA("[OV8825Video]frame_len=%x\n", ((OV8825_read_cmos_sensor(0x380e)<<8)+OV8825_read_cmos_sensor(0x380f)));
     mDELAY(40);
@@ -1787,7 +1783,7 @@ UINT32 OV8825Capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 
 	//OV8825DB("[OV8825Capture] mirror&flip: %d\n",sensor_config_data->SensorImageMirror);
 	//OV8825SetFlipMirror(sensor_config_data->SensorImageMirror);
-	OV8825SetFlipMirror(IMAGE_NORMAL);
+	OV8825SetFlipMirror(IMAGE_HV_MIRROR);
 
 	//#if defined(MT6575)||defined(MT6577)
     if(OV8825CurrentScenarioId==MSDK_SCENARIO_ID_CAMERA_ZSD)
@@ -2082,7 +2078,16 @@ UINT32 OV8825SetTestPatternMode(kal_bool bEnable)
 {
     OV8825DB("[OV8825SetTestPatternMode] Test pattern enable:%d\n", bEnable);
 
-    return TRUE;
+    if(bEnable) 
+    {
+        OV8825_write_cmos_sensor(0x5E00,0x0080);
+    }
+    else
+    {
+        OV8825_write_cmos_sensor(0x5E00,0x0000);
+    }
+
+    return ERROR_NONE;
 }
 
 UINT32 OV8825MIPISetMaxFramerateByScenario(MSDK_SCENARIO_ID_ENUM scenarioId, MUINT32 frameRate) 
@@ -2360,6 +2365,10 @@ UINT32 OV8825FeatureControl(MSDK_SENSOR_FEATURE_ENUM FeatureId,
 		case SENSOR_FEATURE_GET_DEFAULT_FRAME_RATE_BY_SCENARIO:
 			OV8825MIPIGetDefaultFramerateByScenario((MSDK_SCENARIO_ID_ENUM)*pFeatureData32, (MUINT32 *)(*(pFeatureData32+1)));
 			break;
+        case SENSOR_FEATURE_GET_TEST_PATTERN_CHECKSUM_VALUE://for factory mode auto testing             
+            *pFeatureReturnPara32=OV8825_TEST_PATTERN_CHECKSUM;           
+            *pFeatureParaLen=4;                             
+        break;
         default:
             break;
     }
