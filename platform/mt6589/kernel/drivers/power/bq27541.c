@@ -264,8 +264,8 @@ exit:
   *   [platform_driver API] 
   *
   *********************************************************/
-#ifndef BQ27541_BUSNUM
-#define BQ27541_BUSNUM 6
+#ifndef BQ24196_BUSNUM
+#define BQ24196_BUSNUM 6
 #endif
 
 static struct i2c_board_info __initdata i2c_bq27541 = { I2C_BOARD_INFO("bq27541", (0xaa>>1))};
@@ -274,7 +274,7 @@ static int __init bq27541_init(void)
 {        
     printk("[bq27541_init] init start\n");
     
-    i2c_register_board_info(BQ27541_BUSNUM, &i2c_bq27541, 1);
+    i2c_register_board_info(BQ24196_BUSNUM, &i2c_bq27541, 1);
 
     if(i2c_add_driver(&bq27541_driver)!=0)
     {

@@ -21,6 +21,15 @@
 #define _fan5405_SW_H_
 
 //#define HIGH_BATTERY_VOLTAGE_SUPPORT
+/* Vanzo:zhangqingzhan on: Mon, 18 Feb 2013 19:20:45 +0800
+ * TODO: charge ic use 1005
+ */
+#if (defined(DCT_V7) || defined(DCT_V8) || defined(DCT_V9) || defined(DCT_E7)||defined(DCT_G6)||defined(DCT_V2T)||defined(DCT_V2W))
+#define FAN5405_AC_CHARGING_CURRENT_750
+#else
+#define FAN5405_AC_CHARGING_CURRENT_1050
+#endif
+// End of Vanzo: zhangqingzhan
 
 #define fan5405_CON0      0x00
 #define fan5405_CON1      0x01

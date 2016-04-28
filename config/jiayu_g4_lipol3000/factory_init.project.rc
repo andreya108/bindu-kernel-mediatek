@@ -1,0 +1,89 @@
+on post-fs
+
+#
+# Connectivity related device nodes & configuration (begin)
+#
+
+#/dev/ttyMT2 for Connectivity BT/FM/GPS usage
+    chmod 0660 /dev/ttyMT2
+    chown system system /dev/ttyMT2
+
+
+# STP, WMT, GPS, FM and BT Driver
+    insmod /system/lib/modules/mtk_wmt_detect.ko
+#    insmod /system/lib/modules/mtk_hif_sdio.ko
+#    insmod /system/lib/modules/mtk_stp_wmt.ko
+#    insmod /system/lib/modules/mtk_stp_uart.ko
+#    insmod /system/lib/modules/mtk_stp_gps.ko
+#    insmod /system/lib/modules/mtk_stp_bt.ko
+#    insmod /system/lib/modules/mtk_fm_drv.ko
+#    insmod /system/lib/modules/mtk_wmt_wifi.ko
+
+# Create char device file for WMT, GPS, BT, FM, WIFI
+    mknod /dev/stpwmt c 190 0;
+    mknod /dev/stpgps c 191 0;
+    mknod /dev/stpbt  c 192 0;
+
+    chmod 0660 /dev/stpwmt
+    chown system system /dev/stpwmt
+ 
+    mknod /dev/wmtWifi c 153 0
+    chmod 0660 /dev/wmtWifi
+    chown system system /dev/wmtWifi
+
+# BT
+    chmod 0660 /dev/stpbt
+    chown bluetooth radio /dev/stpbt
+
+# GPS
+    chown gps gps /dev/stpgps
+    chown gps gps /sys/class/gpsdrv/gps/pwrctl
+    chown gps gps /sys/class/gpsdrv/gps/suspend
+    chown gps gps /sys/class/gpsdrv/gps/state
+    chown gps gps /sys/class/gpsdrv/gps/pwrsave
+    chown gps gps /sys/class/gpsdrv/gps/status
+    chmod 0660 /dev/stpgps
+
+# WiFi
+#   mkdir /data/misc/wifi 0770 wifi wifi
+#   mkdir /data/misc/wifi/sockets 0770 wifi wifi
+#   mkdir /data/misc/wpa_supplicant 0770 wifi wifi
+#   chown wifi wifi /data/misc/wifi
+
+#FM Radio device node
+	mknod /dev/fm	c 193 0;
+	chmod 0660 /dev/fm
+	chown system media /dev/fm
+
+#Disable for one Single loader
+# Load WiFi Driver
+#   insmod /system/lib/modules/wlan.ko
+
+# Char device for BT 3.0 HS
+    mknod /dev/ampc0 c 151 0
+    chown bluetooth bluetooth /dev/ampc0
+    chmod 0660 /dev/ampc0
+
+#
+# Connectivity related device nodes & configuration (end)
+#
+
+on boot
+
+#
+# Connectivity related services (Begin)
+#
+service wmt_loader  /system/bin/logwrapper /system/bin/wmt_loader
+    user root
+    group root
+    oneshot
+
+service 662x_launcher /system/bin/logwrapper /system/bin/6620_launcher -b 4000000 -p /system/etc/firmware/ -d /dev/ttyMT2
+    user system
+    group system
+
+ 
+#
+# Connectivity related services (End)
+#
+#

@@ -53,7 +53,7 @@ CUSTOM_HAL_IMGSENSOR=ov12830_mipi_raw ov3660_yuv hi253_yuv
 CUSTOM_HAL_LENS=fm50af dummy_lens
 
 CUSTOM_HAL_MAIN2_IMGSENSOR=
-CUSTOM_HAL_MAIN_BACKUP_IMGSENSOR = 
+CUSTOM_HAL_MAIN_BACKUP_IMGSENSOR =
 
 # lens driver config for main camera (2nd solution)
 CUSTOM_HAL_MAIN_BACKUP_LENS=dummy_lens
@@ -67,8 +67,8 @@ CUSTOM_HAL_MAIN_LENS=fm50af
 #CUSTOM_HAL_04_IMGSENSOR = ov5648_mipi_raw
 #CUSTOM_HAL_04_LENS = fm50af
 
-CUSTOM_HAL_05_IMGSENSOR = 
-CUSTOM_HAL_05_LENS = 
+CUSTOM_HAL_05_IMGSENSOR =
+CUSTOM_HAL_05_LENS =
 
 # M-sensor hal layer library including daemon
 CUSTOM_HAL_MSENSORLIB=mmc328x akm8975 ami304 yamaha530 mag3110 akmd8963 bmm050
@@ -179,7 +179,7 @@ CUSTOM_KERNEL_SUB_IMGSENSOR = ov3660_yuv
 CUSTOM_KERNEL_SUB_LENS=dummy_lens
 
 # touch driver  need to report correct touch axes
-CUSTOM_KERNEL_TOUCHPANEL = cy8ctma301_duodian S3203v
+CUSTOM_KERNEL_TOUCHPANEL = cy8ctma301_duodian S3203
 
 # Configuration for USB PHY
 CUSTOM_KERNEL_USB=mt6577
@@ -235,7 +235,7 @@ HAVE_AACENCODE_FEATURE=yes
 HAVE_ADPCMENCODE_FEATURE=yes
 
 # AEE (Android Exception Engine) that designed by Mediatek is an exception catching and debugging information generation mechanism.It can collect and dump information to filesystem (/sdcard/mtklog/aee_exp) when fatel occur(E.g. kernel panic/android system server crash and ..) HAVE_AEE_FEATURE will decide this feature enable or not.
-HAVE_AEE_FEATURE=yes
+HAVE_AEE_FEATURE=no
 
 # In Audio record,  Enable/disable AWB encode, yes: enable
 # no:disable
@@ -1341,7 +1341,7 @@ MTK_WEATHER_WIDGET_APP=yes
 MTK_WEB_NOTIFICATION_SUPPORT=yes
 
 # Define MTK weekly number(internal use only)
-MTK_WEEK_NO= 
+MTK_WEEK_NO=
 MTK_WFD_HDCP_TX_SUPPORT=no
 MTK_WFD_SINK_SUPPORT=no
 MTK_WFD_SINK_UIBC_SUPPORT=no

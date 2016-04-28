@@ -34,8 +34,14 @@
 
 static struct i2c_client *new_client = NULL;
 static const struct i2c_device_id fan5405_i2c_id[] = {{"fan5405",0},{}};   
+#ifdef MTK_FAN5402_SUPPORT
+static const struct i2c_device_id fan5402_i2c_id[] = {{"fan5402",0},{}};
+#endif
 unsigned int g_fan5405_rdy_flag = 0;
 static int fan5405_driver_probe(struct i2c_client *client, const struct i2c_device_id *id);
+#ifdef MTK_FAN5402_SUPPORT
+static int fan5402_driver_probe(struct i2c_client *client, const struct i2c_device_id *id);
+#endif
 extern int Enable_BATDRV_LOG;
 
 static struct i2c_driver fan5405_driver = {
@@ -45,6 +51,15 @@ static struct i2c_driver fan5405_driver = {
     .probe       = fan5405_driver_probe,
     .id_table    = fan5405_i2c_id,
 };
+#ifdef MTK_FAN5402_SUPPORT
+static struct i2c_driver fan5402_driver = {
+    .driver = {
+        .name    = "fan5402",
+    },
+    .probe       = fan5402_driver_probe,
+    .id_table    = fan5402_i2c_id,
+};
+#endif
 
 /**********************************************************
   *
@@ -525,6 +540,16 @@ void fan5405_set_v_safe(kal_uint32 val)
   *   [Internal Function] 
   *
   *********************************************************/
+#ifdef MTK_FAN5402_SUPPORT
+kal_uint8 fan540x_get_chip_id(void)
+{
+	kal_uint8 chip_id;
+
+	fan5405_read_byte(3, &chip_id);
+
+	return ((chip_id>>3)&0x03);
+}
+#endif
 void fan5405_dump_register(void)
 {
     int i=0;
@@ -535,6 +560,14 @@ void fan5405_dump_register(void)
         printk("[0x%x]=0x%x ", i, fan5405_reg[i]);        
     }
     printk("\n");
+}
+
+kal_uint8 fan5405_dump5_register(unsigned char index)
+{
+        kal_uint8 val;
+            fan5405_read_byte(index, &val);
+
+                return val;
 }
 
 /*lenovo-sw weiweij add for oreg protect*/
@@ -607,6 +640,7 @@ void fan5405_hw_init(void)
 static int fan5405_driver_probe(struct i2c_client *client, const struct i2c_device_id *id) 
 {             
     int err=0; 
+	unsigned int cnt=0;
 
     printk("[fan5405_driver_probe] \n");
 
@@ -619,6 +653,18 @@ static int fan5405_driver_probe(struct i2c_client *client, const struct i2c_devi
     new_client = client;    
 
     //---------------------
+#ifdef MTK_FAN5402_SUPPORT
+    printk("%s chip_id=0x%02x\n", __func__, fan540x_get_chip_id());
+    printk("%s addr=0x%02x\n", __func__, new_client->addr);
+
+	while((fan540x_get_chip_id() != 0x02))
+	{
+		printk("%s check chip FAN5405 FAIL!!\n", __func__);
+		cnt++;
+		if(cnt>3)
+			return -1;
+	}
+#endif
     fan5405_hw_init();
     fan5405_dump_register();
 	g_fan5405_rdy_flag = 1;
@@ -630,6 +676,44 @@ exit:
 
 }
 
+#ifdef MTK_FAN5402_SUPPORT
+static int fan5402_driver_probe(struct i2c_client *client, const struct i2c_device_id *id)
+{
+    int err=0;
+	unsigned int cnt=0;
+	struct i2c_client *temp_client;
+
+    printk("[fan5402_driver_probe] \n");
+
+	temp_client = new_client;
+	new_client = client;
+
+    //---------------------
+    //printk("%s chip_id=0x%02x\n", __func__, fan540x_get_chip_id());
+    //printk("%s addr=0x%02x\n", __func__, new_client->addr);
+
+	while(fan540x_get_chip_id() != 0x01)
+	{
+		//printk("%s addr=0x%02x\n", __func__, new_client->addr);
+		printk("%s check chip FAN5402 FAIL!!\n", __func__);
+		cnt++;
+		if(cnt > 3)
+		{
+			new_client = temp_client;
+			return -1;
+		}
+	}
+    fan5405_hw_init();
+    fan5405_dump_register();
+	g_fan5405_rdy_flag = 1;
+
+    return 0;
+
+exit:
+    return err;
+
+}
+#endif
 /**********************************************************
   *
   *   [platform_driver API] 
@@ -697,6 +781,9 @@ static struct platform_driver fan5405_user_space_driver = {
 
 #define FAN5405_BUSNUM 6
 static struct i2c_board_info __initdata i2c_fan5405 = { I2C_BOARD_INFO("fan5405", (0xd4>>1))};
+#ifdef MTK_FAN5402_SUPPORT
+static struct i2c_board_info __initdata i2c_fan5402 = { I2C_BOARD_INFO("fan5402", (0xd6>>1))};
+#endif
 
 static int __init fan5405_init(void)
 {    
@@ -705,6 +792,9 @@ static int __init fan5405_init(void)
     printk("[fan5405_init] init start\n");
     
     i2c_register_board_info(FAN5405_BUSNUM, &i2c_fan5405, 1);
+#ifdef MTK_FAN5402_SUPPORT
+    i2c_register_board_info(FAN5405_BUSNUM, &i2c_fan5402, 1);
+#endif
 
     if(i2c_add_driver(&fan5405_driver)!=0)
     {
@@ -714,6 +804,16 @@ static int __init fan5405_init(void)
     {
         printk("[fan5405_init] Success to register fan5405 i2c driver.\n");
     }
+#ifdef MTK_FAN5402_SUPPORT
+	if(i2c_add_driver(&fan5402_driver)!=0)
+	{
+		printk("[fan5405_init] failed to register fan5405 i2c driver.\n");
+	}
+	else
+	{
+		printk("[fan5405_init] Success to register fan5405 i2c driver.\n");
+	}
+#endif
 
     // fan5405 user space access interface
     ret = platform_device_register(&fan5405_user_space_device);
@@ -733,6 +833,9 @@ static int __init fan5405_init(void)
 static void __exit fan5405_exit(void)
 {
     i2c_del_driver(&fan5405_driver);
+#ifdef MTK_FAN5402_SUPPORT
+    i2c_del_driver(&fan5402_driver);
+#endif
 }
 
 module_init(fan5405_init);
