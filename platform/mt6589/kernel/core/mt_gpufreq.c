@@ -72,8 +72,7 @@ static struct mt_gpufreq_power_info mt_gpufreqs_golden_power[] = {
 ***************************/
 static int g_gpufreq_dvfs_disable_count = 0;
 
-//static unsigned int g_cur_freq = 286000;
-static unsigned int g_cur_freq = 312000;
+static unsigned int g_cur_freq = 286000;
 static unsigned int g_cur_volt = 0;
 static unsigned int g_cur_load = 0;
 

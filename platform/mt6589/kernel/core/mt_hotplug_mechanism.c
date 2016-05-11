@@ -39,7 +39,7 @@
 /*********************************
 * glabal variable
 **********************************/
-// INTELLI_PLUG
+// Disable MTK HOTPLUG when INTELLI_PLUG is active
 #ifdef CONFIG_INTELLI_PLUG 
 static int g_enable = 0;
 #else
