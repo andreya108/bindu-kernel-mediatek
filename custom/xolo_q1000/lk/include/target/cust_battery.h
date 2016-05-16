@@ -38,8 +38,8 @@ typedef struct{
 #define RECHARGING_VOLTAGE      4110
 
 /* Charging Current Setting */
-#define USB_CHARGER_CURRENT					Cust_CC_450MA
-#define AC_CHARGER_CURRENT					Cust_CC_650MA	
+#define USB_CHARGER_CURRENT					Cust_CC_1500MA
+#define AC_CHARGER_CURRENT					Cust_CC_1500MA	
 
 /* Battery Meter Solution */
 #define CONFIG_ADC_SOLUTION 	1
