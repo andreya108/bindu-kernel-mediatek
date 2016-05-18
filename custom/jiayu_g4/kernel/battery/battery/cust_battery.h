@@ -22,7 +22,7 @@ typedef enum
 	Cust_CC_0MA	   = 0xDD
 }cust_charging_current_enum;
 
-typedef struct{	
+typedef struct{
 	unsigned int BattVolt;
 	unsigned int BattPercent;
 }VBAT_TO_PERCENT;
@@ -40,7 +40,7 @@ typedef struct{
 #define RECHARGING_VOLTAGE      4110
 
 /* Charging Current Setting */
-#define CONFIG_USB_IF 						0   
+#define CONFIG_USB_IF 						0
 #define USB_CHARGER_CURRENT_SUSPEND			Cust_CC_0MA		// def CONFIG_USB_IF
 #define USB_CHARGER_CURRENT_UNCONFIGURED	Cust_CC_70MA	// def CONFIG_USB_IF
 /* Vanzo:lubaoquan on: Wed, 15 May 2013 19:07:42 +0800
@@ -69,17 +69,57 @@ typedef struct{
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
 #if (defined(HIGH_BATTERY_VOLTAGE_SUPPORT))
-	{3400,0},
-        {3657,10},
-        {3739,20},
-        {3788,30},
-        {3827,40},
-        {3871,50},
-        {3929,60},
-        {4000,70},
-        {4084,80},
-        {4184,90},
-        {4338,100},
+    {3504,0},
+    {3520,2},
+    {3536,4},
+    {3552,6},
+    {3568,8},
+    {3584,10},
+    {3600,12},
+    {3616,14},
+    {3632,16},
+    {3648,18},
+    {3664,20},
+    {3680,22},
+    {3696,24},
+    {3712,26},
+    {3728,28},
+    {3744,30},
+    {3760,32},
+    {3776,34},
+    {3792,36},
+    {3808,38},
+    {3824,40},
+    {3840,42},
+    {3856,44},
+    {3872,46},
+    {3888,48},
+    {3904,50},
+    {3920,52},
+    {3936,54},
+    {3952,56},
+    {3968,58},
+    {3984,60},
+    {4000,62},
+    {4016,64},
+    {4032,66},
+    {4048,68},
+    {4064,70},
+    {4080,72},
+    {4096,74},
+    {4112,76},
+    {4128,78},
+    {4144,80},
+    {4160,82},
+    {4176,84},
+    {4192,86},
+    {4208,88},
+    {4224,90},
+    {4240,92},
+    {4256,94},
+    {4272,96},
+    {4288,98},
+    {4304,100},
 #else
 	{3400,0},
 	{3641,10},
@@ -140,4 +180,4 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 
 //#define CONFIG_POWER_VERIFY
 
-#endif /* _CUST_BAT_H_ */ 
+#endif /* _CUST_BAT_H_ */

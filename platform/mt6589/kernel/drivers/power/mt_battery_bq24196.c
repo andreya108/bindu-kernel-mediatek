@@ -81,13 +81,23 @@ extern void fgauge_precharge_uninit(void);
 extern kal_int32 fgauge_precharge_compensated_voltage(kal_int32 recursion_time);
 
 /*lenovo-sw weiweij modified for some debug msg*/
-int Enable_BATDRV_LOG = 0;
+int Enable_BATDRV_LOG = 1;
 //int Enable_BATDRV_LOG = 2;
 /*lenovo-sw weiweij modified for some debug msg end*/
 //int Enable_BATDRV_LOG = 1;
 /*lenovo-sw qiyg modified for build error*/
 extern int get_rtc_spare_fg_value(void);
 /*lenovo-sw qiyg modified for build error*/
+
+/* andreya108 */
+int vptMax = sizeof(Batt_VoltToPercent_Table) / sizeof(VBAT_TO_PERCENT) - 1;
+
+#ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
+#define CONFIG_POWER_SUPPLY_TECHNOLOGY POWER_SUPPLY_TECHNOLOGY_LIPO
+#else
+#define CONFIG_POWER_SUPPLY_TECHNOLOGY POWER_SUPPLY_TECHNOLOGY_LION
+#endif
+/* andreya108 */
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //// Thermal related flags
@@ -865,7 +875,7 @@ static struct mt6320_battery_data mt6320_battery_main = {
     .BAT_STATUS = POWER_SUPPLY_STATUS_FULL,
     .BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD,
     .BAT_PRESENT = 1,
-    .BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION,
+    .BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY,
     .BAT_CAPACITY = 100,
     .BAT_batt_vol = 4200,
     .BAT_batt_temp = 22,
@@ -873,7 +883,7 @@ static struct mt6320_battery_data mt6320_battery_main = {
     .BAT_STATUS = POWER_SUPPLY_STATUS_NOT_CHARGING,
     .BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD,
     .BAT_PRESENT = 1,
-    .BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION,
+    .BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY,
     .BAT_CAPACITY = 50,
     .BAT_batt_vol = 0,
     .BAT_batt_temp = 0,
@@ -961,7 +971,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 #ifndef MTK_BQ27541_SUPPORT
 	int i;
 #endif
-    bat_data->BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION;
+    bat_data->BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY;
     bat_data->BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD;
     bat_data->BAT_batt_vol = BMT_status.bat_vol;
     bat_data->BAT_batt_temp= BMT_status.temperature * 10;
@@ -2473,31 +2483,31 @@ int g_Get_I_Charging(void)
 
 UINT32 BattVoltToPercent(UINT16 dwVoltage)
 {
-    UINT32 m=0;
-    UINT32 VBAT1=0,VBAT2=0;
-    UINT32 bPercntResult=0,bPercnt1=0,bPercnt2=0;
+    UINT32 m = 0;
+    UINT32 VBAT1 = 0, VBAT2 = 0;
+    UINT32 bPercntResult = 0, bPercnt1 = 0, bPercnt2 = 0;
 
 	if (Enable_BATDRV_LOG == 1) {
-    	xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "###### 100 <-> voltage : %d ######\r\n", Batt_VoltToPercent_Table[10].BattVolt);
+    	xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "###### 100 <-> voltage : %d ######\r\n", Batt_VoltToPercent_Table[vptMax].BattVolt);
 	}
 
-    if(dwVoltage<=Batt_VoltToPercent_Table[0].BattVolt)
+    if (dwVoltage <= Batt_VoltToPercent_Table[0].BattVolt)
     {
         bPercntResult = Batt_VoltToPercent_Table[0].BattPercent;
         return bPercntResult;
     }
-    else if (dwVoltage>=Batt_VoltToPercent_Table[10].BattVolt)
+    else if (dwVoltage >= Batt_VoltToPercent_Table[vptMax].BattVolt)
     {
-        bPercntResult = Batt_VoltToPercent_Table[10].BattPercent;
+        bPercntResult = Batt_VoltToPercent_Table[vptMax].BattPercent;
         return bPercntResult;
     }
     else
     {
         VBAT1 = Batt_VoltToPercent_Table[0].BattVolt;
         bPercnt1 = Batt_VoltToPercent_Table[0].BattPercent;
-        for(m=1;m<=10;m++)
+        for (m = 1; m <= vptMax; m++)
         {
-            if(dwVoltage<=Batt_VoltToPercent_Table[m].BattVolt)
+            if(dwVoltage <= Batt_VoltToPercent_Table[m].BattVolt)
             {
                 VBAT2 = Batt_VoltToPercent_Table[m].BattVolt;
                 bPercnt2 = Batt_VoltToPercent_Table[m].BattPercent;
@@ -4230,7 +4240,7 @@ void PrechargeCheckStatus(void)
                 mt6320_usb_update(&mt6320_usb_main);
                 bat_data = &mt6320_battery_main;
                 bat_psy = &bat_data->psy;
-                bat_data->BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION;
+                bat_data->BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY;
                 bat_data->BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD;
                 bat_data->BAT_batt_vol = get_i_sense_volt(10);
                 bat_data->BAT_batt_temp = 10 * bat_temp;
@@ -4287,7 +4297,7 @@ void PrechargeCheckStatus(void)
 
             bat_data = &mt6320_battery_main;
             bat_psy = &bat_data->psy;
-            bat_data->BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION;
+            bat_data->BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY;
             bat_data->BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD;
             bat_data->BAT_batt_vol = get_i_sense_volt(10);
             bat_temp_vol = get_tbat_volt(5);
@@ -5188,7 +5198,7 @@ static DEVICE_ATTR(Power_Off_Voltage, 0664, show_Power_Off_Voltage, store_Power_
 static ssize_t show_Charger_TopOff_Value(struct device *dev,struct device_attribute *attr, char *buf)
 {
     int ret_value=1;
-    ret_value = Batt_VoltToPercent_Table[10].BattVolt;
+    ret_value = Batt_VoltToPercent_Table[vptMax].BattVolt;
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Charger_TopOff_Value : %d\n", ret_value);
     return sprintf(buf, "%u\n", ret_value);
 }

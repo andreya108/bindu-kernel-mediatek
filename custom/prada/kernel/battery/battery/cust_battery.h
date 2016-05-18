@@ -22,7 +22,7 @@ typedef enum
 	Cust_CC_0MA	   = 0xDD
 }cust_charging_current_enum;
 
-typedef struct{	
+typedef struct{
 	unsigned int BattVolt;
 	unsigned int BattPercent;
 }VBAT_TO_PERCENT;
@@ -48,12 +48,12 @@ typedef struct{
 #define RECHARGING_VOLTAGE      4110
 #endif
 /* Charging Current Setting */
-#define CONFIG_USB_IF 						0   
+#define CONFIG_USB_IF 						0
 #define USB_CHARGER_CURRENT_SUSPEND			Cust_CC_0MA		// def CONFIG_USB_IF
 #define USB_CHARGER_CURRENT_UNCONFIGURED	Cust_CC_70MA	// def CONFIG_USB_IF
 #define USB_CHARGER_CURRENT_CONFIGURED		Cust_CC_450MA	// def CONFIG_USB_IF
 #define USB_CHARGER_CURRENT					Cust_CC_450MA
-#define AC_CHARGER_CURRENT					Cust_CC_650MA	
+#define AC_CHARGER_CURRENT					Cust_CC_650MA
 
 /* Battery Meter Solution */
 #define CONFIG_ADC_SOLUTION 	1
@@ -61,7 +61,60 @@ typedef struct{
 /* Battery Voltage and Percentage Mapping Table */
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
-	{3400,0},
+    {3404,0},
+    {3450,1},
+    {3520,2},
+    {3536,4},
+    {3552,6},
+    {3568,8},
+    {3584,10},
+    {3600,12},
+    {3616,14},
+    {3632,16},
+    {3648,18},
+    {3664,20},
+    {3680,22},
+    {3696,24},
+    {3712,26},
+    {3728,28},
+    {3744,30},
+    {3760,32},
+    {3776,34},
+    {3792,36},
+    {3808,38},
+    {3824,40},
+    {3840,42},
+    {3856,44},
+    {3872,46},
+    {3888,48},
+    {3904,50},
+    {3920,52},
+    {3936,54},
+    {3952,56},
+    {3968,58},
+    {3984,60},
+    {4000,62},
+    {4016,64},
+    {4032,66},
+    {4048,68},
+    {4064,70},
+    {4080,72},
+    {4096,74},
+    {4112,76},
+    {4128,78},
+    {4144,80},
+    {4160,82},
+    {4176,84},
+    {4192,86},
+    {4208,88},
+    {4224,90},
+    {4240,92},
+    {4256,94},
+    {4272,96},
+    {4288,98},
+    {4304,99},
+    {4335,100},
+/*    {3400,0},
 	{3641,10},
 	{3708,20},
 	{3741,30},
@@ -71,7 +124,7 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	{3891,70},
 	{3960,80},
 	{4044,90},
-	{4183,100},
+	{4183,100},*/
 };
 
 /* Precise Tunning */
@@ -110,4 +163,4 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 
 //#define CONFIG_POWER_VERIFY
 
-#endif /* _CUST_BAT_H_ */ 
+#endif /* _CUST_BAT_H_ */

@@ -73,6 +73,16 @@
 
 int Enable_BATDRV_LOG = 2;
 
+/* andreya108 */
+int vptMax = sizeof(Batt_VoltToPercent_Table) / sizeof(VBAT_TO_PERCENT) - 1;
+
+#ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
+#define CONFIG_POWER_SUPPLY_TECHNOLOGY POWER_SUPPLY_TECHNOLOGY_LIPO
+#else
+#define CONFIG_POWER_SUPPLY_TECHNOLOGY POWER_SUPPLY_TECHNOLOGY_LION
+#endif
+/* andreya108 */
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 //// Thermal related flags
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -790,7 +800,7 @@ static struct mt6320_battery_data mt6320_battery_main = {
     .BAT_STATUS = POWER_SUPPLY_STATUS_FULL,
     .BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD,
     .BAT_PRESENT = 1,
-    .BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION,
+    .BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY,
     .BAT_CAPACITY = 100,
     .BAT_batt_vol = 4200,
     .BAT_batt_temp = 22,
@@ -802,7 +812,7 @@ static struct mt6320_battery_data mt6320_battery_main = {
     .BAT_STATUS = POWER_SUPPLY_STATUS_NOT_CHARGING,
     .BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD,
     .BAT_PRESENT = 1,
-    .BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION,
+    .BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY,
     .BAT_CAPACITY = 50,
     .BAT_batt_vol = 0,
     .BAT_batt_temp = 0,
@@ -865,7 +875,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
     struct power_supply *bat_psy = &bat_data->psy;
     int i;
 
-    bat_data->BAT_TECHNOLOGY = POWER_SUPPLY_TECHNOLOGY_LION;
+    bat_data->BAT_TECHNOLOGY = CONFIG_POWER_SUPPLY_TECHNOLOGY;
     bat_data->BAT_HEALTH = POWER_SUPPLY_HEALTH_GOOD;
     bat_data->BAT_batt_vol = BMT_status.bat_vol;
     bat_data->BAT_batt_temp= BMT_status.temperature * 10;
@@ -2210,7 +2220,7 @@ UINT32 BattVoltToPercent(UINT16 dwVoltage)
     UINT32 bPercntResult=0,bPercnt1=0,bPercnt2=0;
 
     if (Enable_BATDRV_LOG == 1) {
-        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "###### 100 <-> voltage : %d ######\r\n", Batt_VoltToPercent_Table[10].BattVolt);
+        xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "###### 100 <-> voltage : %d ######\r\n", Batt_VoltToPercent_Table[vptMax].BattVolt);
     }
 
     if(dwVoltage<=Batt_VoltToPercent_Table[0].BattVolt)
@@ -2218,16 +2228,16 @@ UINT32 BattVoltToPercent(UINT16 dwVoltage)
         bPercntResult = Batt_VoltToPercent_Table[0].BattPercent;
         return bPercntResult;
     }
-    else if (dwVoltage>=Batt_VoltToPercent_Table[10].BattVolt)
+    else if (dwVoltage>=Batt_VoltToPercent_Table[vptMax].BattVolt)
     {
-        bPercntResult = Batt_VoltToPercent_Table[10].BattPercent;
+        bPercntResult = Batt_VoltToPercent_Table[vptMax].BattPercent;
         return bPercntResult;
     }
     else
     {
         VBAT1 = Batt_VoltToPercent_Table[0].BattVolt;
         bPercnt1 = Batt_VoltToPercent_Table[0].BattPercent;
-        for(m=1;m<=10;m++)
+        for( m = 1; m <= vptMax; m++ )
         {
             if(dwVoltage<=Batt_VoltToPercent_Table[m].BattVolt)
             {
@@ -3255,11 +3265,11 @@ void BAT_thread(void)
         {
             if ( (BMT_status.bat_charging_state == CHR_TOP_OFF) &&
                  (BMT_status.SOC == 100) &&
-                 (BMT_status.bat_vol >= Batt_VoltToPercent_Table[10].BattVolt) )
+                 (BMT_status.bat_vol >= Batt_VoltToPercent_Table[vptMax].BattVolt) )
             {
                 if (Enable_BATDRV_LOG == 1) {
                     xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY] Battery real full(%ld,%d) and disable charging !\n",
-                            BMT_status.SOC, Batt_VoltToPercent_Table[10].BattVolt);
+                            BMT_status.SOC, Batt_VoltToPercent_Table[vptMax].BattVolt);
                 }
                 BMT_status.bat_charging_state = CHR_BATFULL;
                 BAT_BatteryFullAction();
@@ -4176,7 +4186,7 @@ static DEVICE_ATTR(Power_Off_Voltage, 0664, show_Power_Off_Voltage, store_Power_
 static ssize_t show_Charger_TopOff_Value(struct device *dev,struct device_attribute *attr, char *buf)
 {
     int ret_value=1;
-    ret_value = Batt_VoltToPercent_Table[10].BattVolt;
+    ret_value = Batt_VoltToPercent_Table[vptMax].BattVolt;
     xlog_printk(ANDROID_LOG_DEBUG, "Power/Battery", "[EM] Charger_TopOff_Value : %d\n", ret_value);
     return sprintf(buf, "%u\n", ret_value);
 }
