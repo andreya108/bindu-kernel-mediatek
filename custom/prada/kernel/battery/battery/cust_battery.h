@@ -61,7 +61,7 @@ typedef struct{
 /* Battery Voltage and Percentage Mapping Table */
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
-    {3404,0},
+/*    {3404,0}, // mod1
     {3450,1},
     {3520,2},
     {3536,4},
@@ -113,8 +113,8 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
     {4272,96},
     {4288,98},
     {4304,99},
-    {4335,100},
-/*    {3400,0},
+    {4335,100},*/
+/*    {3400,0}, // original
 	{3641,10},
 	{3708,20},
 	{3741,30},
@@ -125,11 +125,33 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	{3960,80},
 	{4044,90},
 	{4183,100},*/
+    {3400,  0}, // mod2
+    {3600,  5},
+	{3660, 10},
+    {3710, 15},
+    {3730, 20},
+    {3750, 25},
+    {3770, 30},
+    {3790, 35},
+    {3805, 40},
+    {3820, 45},
+    {3840, 50},
+    {3855, 55},
+    {3870, 60},
+    {3910, 65},
+    {3950, 70},
+    {3980, 75},
+    {4020, 80},
+    {4080, 85},
+    {4110, 90},
+    {4150, 95},
+    {4250,100},
+
 };
 
 /* Precise Tunning */
-#define BATTERY_AVERAGE_SIZE 	30
-//#define BATTERY_AVERAGE_SIZE   3
+#define BATTERY_AVERAGE_SIZE 	10
+//#define BATTERY_AVERAGE_SIZE   30
 
 /* Common setting */
 #define R_CURRENT_SENSE 2				// 0.2 Ohm

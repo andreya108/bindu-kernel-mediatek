@@ -2234,8 +2234,8 @@ void ChargerHwInit_bq24196(void)
     }
 #else
 /*lenovo-sw weiweij modified 20130117*/
-#if 1
-	bq24196_set_vreg(0x35); //VREG 4.208V
+#ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
+	bq24196_set_vreg(0x35); //VREG 4.352V
 #else
     bq24196_set_vreg(0x2C); //VREG 4.208V
 #endif

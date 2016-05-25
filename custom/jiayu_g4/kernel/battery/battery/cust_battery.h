@@ -37,7 +37,11 @@ typedef struct{
 #define ERR_CHARGE_TEMPERATURE  0xFF
 
 /* Recharging Battery Voltage */
-#define RECHARGING_VOLTAGE      4110
+#if defined(HIGH_BATTERY_VOLTAGE_SUPPORT)
+#  define RECHARGING_VOLTAGE      4250
+#else
+#  define RECHARGING_VOLTAGE      4110
+#endif
 
 /* Charging Current Setting */
 #define CONFIG_USB_IF 						0
@@ -69,6 +73,28 @@ typedef struct{
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
 #if (defined(HIGH_BATTERY_VOLTAGE_SUPPORT))
+    {3400,  0}, // mod2
+    {3600,  5},
+	{3660, 10},
+    {3710, 15},
+    {3730, 20},
+    {3750, 25},
+    {3770, 30},
+    {3790, 35},
+    {3805, 40},
+    {3820, 45},
+    {3840, 50},
+    {3855, 55},
+    {3870, 60},
+    {3910, 65},
+    {3950, 70},
+    {3980, 75},
+    {4020, 80},
+    {4080, 85},
+    {4110, 90},
+    {4150, 95},
+    {4250,100},
+/*
     {3504,0},
     {3520,2},
     {3536,4},
@@ -119,7 +145,7 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
     {4256,94},
     {4272,96},
     {4288,98},
-    {4304,100},
+    {4304,100},*/
 #else
 	{3400,0},
 	{3641,10},

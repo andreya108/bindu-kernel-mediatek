@@ -128,7 +128,7 @@ kal_int32 get_dynamic_period(int first_use, int first_wakeup_time, int battery_c
 /*****************************************************************************
  * Logging System
 ****************************************************************************/
-int Enable_FGADC_LOG = 2;
+int Enable_FGADC_LOG = 1;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //// Extern Functions
@@ -311,7 +311,7 @@ kal_int32 current_get_ori=0;
 int gFG_15_vlot=3700;
 kal_int32 gfg_percent_check_point=50;
 kal_int32 gFG_BATT_CAPACITY_init_high_current = 3600;
-kal_int32 gFG_BATT_CAPACITY_aging = 3300;
+kal_int32 gFG_BATT_CAPACITY_aging = 3600;
 int volt_mode_update_timer=0;
 int volt_mode_update_time_out=6; //1mins
 /*lenovo-sw weiweij added 20130315*/
