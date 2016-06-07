@@ -17,7 +17,7 @@
 #define mtk_cooler_cam_dprintk(fmt, args...) \
   do { xlog_printk(ANDROID_LOG_DEBUG, "thermal/cooler/cam", fmt, ##args); } while(0)
 #else
-#define mtk_cooler_cam_dprintk(fmt, args...) 
+#define mtk_cooler_cam_dprintk(fmt, args...)
 #endif
 
 static struct thermal_cooling_device *cl_cam_dev[MAX_NUM_INSTANCE_MTK_COOLER_CAM] = {0};
@@ -31,6 +31,9 @@ static ssize_t _cl_cam_write( struct file *filp, const char __user *buf, size_t 
 {
 	int ret = 0;
 	char tmp[MAX_LEN] = {0};
+
+    /* CVE-2016-2492 */
+    len = min(len,MAX_LEN-1);
 
 	/* write data to the buffer */
 	if ( copy_from_user(tmp, buf, len) ) {
@@ -72,16 +75,16 @@ static const struct file_operations _cl_cam_fops = {
     .release = single_release,
 };
 
-static int 
+static int
 mtk_cl_cam_get_max_state(struct thermal_cooling_device *cdev,
                               unsigned long *state)
-{        
+{
     *state = 1;
     //mtk_cooler_cam_dprintk("mtk_cl_cam_get_max_state() %s %d\n", cdev->type, *state);
     return 0;
 }
 
-static int 
+static int
 mtk_cl_cam_get_cur_state(struct thermal_cooling_device *cdev,
                               unsigned long *state)
 {
@@ -90,14 +93,14 @@ mtk_cl_cam_get_cur_state(struct thermal_cooling_device *cdev,
     return 0;
 }
 
-static int 
+static int
 mtk_cl_cam_set_cur_state(struct thermal_cooling_device *cdev,
                               unsigned long state)
 {
     //mtk_cooler_cam_dprintk("mtk_cl_cam_set_cur_state() %s %d\n", cdev->type, state);
-    
+
     *((unsigned long*) cdev->devdata) = state;
-    
+
     if(1 == state)
     {
         _cl_cam = 1;
@@ -106,7 +109,7 @@ mtk_cl_cam_set_cur_state(struct thermal_cooling_device *cdev,
     {
         _cl_cam = 0;
     }
-    
+
     return 0;
 }
 
@@ -121,12 +124,12 @@ static int mtk_cooler_cam_register_ltf(void)
 {
     int i;
     mtk_cooler_cam_dprintk("register ltf\n");
-    
+
     for (i = MAX_NUM_INSTANCE_MTK_COOLER_CAM; i-- > 0; )
     {
         char temp[20] = {0};
         sprintf(temp, "mtk-cl-cam%02d", i);
-        cl_cam_dev[i] = mtk_thermal_cooling_device_register(temp, 
+        cl_cam_dev[i] = mtk_thermal_cooling_device_register(temp,
                                                             (void*) &cl_cam_state[i],
                                                             &mtk_cl_cam_ops);
     }
@@ -138,7 +141,7 @@ static void mtk_cooler_cam_unregister_ltf(void)
 {
     int i;
     mtk_cooler_cam_dprintk("unregister ltf\n");
-    
+
     for (i = MAX_NUM_INSTANCE_MTK_COOLER_CAM; i-- > 0; )
     {
         if (cl_cam_dev[i])
@@ -155,7 +158,7 @@ static int __init mtk_cooler_cam_init(void)
 {
     int err = 0;
     int i;
-    
+
     for (i = MAX_NUM_INSTANCE_MTK_COOLER_CAM; i-- > 0; )
     {
         cl_cam_dev[i] = NULL;
@@ -196,7 +199,7 @@ err_unreg:
 static void __exit mtk_cooler_cam_exit(void)
 {
     mtk_cooler_cam_dprintk("exit\n");
-    
+
     mtk_cooler_cam_unregister_ltf();
 }
 
