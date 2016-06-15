@@ -24,10 +24,12 @@ typedef enum
 	Cust_CC_0MA	   = 0xDD
 }cust_charging_current_enum;
 
-typedef struct{	
+typedef struct{
 	unsigned int BattVolt;
 	unsigned int BattPercent;
 }VBAT_TO_PERCENT;
+
+#define LENOVO_PROJECT_PRADA
 
 /* Battery Temperature Protection */
 #define MAX_CHARGE_TEMPERATURE  50
@@ -35,11 +37,14 @@ typedef struct{
 #define ERR_CHARGE_TEMPERATURE  0xFF
 
 /* Recharging Battery Voltage */
+#ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
+#define RECHARGING_VOLTAGE      4300
+#else
 #define RECHARGING_VOLTAGE      4110
-
+#endif
 /* Charging Current Setting */
 #define USB_CHARGER_CURRENT					Cust_CC_450MA
-#define AC_CHARGER_CURRENT					Cust_CC_650MA	
+#define AC_CHARGER_CURRENT					Cust_CC_650MA
 
 /* Battery Meter Solution */
 #define CONFIG_ADC_SOLUTION 	1
@@ -48,21 +53,21 @@ typedef struct{
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
 	{3400,0},
-	{3686,10},
-	{3740,20},
-	{3771,30},
-	{3789,40},
-	{3820,50},
-	{3873,60},
+	{3666,10},
+	{3730,20},
+	{3770,30},
+	{3805,40},
+	{3840,50},
+	{3870,60},
 	{3943,70},
-	{4013,80},
-	{4100,90},
-	{4189,100},
+	{4080,85},
+	{4250,99},
+	{4300,100},
 };
 
 /* Precise Tunning */
 //#define BATTERY_AVERAGE_SIZE 	600
-#define BATTERY_AVERAGE_SIZE 	60
+#define BATTERY_AVERAGE_SIZE 	10
 
 
 #define CHARGING_IDLE_MODE	 1

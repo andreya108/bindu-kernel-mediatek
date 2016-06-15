@@ -11,11 +11,11 @@
 #define MAX_BOOTING_TIME_FGCURRENT	1*10 // 10s
 
 #if defined(CONFIG_POWER_EXT)
-#define OCV_BOARD_COMPESATE	72 //mV 
+#define OCV_BOARD_COMPESATE	72 //mV
 #define R_FG_BOARD_BASE		1000
 #define R_FG_BOARD_SLOPE	1000 //slope
 #else
-#define OCV_BOARD_COMPESATE	0 //mV 
+#define OCV_BOARD_COMPESATE	0 //mV
 #define R_FG_BOARD_BASE		1000
 #define R_FG_BOARD_SLOPE	1000 //slope
 #endif
@@ -35,7 +35,7 @@
 
 #define OSR_SELECT_7			0
 
-#define CAR_TUNE_VALUE			87 //1.00
+#define CAR_TUNE_VALUE			100 //1.00
 
 /////////////////////////////////////////////////////////////////////
 // <DOD, Battery_Voltage> Table
@@ -137,9 +137,9 @@ BATTERY_PROFILE_STRUC battery_profile_t0[] =
 {	100	,	3689	},
 {	100	,	3689	},
 {	100	,	3689	}
-};      
-        
-// T1 0C 
+};
+
+// T1 0C
 BATTERY_PROFILE_STRUC battery_profile_t1[] =
 {
 {	0	,	4331	},
@@ -223,7 +223,7 @@ BATTERY_PROFILE_STRUC battery_profile_t1[] =
 {	100	,	3576	},
 {	100	,	3576	},
 {	100	,	3576	}
-};           
+};
 
 // T2 25C
 BATTERY_PROFILE_STRUC battery_profile_t2[] =
@@ -309,7 +309,7 @@ BATTERY_PROFILE_STRUC battery_profile_t2[] =
 {	100	,	3470	},
 {	100	,	3470	},
 {	100	,	3470	}
-};     
+};
 
 // T3 50C
 BATTERY_PROFILE_STRUC battery_profile_t3[] =
@@ -395,7 +395,7 @@ BATTERY_PROFILE_STRUC battery_profile_t3[] =
 {	100	,	3421	},
 {	100	,	3421	},
 {	100	,	3421	}
-};           
+};
 
 // battery profile for actual temperature. The size should be the same as T1, T2 and T3
 BATTERY_PROFILE_STRUC battery_profile_temperature[] =
@@ -427,11 +427,11 @@ BATTERY_PROFILE_STRUC battery_profile_temperature[] =
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
-	{0  , 0 },  
-	{0  , 0 }, 
 	{0  , 0 },
 	{0  , 0 },
-	{0  , 0 },  
+	{0  , 0 },
+	{0  , 0 },
+	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
@@ -481,7 +481,7 @@ BATTERY_PROFILE_STRUC battery_profile_temperature[] =
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 }
-};      
+};
 
 /////////////////////////////////////////////////////////////////////
 // <Rbat, Battery_Voltage> Table
@@ -576,7 +576,7 @@ R_PROFILE_STRUC r_profile_t0[] =
 {	1223	,	3689	},
 {	1223	,	3689	},
 {	1223	,	3689	}
-};      
+};
 
 // T1 0C
 R_PROFILE_STRUC r_profile_t1[] =
@@ -662,7 +662,7 @@ R_PROFILE_STRUC r_profile_t1[] =
 {	943	,	3576	},
 {	943	,	3576	},
 {	943	,	3576	}
-};     
+};
 
 // T2 25C
 R_PROFILE_STRUC r_profile_t2[] =
@@ -748,7 +748,7 @@ R_PROFILE_STRUC r_profile_t2[] =
 {	670	,	3470	},
 {	670	,	3470	},
 {	670	,	3470	}
-}; 
+};
 
 // T3 50C
 R_PROFILE_STRUC r_profile_t3[] =
@@ -834,7 +834,7 @@ R_PROFILE_STRUC r_profile_t3[] =
 {	555	,	3421	},
 {	555	,	3421	},
 {	555	,	3421	}
-}; 
+};
 
 // r-table profile for actual temperature. The size should be the same as T1, T2 and T3
 R_PROFILE_STRUC r_profile_temperature[] =
@@ -866,11 +866,11 @@ R_PROFILE_STRUC r_profile_temperature[] =
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
-	{0  , 0 },  
-	{0  , 0 }, 
 	{0  , 0 },
 	{0  , 0 },
-	{0  , 0 },  
+	{0  , 0 },
+	{0  , 0 },
+	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 },
@@ -920,7 +920,7 @@ R_PROFILE_STRUC r_profile_temperature[] =
 	{0  , 0 },
 	{0  , 0 },
 	{0  , 0 }
-};      
+};
 
 
 int fgauge_get_saddles(void);

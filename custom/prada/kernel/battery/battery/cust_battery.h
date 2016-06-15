@@ -43,7 +43,7 @@ typedef struct{
 
 /* Recharging Battery Voltage */
 #ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
-#define RECHARGING_VOLTAGE      4250
+#define RECHARGING_VOLTAGE      4300
 #else
 #define RECHARGING_VOLTAGE      4110
 #endif
@@ -145,7 +145,8 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
     {4080, 85},
     {4110, 90},
     {4150, 95},
-    {4250,100},
+    {4250, 99},
+    {4350,100},
 
 };
 

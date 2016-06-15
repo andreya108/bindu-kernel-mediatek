@@ -712,7 +712,11 @@ void ChargerHwInit_bq24196(void)
 		    bq24196_set_vreg(0x25); //VREG 4.096V
     }
 #else
+#ifdef HIGH_BATTERY_VOLTAGE_SUPPORT
+    bq24196_set_vreg(0x35); //VREG 4.352V
+#else
     bq24196_set_vreg(0x2C); //VREG 4.208V
+#endif
 #endif
     bq24196_set_batlowv(0x1); //BATLOWV 3.0V
     bq24196_set_vrechg(0x0); //VRECHG 0.1V (4.108V)

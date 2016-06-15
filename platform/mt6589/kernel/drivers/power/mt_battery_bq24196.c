@@ -3978,7 +3978,9 @@ void BAT_thread_bq24196(void)
             pchr_turn_off_charging_bq24196();
             msleep(100);
             if (Enable_BATDRV_LOG == 1) {
-                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] bq24196_status is (%d), but battery voltage not over recharge voltage\n", bq24196_stat);
+                xlog_printk(ANDROID_LOG_INFO, "Power/Battery", "[BATTERY:bq24196] bq24196_status is (%d), but battery voltage (%d) not over recharge voltage\n",
+                        bq24196_stat,
+                        BMT_status.bat_vol);
             }
         }
 
