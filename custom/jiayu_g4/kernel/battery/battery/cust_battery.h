@@ -38,7 +38,7 @@ typedef struct{
 
 /* Recharging Battery Voltage */
 #if defined(HIGH_BATTERY_VOLTAGE_SUPPORT)
-#  define RECHARGING_VOLTAGE      4250
+#  define RECHARGING_VOLTAGE      4300
 #else
 #  define RECHARGING_VOLTAGE      4110
 #endif
@@ -72,7 +72,7 @@ typedef struct{
 /* Battery Voltage and Percentage Mapping Table */
 VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 	/*BattVolt,BattPercent*/
-#if (defined(HIGH_BATTERY_VOLTAGE_SUPPORT))
+#if defined(HIGH_BATTERY_VOLTAGE_SUPPORT)
     {3400,  0}, // mod2
     {3600,  5},
 	{3660, 10},
@@ -93,7 +93,8 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
     {4080, 85},
     {4110, 90},
     {4150, 95},
-    {4250,100},
+    {4250, 99},
+    {4350,100},
 /*
     {3504,0},
     {3520,2},
@@ -162,7 +163,7 @@ VBAT_TO_PERCENT Batt_VoltToPercent_Table[] = {
 };
 
 /* Precise Tunning */
-#define BATTERY_AVERAGE_SIZE 	30
+#define BATTERY_AVERAGE_SIZE 	10
 //#define BATTERY_AVERAGE_SIZE   3
 
 /* Common setting */

@@ -47,7 +47,7 @@
 
 #define OSR_SELECT_7			0
 
-#define CAR_TUNE_VALUE			93 //1.00
+#define CAR_TUNE_VALUE			100 //1.00
 
 /////////////////////////////////////////////////////////////////////
 // <DOD, Battery_Voltage> Table

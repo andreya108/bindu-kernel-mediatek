@@ -179,7 +179,7 @@ CUSTOM_KERNEL_SUB_IMGSENSOR = ov3660_yuv
 CUSTOM_KERNEL_SUB_LENS=dummy_lens
 
 # touch driver  need to report correct touch axes
-CUSTOM_KERNEL_TOUCHPANEL = cy8ctma301_duodian S3203
+CUSTOM_KERNEL_TOUCHPANEL = cy8ctma301_duodian S3203 ft5306
 
 # Configuration for USB PHY
 CUSTOM_KERNEL_USB=mt6577
@@ -188,7 +188,7 @@ CUSTOM_KERNEL_USB=mt6577
 CUSTOM_KERNEL_VIBRATOR=vibrator
 
 # To choose LK LCM driver name
-CUSTOM_LK_LCM=nt35590_auo47_truly hx8394_lg47_truly hx8392a_cmi45_truly_hd otm1281a_auo_truly nt35590_auo45_truly
+CUSTOM_LK_LCM=nt35590_auo47_truly hx8394_lg47_truly
 
 # Support customer to implement and apply their own RSA security functions
 CUSTOM_SEC_AUTH_SUPPORT=no
