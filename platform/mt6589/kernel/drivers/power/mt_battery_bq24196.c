@@ -993,7 +993,7 @@ static void mt6320_battery_update(struct mt6320_battery_data *bat_data)
 	{
 		iCapacity_99_loop_fullcheck = 0;//reset value
 	}
-	BATDRV_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/Battery", "iCapacity_99_loop_fullcheck= %d\n",iCapacity_99_loop_fullcheck);
+	BATDRV_LOGLEVEL_1(ANDROID_LOG_INFO, "Power/Battery", "iCapacity_99_loop_fullcheck= %d\n",iCapacity_99_loop_fullcheck);
 //end,snoopyrow-3043,chenggh2
 
     /* Charger and Battery Exist */
@@ -2569,7 +2569,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
     //BMT_status.ICharging has latency, so I put it here.
     	{
 	   fg_current_temp = fgauge_read_current();
-	   printk("Xuehui battery g_current:%d ", fg_current_temp);
+	   BATDRV_KLOGLEVEL_1("Xuehui battery g_current:%d ", fg_current_temp);
 	                  //200mA compensation for system comsuming, and div 10 to mA
 	    if (get_gFG_Is_Charging())      fg_current_temp = 200 + fg_current_temp/10;
 	    else                      fg_current_temp = 0;
@@ -2630,7 +2630,7 @@ int BAT_CheckBatteryStatus_bq24196(void)
                 bat_temperature_volt_temp = bat_temperature_volt;
                 bat_temperature_volt = bat_temperature_volt + ((fg_current_temp*fg_r_value)/1000);
             }
-            BATDRV_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/Battery", "[tbat_workaround] %d,%d,%d,%d,%d\n",
+            BATDRV_LOGLEVEL_1(ANDROID_LOG_INFO, "Power/Battery", "[tbat_workaround] %d,%d,%d,%d,%d\n",
                 bat_temperature_volt_temp, bat_temperature_volt, fg_current_state, fg_current_temp, fg_r_value);
         }
         //-----------------------------------------------------------------------------

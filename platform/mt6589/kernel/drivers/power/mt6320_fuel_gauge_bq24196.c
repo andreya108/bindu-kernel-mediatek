@@ -1624,7 +1624,7 @@ void fg_qmax_update_for_aging(void)
             }
 			/*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
                     battery_cali_start_status = 2;
-		      FGADC_KLOGLEVEL_0("chenlj2-fg_qmax_update_for_aging 1 cali_status=%d\n",battery_cali_start_status);
+		      FGADC_KLOGLEVEL_1("chenlj2-fg_qmax_update_for_aging 1 cali_status=%d\n",battery_cali_start_status);
 			  /*Lenovo-sw end chenlj2 add 2011-06-02,add a enum for current */
             FGADC_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] need update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n",
                 gFG_columb, gFG_DOD0, gFG_BATT_CAPACITY_aging);
@@ -1633,7 +1633,7 @@ void fg_qmax_update_for_aging(void)
         {
 		       /*Lenovo-sw begin chenlj2 add 2011-06-02,add a enum for current */
                     battery_cali_start_status = 0;
-		     FGADC_KLOGLEVEL_0("chenlj2-fg_qmax_update_for_aging 2 cali_status=%d\n",battery_cali_start_status);
+		     FGADC_KLOGLEVEL_1("chenlj2-fg_qmax_update_for_aging 2 cali_status=%d\n",battery_cali_start_status);
 			 /*Lenovo-sw end chenlj2 add 2011-06-02,add a enum for current */
             FGADC_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/Battery", "[fg_qmax_update_for_aging] no update : gFG_columb=%d, gFG_DOD0=%d, new_qmax=%d\r\n",
                 gFG_columb, gFG_DOD0, gFG_BATT_CAPACITY_aging);
@@ -2110,12 +2110,12 @@ int get_hw_ocv(void)
 #if defined(SWCHR_POWER_PATH)
     adc_result_reg = upmu_get_rg_adc_out_wakeup_swchr_trim();
     adc_result = (adc_result_reg*r_val_temp*1200)/1024;
-    FGADC_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (swchr) : adc_result_reg=%d, adc_result=%d\n",
+    FGADC_LOGLEVEL_1(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (swchr) : adc_result_reg=%d, adc_result=%d\n",
         adc_result_reg, adc_result);
 #else
     adc_result_reg = upmu_get_rg_adc_out_wakeup_pchr_trim();
     adc_result = (adc_result_reg*r_val_temp*1200)/1024;
-    FGADC_LOGLEVEL_0(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (pchr) : adc_result_reg=%d, adc_result=%d\n",
+    FGADC_LOGLEVEL_1(ANDROID_LOG_INFO, "Power/FGOAM", "[oam] get_hw_ocv (pchr) : adc_result_reg=%d, adc_result=%d\n",
         adc_result_reg, adc_result);
 #endif
 
