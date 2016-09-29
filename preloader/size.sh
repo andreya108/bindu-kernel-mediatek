@@ -52,6 +52,9 @@ if [ -f "${PL_IMG}" ]; then
     rm ${PL_IMG}
     echo "BUILD FAIL !!!!!!!!!!!!!!!!"
     echo "BUILD FAIL !!!!!!!!!!!!!!!!"
+    echo "BUILD FAIL !!!!!!!!!!!!!!!!"
+    echo "BUILD FAIL !!!!!!!!!!!!!!!!"
+    echo "BUILD FAIL !!!!!!!!!!!!!!!!"
     exit 1;
   fi
   if [ -f "${MTK_PATH_PLATFORM}/gfh_info.txt" ]; then
